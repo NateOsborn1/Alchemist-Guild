@@ -28,4 +28,4 @@ A mobile-first trading and crafting game built with React. Players manage an alc
 ```bash
 npm install
 npm start
-'''
+
