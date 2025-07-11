@@ -1,0 +1,183 @@
+/* src/components/SwipeableOrderCard.css */
+.swipeable-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  color: #f4e4bc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+}
+
+.swipeable-card:active {
+  cursor: grabbing;
+}
+
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.swipe-indicator.left {
+  left: 20px;
+  color: #ff6b6b;
+}
+
+.swipe-indicator.right {
+  right: 20px;
+  color: #4ecdc4;
+}
+
+.swipe-indicator span:first-child {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.swipe-indicator span:last-child {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+}
+
+.customer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.customer-info h3 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 18px;
+}
+
+.reputation-badge {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.item-request {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity {
+  background: #4a2c1a;
+  color: #f4e4bc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.price-offer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gold-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.currency {
+  font-size: 12px;
+  color: #b8860b;
+}
+
+.order-deadline {
+  text-align: center;
+  font-size: 14px;
+  color: #cd853f;
+  border-top: 1px solid #8b5a2b;
+  padding-top: 10px;
+  margin-bottom: 15px;
+}
+
+.materials-required {
+  border-top: 1px solid #8b5a2b;
+  padding-top: 10px;
+}
+
+.materials-title {
+  font-size: 12px;
+  color: #cd853f;
+  text-align: center;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.materials-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.material {
+  background: #4a2c1a;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.material.available {
+  color: #4ecdc4;
+  border: 1px solid #4ecdc4;
+}
+
+.material.insufficient {
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+/* Show indicators when dragging */
+.swipeable-card[style*="translateX"] .swipe-indicator.left {
+  opacity: 1;
+}
+
+.swipeable-card[style*="translateX"] .swipe-indicator.right {
+  opacity: 1;
+}

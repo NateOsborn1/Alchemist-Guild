@@ -1,0 +1,506 @@
+/* src/components/TownInteraction.css */
+.town-interaction {
+  padding: 20px;
+  background: linear-gradient(135deg, #0f0a05, #1a0f0a);
+  min-height: 100vh;
+  color: #f4e4bc;
+  font-family: 'Georgia', serif;
+}
+
+.town-interaction h2 {
+  text-align: center;
+  color: #d4af37;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.player-stats-summary {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  padding: 15px;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+}
+
+.stat-item {
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.towns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.town-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.town-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  border-color: #d4af37;
+}
+
+.town-card.selected {
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.town-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.town-header h3 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 1.4rem;
+}
+
+.relationship-indicator {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  min-width: 60px;
+  text-align: center;
+}
+
+.town-description {
+  font-style: italic;
+  color: #cd853f;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.town-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #8b5a2b;
+}
+
+.specialization-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.specialization-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.specialization-badge.military {
+  background: #8b2635;
+  color: #f4e4bc;
+}
+
+.specialization-badge.artisan {
+  background: #2d5016;
+  color: #f4e4bc;
+}
+
+.specialization-badge.merchant {
+  background: #5d4e37;
+  color: #f4e4bc;
+}
+
+.economic-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.economic-status.struggling {
+  background: #4d1a1a;
+  color: #ff6b6b;
+}
+
+.economic-status.stable {
+  background: #4a2c1a;
+  color: #cd853f;
+}
+
+.economic-status.growing {
+  background: #1a4d1a;
+  color: #4ecdc4;
+}
+
+.economic-status.prosperous {
+  background: #4a148c;
+  color: #ffd700;
+}
+
+.relationship-effects {
+  background: rgba(74, 44, 26, 0.4);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.effects-title {
+  font-size: 11px;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.effects-description {
+  font-size: 12px;
+  color: #f4e4bc;
+}
+
+.town-actions {
+  margin-top: 15px;
+}
+
+.establish-trade-btn {
+  width: 100%;
+  background: #4ecdc4;
+  color: #2c1810;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.establish-trade-btn:hover {
+  background: #45b7aa;
+  transform: translateY(-1px);
+}
+
+.trade-status {
+  text-align: center;
+}
+
+.trade-status span {
+  color: #4ecdc4;
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.relationship-bar {
+  background: #2c1810;
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.relationship-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.town-details {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #8b5a2b;
+}
+
+.details-section h4 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.specialization-breakdown {
+  margin-bottom: 15px;
+}
+
+.spec-bar {
+  margin-bottom: 8px;
+}
+
+.spec-bar span {
+  font-size: 12px;
+  color: #cd853f;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.bar {
+  background: #2c1810;
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.bar-fill.military {
+  background: #8b2635;
+}
+
+.bar-fill.artisan {
+  background: #2d5016;
+}
+
+.bar-fill.merchant {
+  background: #5d4e37;
+}
+
+.last-update {
+  background: rgba(74, 44, 26, 0.6);
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #d4af37;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.last-update strong {
+  color: #d4af37;
+}
+
+.shop-status {
+  background: rgba(74, 44, 26, 0.4);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.shop-title {
+  font-size: 12px;
+  color: #4ecdc4;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.building-progress span {
+  font-size: 11px;
+  color: #cd853f;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.shop-operational {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.income-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.income-rate {
+  font-size: 12px;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.collect-btn {
+  background: #ffd700;
+  color: #2c1810;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collect-btn:hover {
+  background: #e6c200;
+}
+
+.build-shop-btn {
+  background: #4ecdc4;
+  color: #2c1810;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.build-shop-btn:hover {
+  background: #45b7aa;
+}
+
+.shop-builder-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content h3 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.shop-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.shop-option {
+  background: rgba(74, 44, 26, 0.6);
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.2s ease;
+}
+
+.shop-option.available {
+  border-color: #4ecdc4;
+}
+
+.shop-option.unavailable {
+  border-color: #8b5a2b;
+  opacity: 0.6;
+}
+
+.option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.option-header h4 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 16px;
+}
+
+.cost {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.option-description {
+  color: #cd853f;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.option-stats {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #8b5a2b;
+}
+
+.requirement-text {
+  color: #ff6b6b;
+  font-size: 11px;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.build-option-btn {
+  width: 100%;
+  background: #4ecdc4;
+  color: #2c1810;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.build-option-btn:hover:not(:disabled) {
+  background: #45b7aa;
+}
+
+.build-option-btn:disabled {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  cursor: not-allowed;
+}
+
+.close-modal {
+  width: 100%;
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+  background: #6d4422;
+}

@@ -1,0 +1,170 @@
+/* src/components/AdventurerCard.css */
+.adventurer-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  width: 320px;
+  color: #f4e4bc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+}
+
+.adventurer-card:active {
+  cursor: grabbing;
+}
+
+.adventurer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.adventurer-header h3 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 18px;
+}
+
+.class-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.class-badge.rogue {
+  background: #8b2635;
+  color: #f4e4bc;
+}
+
+.class-badge.ranger {
+  background: #2d5016;
+  color: #f4e4bc;
+}
+
+.class-badge.miner {
+  background: #5d4e37;
+  color: #f4e4bc;
+}
+
+.class-badge.mage {
+  background: #4a148c;
+  color: #f4e4bc;
+}
+
+.adventurer-stats {
+  margin-bottom: 15px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #cd853f;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: bold;
+  color: #f4e4bc;
+}
+
+.stat-value.affordable {
+  color: #4ecdc4;
+}
+
+.stat-value.expensive {
+  color: #ff6b6b;
+}
+
+.loot-preview {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(74, 44, 26, 0.4);
+  border-radius: 6px;
+  border: 1px solid #8b5a2b;
+}
+
+.loot-title {
+  font-size: 12px;
+  color: #cd853f;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.loot-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.loot-item {
+  background: #4a2c1a;
+  color: #d4af37;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.adventurer-description {
+  font-size: 12px;
+  color: #cd853f;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.swipe-indicator.left {
+  left: 20px;
+  color: #ff6b6b;
+}
+
+.swipe-indicator.right {
+  right: 20px;
+  color: #4ecdc4;
+}
+
+.swipe-indicator span:first-child {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.swipe-indicator span:last-child {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.adventurer-content {
+  position: relative;
+  z-index: 2;
+}

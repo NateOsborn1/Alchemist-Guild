@@ -1,0 +1,127 @@
+/* src/components/ActiveAdventurers.css */
+.active-adventurers {
+  background: rgba(44, 24, 16, 0.4);
+  border: 2px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px;
+  min-width: 300px;
+  max-width: 400px;
+  color: #f4e4bc;
+}
+
+.active-adventurers h4 {
+  margin: 0 0 15px 0;
+  color: #d4af37;
+  text-align: center;
+  font-size: 16px;
+}
+
+.no-missions {
+  text-align: center;
+  color: #8b5a2b;
+  font-size: 12px;
+  font-style: italic;
+  padding: 20px;
+}
+
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-item {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.mission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.adventurer-name {
+  font-weight: bold;
+  color: #f4e4bc;
+  font-size: 14px;
+}
+
+.class-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.class-badge.rogue {
+  background: #8b2635;
+  color: #f4e4bc;
+}
+
+.class-badge.ranger {
+  background: #2d5016;
+  color: #f4e4bc;
+}
+
+.class-badge.miner {
+  background: #5d4e37;
+  color: #f4e4bc;
+}
+
+.class-badge.mage {
+  background: #4a148c;
+  color: #f4e4bc;
+}
+
+.mission-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.success-rate {
+  color: #4ecdc4;
+}
+
+.time-remaining {
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.progress-bar {
+  background: #2c1810;
+  border-radius: 10px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #d4af37, #ffd700);
+  height: 100%;
+  transition: width 0.1s ease;
+  border-radius: 10px;
+}
+
+.expected-loot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.loot-preview {
+  background: #4a2c1a;
+  color: #d4af37;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+}

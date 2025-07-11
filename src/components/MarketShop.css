@@ -1,0 +1,75 @@
+/* src/components/MarketShop.css */
+.market-shop {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(44, 24, 16, 0.4);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+  max-width: 600px;
+}
+
+.market-shop h4 {
+  margin: 0 0 15px 0;
+  color: #d4af37;
+  text-align: center;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(74, 44, 26, 0.6);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #8b5a2b;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-name {
+  font-size: 12px;
+  color: #f4e4bc;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.item-stock {
+  font-size: 10px;
+  color: #cd853f;
+}
+
+.buy-button {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buy-button.affordable:hover {
+  background: #d4af37;
+  color: #2c1810;
+}
+
+.buy-button.expensive {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  cursor: not-allowed;
+}
+
+.buy-button:disabled {
+  opacity: 0.5;
+}

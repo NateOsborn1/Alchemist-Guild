@@ -1,0 +1,95 @@
+/* src/components/OrderCard.css */
+.order-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  color: #f4e4bc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.customer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.customer-info h3 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 18px;
+}
+
+.reputation-badge {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.item-request {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity {
+  background: #4a2c1a;
+  color: #f4e4bc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.price-offer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gold-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.currency {
+  font-size: 12px;
+  color: #b8860b;
+}
+
+.order-deadline {
+  text-align: center;
+  font-size: 14px;
+  color: #cd853f;
+  border-top: 1px solid #8b5a2b;
+  padding-top: 10px;
+}

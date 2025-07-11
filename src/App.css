@@ -1,38 +1,218 @@
+/* src/App.css */
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  background: linear-gradient(135deg, #0f0a05, #1a0f0a);
+  min-height: 100vh;
+  color: #f4e4bc;
+  font-family: 'Georgia', serif;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  min-height: 100vh;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #d4af37;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App-header p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #cd853f;
+}
+
+.view-switcher {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.view-switcher button {
+  background: rgba(44, 24, 16, 0.6);
+  color: #cd853f;
+  border: 2px solid #8b5a2b;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.view-switcher button:hover {
+  background: rgba(74, 44, 26, 0.8);
+}
+
+.view-switcher button.active {
+  background: #d4af37;
+  color: #2c1810;
+  border-color: #ffd700;
+}
+
+.main-content {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.left-panel, .right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+}
+
+.card-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 500px;
+}
+
+.no-cards {
+  background: rgba(44, 24, 16, 0.6);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.no-cards h3 {
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.no-cards p {
+  color: #cd853f;
+  margin: 0;
+}
+
+.processing-stations {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.game-stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+}
+
+.processing-stations {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  max-width: 1000px;
+}
+
+.inventory-display {
+  margin-bottom: 30px;
+  padding: 15px;
+  background: rgba(44, 24, 16, 0.4);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+  max-width: 600px;
+}
+
+.inventory-display h4 {
+  margin: 0 0 15px 0;
+  color: #d4af37;
+  text-align: center;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.inventory-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(74, 44, 26, 0.6);
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #8b5a2b;
+}
+
+.material-name {
+  font-size: 11px;
+  color: #cd853f;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.material-amount {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f4e4bc;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #cd853f;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.orders-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.no-orders {
+  background: rgba(44, 24, 16, 0.6);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.no-orders h3 {
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.no-orders p {
+  color: #cd853f;
+  margin: 0;
 }
