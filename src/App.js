@@ -1,5 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
+import { Analytics } from "@vercel/analytics/react"
 import SwipeableOrderCard from './components/SwipeableOrderCard';
 import AdventurerCard from './components/AdventurerCard';
 import ActiveAdventurers from './components/ActiveAdventurers';
@@ -461,6 +462,7 @@ function App() {
           </div>
         </div>
       </header>
+      <Analytics /> 
     </div>
   );
 }
