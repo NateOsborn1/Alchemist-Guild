@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Alchemist-Guild/static/css/main.a52a9892.css",
+    "main.js": "/Alchemist-Guild/static/js/main.f841f810.js",
+    "static/js/453.0506a77e.chunk.js": "/Alchemist-Guild/static/js/453.0506a77e.chunk.js",
+    "index.html": "/Alchemist-Guild/index.html",
+    "main.a52a9892.css.map": "/Alchemist-Guild/static/css/main.a52a9892.css.map",
+    "main.f841f810.js.map": "/Alchemist-Guild/static/js/main.f841f810.js.map",
+    "453.0506a77e.chunk.js.map": "/Alchemist-Guild/static/js/453.0506a77e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a52a9892.css",
+    "static/js/main.f841f810.js"
+  ]
+}
