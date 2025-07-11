@@ -5,7 +5,7 @@ A mobile-first trading and crafting game built with React. Players manage an alc
 ## Features
 
 ### Core Gameplay
-- **Swipe-based Orders**: Tinder-style swiping to accept/reject customer orders
+- **Swipe-based Orders**: Swipe to accept/reject customer orders
 - **Real-time Crafting**: Processing stations with timers and progress tracking
 - **Adventurer System**: Hire different classes of adventurers for material gathering
 - **Town Diplomacy**: Build relationships with neighboring towns
