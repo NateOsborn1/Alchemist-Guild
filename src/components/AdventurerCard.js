@@ -16,14 +16,16 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford }) => {
 
   const handleDragEnd = (event, info) => {
     const threshold = 80;
+    const velocityThreshold = 400; // Add velocity threshold like SwipeableOrderCard
     
-    if (info.offset.x > threshold && canAfford) {
+    if ((info.offset.x > threshold || info.velocity.x > velocityThreshold) && canAfford) {
       setExitX(1000);
       onSwipe(adventurer, 'hire');
-    } else if (info.offset.x < -threshold) {
+    } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
       setExitX(-1000);
       onSwipe(adventurer, 'reject');
     }
+    // If neither condition is met, exitX stays 0 and card snaps back
   };
 
   return (
@@ -32,9 +34,10 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford }) => {
       style={{ x, rotate, opacity, backgroundColor: cardColor }}
       drag="x"
       dragConstraints={{ left: -300, right: 300 }}
+      dragElastic={0.8} // Add this like SwipeableOrderCard
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : {}}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      animate={exitX !== 0 ? { x: exitX } : {}} // <-- This is the key fix!
+      transition={{ type: "spring", stiffness: 400, damping: 40 }} // Match SwipeableOrderCard
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
