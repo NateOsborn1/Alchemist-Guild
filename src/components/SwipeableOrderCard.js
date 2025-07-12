@@ -20,25 +20,18 @@ const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
 
   const handleDragEnd = (event, info) => {
     const threshold = 100;
-    const velocityThreshold = 500; // Minimum velocity to trigger swipe
+    const velocityThreshold = 400;
     
-    // Check if user swiped with enough distance OR velocity
-    const shouldAccept = info.offset.x > threshold || info.velocity.x > velocityThreshold;
-    const shouldReject = info.offset.x < -threshold || info.velocity.x < -velocityThreshold;
-    
-    if (shouldAccept) {
+    if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
       // Swipe right - Accept
       setExitX(1000);
       onSwipe(order, 'accept');
-    } else if (shouldReject) {
+    } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
       // Swipe left - Reject
       setExitX(-1000);
       onSwipe(order, 'reject');
-    } else {
-      // Reset to center if not swiped far enough
-      // Force card back to center position
-      x.set(0);
     }
+    // If neither condition is met, the card will automatically spring back due to dragConstraints
   };
 
   return (
@@ -51,16 +44,11 @@ const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
         backgroundColor: cardColor,
       }}
       drag="x"
-      dragConstraints={{ left: -300, right: 300 }}
-      dragElastic={0.2}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : { x: 0 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30,
-        restDelta: 0.01
-      }}
+      animate={exitX !== 0 ? { x: exitX } : {}}
+      transition={{ type: "spring", stiffness: 400, damping: 40 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
