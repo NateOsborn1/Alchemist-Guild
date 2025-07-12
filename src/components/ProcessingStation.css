@@ -162,3 +162,25 @@
   transition: width 0.1s ease;
   border-radius: 10px;
 }
+
+.inventory-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #2c1810, #1a0f0a);
+  border-top: 3px solid #d4af37;
+  border-radius: 20px 20px 0 0;
+  z-index: 1200; /* Above nav bar */
+  max-height: 80vh;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.inventory-sheet-content {
+  padding: 20px;
+  padding-bottom: 90px; /* Space for nav bar */
+  max-height: 60vh;
+  overflow-y: auto;
+  background: inherit;
+}

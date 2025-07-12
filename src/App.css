@@ -27,7 +27,7 @@
   font-size: 3.5rem;
   color: #d4af37;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-weight: bold;
 }
 
@@ -368,16 +368,22 @@
 /* Fixed Bottom Navigation Overlay - styled exactly like Image 2 */
 .bottom-navigation {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 20px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 15px;
-  z-index: 1000;
-  backdrop-filter: blur(15px);
+  z-index: 1100;
+  padding: 0 8px;
+  height: 64px;
+  background: rgba(26, 18, 10, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+  border-radius: 18px;
+  max-width: 95vw;
+  margin: 0 auto;
 }
 
 .nav-button {
@@ -449,16 +455,18 @@
 /* Mobile Inventory Sheet */
 .inventory-sheet {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   background: linear-gradient(135deg, #2c1810, #1a0f0a);
   border-top: 3px solid #d4af37;
   border-radius: 20px 20px 0 0;
-  z-index: 999;
-  max-height: 70vh;
+  z-index: 1200; /* Above nav bar */
+  max-height: 80vh;
   animation: slideUp 0.3s ease-out;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -472,9 +480,9 @@
 
 .inventory-sheet-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  padding: 15px 20px;
+  padding: 15px 20px 0 20px;
   border-bottom: 1px solid #8b5a2b;
 }
 
@@ -488,7 +496,7 @@
   background: none;
   border: none;
   color: #cd853f;
-  font-size: 20px;
+  font-size: 28px;
   cursor: pointer;
   padding: 5px;
   border-radius: 50%;
@@ -502,8 +510,11 @@
 
 .inventory-sheet-content {
   padding: 20px;
-  max-height: calc(70vh - 60px);
+  padding-bottom: 110px; /* <-- This ensures the nav bar never covers the last row */
+  max-height: 60vh;
   overflow-y: auto;
+  background: inherit;
+  flex: 1 1 auto;
 }
 
 /* Desktop-only inventory display */

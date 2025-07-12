@@ -334,27 +334,6 @@ function App() {
       <header className="App-header">
         <h1>The Alchemist's Guild</h1>
         
-        <div className="view-switcher">
-          <button 
-            className={currentView === 'orders' ? 'active' : ''}
-            onClick={() => setCurrentView('orders')}
-          >
-            Customer Orders
-          </button>
-          <button 
-            className={currentView === 'adventurers' ? 'active' : ''}
-            onClick={() => setCurrentView('adventurers')}
-          >
-            Hire Adventurers
-          </button>
-          <button 
-            className={currentView === 'towns' ? 'active' : ''}
-            onClick={() => setCurrentView('towns')}
-          >
-            Town Diplomacy
-          </button>
-        </div>
-        
         <div className="game-stats">
           <div className="stat">
             <span className="stat-label">Gold:</span>
@@ -458,26 +437,12 @@ function App() {
           </div>
         )}
         
-        {/* Inventory Toggle Button (only when closed) */}
-        {!inventoryOpen && (
-          <button 
-            className="inventory-toggle"
-            onClick={toggleInventory}
-          >
-            Inventory ({Object.entries(inventory).filter(([key]) => key !== 'gold').length} items)
-          </button>
-        )}
-
         {/* Inventory Sheet (only when open) */}
         {inventoryOpen && (
           <>
-            <div 
-              className="inventory-overlay"
-              onClick={toggleInventory}
-            />
+            <div className="inventory-overlay" onClick={toggleInventory} />
             <div className="inventory-sheet">
               <div className="inventory-sheet-header">
-                <h4>Inventory</h4>
                 <button 
                   className="inventory-close-btn"
                   onClick={toggleInventory}
@@ -494,12 +459,39 @@ function App() {
                     </div>
                   ))}
                 </div>
-                {/* Add a spacer for visual comfort if needed */}
-                <div style={{ height: '60px' }} />
               </div>
             </div>
           </>
         )}
+
+        {/* Bottom Navigation Bar (OUTSIDE header!) */}
+        <div className="bottom-navigation">
+          <button
+            className={`nav-button inventory-nav${inventoryOpen ? ' active' : ''}`}
+            onClick={toggleInventory}
+            aria-label="Inventory"
+          >
+            <img src="/inventory-icon.svg" alt="" className="inventory-icon" />
+          </button>
+          <button
+            className={`nav-button${currentView === 'orders' ? ' active' : ''}`}
+            onClick={() => setCurrentView('orders')}
+          >
+            Orders
+          </button>
+          <button
+            className={`nav-button${currentView === 'adventurers' ? ' active' : ''}`}
+            onClick={() => setCurrentView('adventurers')}
+          >
+            Hire
+          </button>
+          <button
+            className={`nav-button${currentView === 'towns' ? ' active' : ''}`}
+            onClick={() => setCurrentView('towns')}
+          >
+            Towns
+          </button>
+        </div>
         
         {/* Inventory Toggle Button */}
         {/* This button is now outside the inventory sheet */}
