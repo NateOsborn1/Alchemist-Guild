@@ -2,6 +2,13 @@
 
 A mobile-first trading and crafting game built with React. Players manage an alchemist's shop, fulfill customer orders, hire adventurers, and engage in town diplomacy.
 
+## Direct links
+- Minimum version (only core engine of game) for max creative feedback
+https://alchemist-guild-minimum.vercel.app/
+
+- Up-to-Date version (main)
+https://alchemist-guild.vercel.app/
+
 ## Features
 
 ### Core Gameplay
