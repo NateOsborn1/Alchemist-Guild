@@ -238,22 +238,25 @@
   margin: 0;
 }
 
-/* Inventory toggle button */
+/* Inventory toggle button - make it more visible */
 .inventory-toggle {
-  background: rgba(44, 24, 16, 0.6);
-  color: #cd853f;
-  border: 2px solid #8b5a2b;
-  padding: 10px 20px;
-  border-radius: 6px;
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 2px solid #d4af37;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.2s ease;
-  margin-bottom: 15px;
+  margin: 20px 0;
   font-family: 'Georgia', serif;
+  font-size: 14px;
 }
 
 .inventory-toggle:hover {
-  background: rgba(74, 44, 26, 0.8);
+  background: #d4af37;
+  color: #2c1810;
+  transform: translateY(-1px);
 }
 
 /* Inventory - collapsible */
@@ -362,17 +365,17 @@
   }
 }
 
-/* Fixed Bottom Navigation Overlay - styled like original buttons */
+/* Fixed Bottom Navigation Overlay - styled exactly like Image 2 */
 .bottom-navigation {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
-  justify-content: space-around;
-  background: rgba(44, 24, 16, 0.95);
-  border-top: 2px solid #8b5a2b;
-  padding: 12px;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 15px;
   z-index: 1000;
   backdrop-filter: blur(15px);
 }
@@ -388,16 +391,19 @@
   transition: all 0.2s ease;
   font-size: 14px;
   font-family: 'Georgia', serif;
-  flex: 1;
-  max-width: 150px;
-  margin: 0 5px;
+  min-width: 140px;
 }
 
 @media (max-width: 768px) {
   .nav-button {
-    padding: 8px 12px;
+    padding: 8px 16px;
     font-size: 12px;
-    max-width: 120px;
+    min-width: 110px;
+  }
+  
+  .bottom-navigation {
+    gap: 8px;
+    padding: 12px;
   }
 }
 
