@@ -384,20 +384,45 @@
   border-radius: 18px;
   max-width: 95vw;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em; /* Add a small gap between buttons */
 }
 
 .nav-button {
-  background: rgba(44, 24, 16, 0.6);
-  color: #cd853f;
-  border: 2px solid #8b5a2b;
-  padding: 10px 20px;
-  border-radius: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 160px; /* Prevents buttons from getting too wide on desktop */
+  background: none;
+  border: 2px solid #b8863b;
+  color: #b8863b;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  margin: 0 2px;
+  padding: 10px 0;
+  transition: all 0.2s;
   cursor: pointer;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-family: 'Georgia', serif;
-  min-width: 140px;
+  background: #1a120a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .nav-button {
+    font-size: 1rem;
+    padding: 8px 0;
+    margin: 0 1px;
+    max-width: 90px; /* Even smaller on mobile */
+  }
+  .bottom-navigation {
+    gap: 0.25em;
+  }
 }
 
 @media (max-width: 768px) {
@@ -410,6 +435,13 @@
   .bottom-navigation {
     gap: 8px;
     padding: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav-button {
+    font-size: 0.95rem;
+    max-width: 70px;
   }
 }
 
