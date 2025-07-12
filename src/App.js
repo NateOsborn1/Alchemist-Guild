@@ -324,6 +324,11 @@ function App() {
     console.log(`✅ Completed crafting ${quantity}x ${itemName}`);
   };
 
+  // Add this new function to handle inventory toggle
+  const toggleInventory = () => {
+    setInventoryOpen(!inventoryOpen);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -453,7 +458,57 @@ function App() {
           </div>
         )}
         
-        <div className="inventory-display">
+        {/* Inventory Toggle Button (only when closed) */}
+        {!inventoryOpen && (
+          <button 
+            className="inventory-toggle"
+            onClick={toggleInventory}
+          >
+            Inventory ({Object.entries(inventory).filter(([key]) => key !== 'gold').length} items)
+          </button>
+        )}
+
+        {/* Inventory Sheet (only when open) */}
+        {inventoryOpen && (
+          <>
+            <div 
+              className="inventory-overlay"
+              onClick={toggleInventory}
+            />
+            <div className="inventory-sheet">
+              <div className="inventory-sheet-header">
+                <h4>Inventory</h4>
+                <button 
+                  className="inventory-close-btn"
+                  onClick={toggleInventory}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="inventory-sheet-content">
+                <div className="inventory-grid">
+                  {Object.entries(inventory).filter(([key]) => key !== 'gold').map(([material, amount]) => (
+                    <div key={material} className="inventory-item">
+                      <span className="material-name">{material}</span>
+                      <span className="material-amount">{amount}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Add a spacer for visual comfort if needed */}
+                <div style={{ height: '60px' }} />
+              </div>
+            </div>
+          </>
+        )}
+        
+        {/* Inventory Toggle Button */}
+        {/* This button is now outside the inventory sheet */}
+        
+        {/* Mobile Inventory Sheet */}
+        {/* This is now handled by the JSX structure */}
+        
+        {/* Desktop Inventory Display (hidden on mobile) */}
+        <div className="inventory-display desktop-only">
           <h4>Inventory</h4>
           <div className="inventory-grid">
             {Object.entries(inventory).filter(([key]) => key !== 'gold').map(([material, amount]) => (

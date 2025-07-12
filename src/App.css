@@ -416,3 +416,133 @@
   color: #2c1810;
   border-color: #ffd700;
 }
+
+/* Inventory Toggle Button */
+.inventory-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #d4af37, #ffd700);
+  color: #2c1810;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.inventory-toggle:hover {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.inventory-toggle:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Mobile Inventory Sheet */
+.inventory-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #2c1810, #1a0f0a);
+  border-top: 3px solid #d4af37;
+  border-radius: 20px 20px 0 0;
+  z-index: 999;
+  max-height: 70vh;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.inventory-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #8b5a2b;
+}
+
+.inventory-sheet-header h4 {
+  margin: 0;
+  color: #d4af37;
+  font-size: 18px;
+}
+
+.inventory-close-btn {
+  background: none;
+  border: none;
+  color: #cd853f;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.inventory-close-btn:hover {
+  background: rgba(139, 90, 43, 0.3);
+  color: #f4e4bc;
+}
+
+.inventory-sheet-content {
+  padding: 20px;
+  max-height: calc(70vh - 60px);
+  overflow-y: auto;
+}
+
+/* Desktop-only inventory display */
+.desktop-only {
+  display: block;
+}
+
+/* Mobile inventory grid adjustments */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+  
+  .inventory-sheet .inventory-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+  
+  .inventory-sheet .inventory-item {
+    padding: 12px 8px;
+    border-radius: 8px;
+  }
+  
+  .inventory-sheet .material-name {
+    font-size: 12px;
+  }
+  
+  .inventory-sheet .material-amount {
+    font-size: 18px;
+  }
+}
+
+/* Overlay when inventory is open */
+.inventory-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}

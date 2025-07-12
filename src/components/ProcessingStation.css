@@ -95,6 +95,12 @@
   color: #2c1810;
 }
 
+.craft-button.can-craft:active {
+  transform: scale(0.95);
+  background: #3da89c;
+  transition: all 0.1s ease;
+}
+
 .craft-button.can-craft:hover {
   background: #45b7aa;
 }

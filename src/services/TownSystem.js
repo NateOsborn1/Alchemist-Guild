@@ -74,13 +74,13 @@ export const calculateTradeSuccess = (town, playerStats) => {
   // Specialization modifiers
   switch (playerDominant) {
     case 'military':
-      successChance += Math.floor(playerStats.militaryRep / 10); // Intimidation bonus
+      successChance += Math.floor(playerStats.military / 10); // Intimidation bonus
       break;
     case 'artisan':
-      successChance += Math.floor(playerStats.artisanRep / 8); // Quality reputation
+      successChance += Math.floor(playerStats.artisan / 8); // Quality reputation
       break;
     case 'merchant':
-      successChance += Math.floor(playerStats.merchantRep / 6); // Trade connections
+      successChance += Math.floor(playerStats.merchant / 6); // Trade connections
       break;
   }
   
