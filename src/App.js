@@ -1,6 +1,5 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import { Analytics } from "@vercel/analytics/react"
 import SwipeableOrderCard from './components/SwipeableOrderCard';
 import AdventurerCard from './components/AdventurerCard';
 import ActiveAdventurers from './components/ActiveAdventurers';
@@ -21,6 +20,9 @@ function App() {
   const [rejectedOrders, setRejectedOrders] = useState([]);
   const [nextOrderId, setNextOrderId] = useState(1);
   const [inventory, setInventory] = useState(initialResources);
+  
+  // Game state
+  const [gameStarted, setGameStarted] = useState(false);
   
   // Adventurer system
   const [availableAdventurers, setAvailableAdventurers] = useState([]);
@@ -462,7 +464,6 @@ function App() {
           </div>
         </div>
       </header>
-      <Analytics /> 
     </div>
   );
 }
