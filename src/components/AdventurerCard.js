@@ -1,43 +1,54 @@
 // src/components/AdventurerCard.js
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import './AdventurerCard.css';
 
 const AdventurerCard = ({ adventurer, onSwipe, canAfford }) => {
-  const [exitX, setExitX] = React.useState(0);
+  const [exitX, setExitX] = useState(0);
   
+  // Track the drag position
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-20, 0, 20]);
+  
+  // Transform drag position to rotation and opacity
+  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
   
-  const rejectColor = useTransform(x, [-100, 0], ["#4d1a1a", "#2c1810"]);
+  // Colors for accept/reject feedback
   const acceptColor = useTransform(x, [0, 100], ["#2c1810", "#1a4d1a"]);
+  const rejectColor = useTransform(x, [-100, 0], ["#4d1a1a", "#2c1810"]);
   const cardColor = useTransform(x, [-100, 0, 100], [rejectColor, "#2c1810", acceptColor]);
 
   const handleDragEnd = (event, info) => {
-    const threshold = 80;
-    const velocityThreshold = 400; // Add velocity threshold like SwipeableOrderCard
+    const threshold = 100;
+    const velocityThreshold = 400;
     
     if ((info.offset.x > threshold || info.velocity.x > velocityThreshold) && canAfford) {
+      // Swipe right - Hire
       setExitX(1000);
       onSwipe(adventurer, 'hire');
     } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
+      // Swipe left - Reject
       setExitX(-1000);
       onSwipe(adventurer, 'reject');
     }
-    // If neither condition is met, exitX stays 0 and card snaps back
+    // If neither condition is met, the card will automatically spring back due to dragConstraints
   };
 
   return (
     <motion.div
       className="adventurer-card"
-      style={{ x, rotate, opacity, backgroundColor: cardColor }}
+      style={{
+        x,
+        rotate,
+        opacity,
+        backgroundColor: cardColor,
+      }}
       drag="x"
-      dragConstraints={{ left: -300, right: 300 }}
-      dragElastic={0.8} // Add this like SwipeableOrderCard
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : {}} // <-- This is the key fix!
-      transition={{ type: "spring", stiffness: 400, damping: 40 }} // Match SwipeableOrderCard
+      animate={exitX !== 0 ? { x: exitX } : {}}
+      transition={{ type: "spring", stiffness: 400, damping: 40 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
