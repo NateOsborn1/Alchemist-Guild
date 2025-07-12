@@ -23,6 +23,7 @@ function App() {
   
   // Game state
   const [gameStarted, setGameStarted] = useState(false);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
   
   // Adventurer system
   const [availableAdventurers, setAvailableAdventurers] = useState([]);
