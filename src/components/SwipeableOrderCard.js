@@ -29,6 +29,9 @@ const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
       // Swipe left - Reject
       setExitX(-1000);
       onSwipe(order, 'reject');
+    } else {
+      // Snap back to center if not swiped far enough
+      // No action needed - motion will handle the snap back automatically
     }
   };
 
