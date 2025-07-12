@@ -374,6 +374,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5em;
   z-index: 1100;
   padding: 0 8px;
   height: 64px;
@@ -384,16 +385,12 @@
   border-radius: 18px;
   max-width: 95vw;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5em; /* Add a small gap between buttons */
 }
 
 .nav-button {
   flex: 1 1 0;
   min-width: 0;
-  max-width: 160px; /* Prevents buttons from getting too wide on desktop */
+  max-width: 160px;
   background: none;
   border: 2px solid #b8863b;
   color: #b8863b;
@@ -413,28 +410,44 @@
   white-space: nowrap;
 }
 
+.nav-button.active,
+.inventory-nav.active {
+  background: #ffd700;
+  color: #2c1810;
+  border-color: #ffd700;
+  box-shadow: 0 2px 8px #d4af3740;
+}
+
+.nav-button:hover,
+.inventory-nav:hover {
+  background: #b8863b;
+  color: #fff;
+  border-color: #ffd700;
+}
+
+.inventory-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
 @media (max-width: 600px) {
+  .bottom-navigation {
+    height: 56px;
+    border-radius: 12px;
+    padding: 0 2px;
+    max-width: 99vw;
+    gap: 0.25em;
+  }
   .nav-button {
     font-size: 1rem;
     padding: 8px 0;
     margin: 0 1px;
-    max-width: 90px; /* Even smaller on mobile */
+    max-width: 90px;
   }
-  .bottom-navigation {
-    gap: 0.25em;
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-button {
-    padding: 8px 16px;
-    font-size: 12px;
-    min-width: 110px;
-  }
-  
-  .bottom-navigation {
-    gap: 8px;
-    padding: 12px;
+  .inventory-icon {
+    width: 22px;
+    height: 22px;
   }
 }
 
@@ -443,16 +456,6 @@
     font-size: 0.95rem;
     max-width: 70px;
   }
-}
-
-.nav-button:hover {
-  background: rgba(74, 44, 26, 0.8);
-}
-
-.nav-button.active {
-  background: #d4af37;
-  color: #2c1810;
-  border-color: #ffd700;
 }
 
 /* Inventory Toggle Button */
