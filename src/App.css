@@ -678,3 +678,16 @@
 .inventory-sheet-content .inventory-grid {
   margin-top: 32px;
 }
+
+@media (max-width: 900px) {
+  .inventory-sheet .inventory-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+@media (min-width: 601px) and (max-width: 900px) {
+  .inventory-sheet .inventory-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}

@@ -22,7 +22,7 @@ const QueuedOrderCard = ({ order, onSwipe, onComplete, inventory }) => {
       setExitX(-1000);
       onSwipe(order, 'cancel');
     }
-    // Only allow left swipe to cancel
+    // Otherwise, do nothing: Framer Motion will spring back to center
   };
 
   const timeRemaining = Math.max(0, Math.ceil((order.deadline - Date.now()) / (1000 * 60))); // minutes
@@ -42,10 +42,10 @@ const QueuedOrderCard = ({ order, onSwipe, onComplete, inventory }) => {
         backgroundColor: cardColor,
       }}
       drag="x"
-      dragConstraints={{ left: -100, right: 0 }}
+      dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : { x: 0 }} // <-- This ensures snap-back!
+      animate={exitX !== 0 ? { x: exitX } : {}}
       transition={{ type: "spring", stiffness: 400, damping: 40 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
