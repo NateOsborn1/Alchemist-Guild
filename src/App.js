@@ -18,6 +18,7 @@ import './App.css';
 import { generateAdventurerCustomer } from './services/AdventurerCustomerGenerator';
 import AnimatedCraftingStation from './components/AnimatedCraftingStation';
 import { calculateCraftingAttributes } from './services/MaterialAttributes';
+import CraftingSection from './components/CraftingSection';
 
 function App() {
   const [orders, setOrders] = useState([]);
@@ -572,48 +573,8 @@ function App() {
     return lootMap[tier] || lootMap['Silver'];
   };
 
-  const handleCraft = (materials) => {
-    // Calculate the crafted item based on attributes
-    const attributes = calculateCraftingAttributes(materials);
-    
-    // Simple crafting logic - you can expand this
-    let craftedItem = 'Basic Component';
-    let quality = 'Common';
-    
-    if (attributes.total > 20) {
-      craftedItem = 'Advanced Component';
-      quality = 'Uncommon';
-    }
-    if (attributes.total > 40) {
-      craftedItem = 'Masterwork Component';
-      quality = 'Rare';
-    }
-    
-    // Consume materials
-    setInventory(prev => {
-      const newInventory = { ...prev };
-      materials.forEach(({ name, amount }) => {
-        newInventory[name] -= amount;
-      });
-      return newInventory;
-    });
-    
-    // Add crafted item
-    setInventory(prev => ({
-      ...prev,
-      [craftedItem]: (prev[craftedItem] || 0) + 1
-    }));
-    
-    setCraftedPopup({ name: craftedItem, quality });
-    setTimeout(() => setCraftedPopup(null), 4000); // 4 seconds
-    setLastCraftedItem({ name: craftedItem, quality }); // <-- Add this
-    setTimeout(() => setLastCraftedItem(null), 1800); // Hide after animation
-
-    console.log(`Crafted ${quality} ${craftedItem}!`, attributes);
-  };
-
-  // Use a ref for the addMaterialToCrafting function
-  const addMaterialToCraftingRef = useRef(() => {});
+  // Ref for CraftingSection to allow inventory click-to-fill
+  const craftingSectionRef = useRef();
 
   return (
     <div className="App">
@@ -784,12 +745,48 @@ function App() {
                 </button>
               </div>
               <div className="inventory-sheet-content">
-                <AnimatedCraftingStation
+                {/* Crafting station at the top */}
+                <CraftingSection
+                  ref={craftingSectionRef}
                   inventory={inventory}
-                  onCraft={handleCraft}
-                  onAddMaterial={fn => (addMaterialToCraftingRef.current = fn)}
-                  lastCraftedItem={lastCraftedItem}
+                  onCraft={(materials, recipeName, attributes) => {
+                    // 1. Consume materials from inventory
+                    setInventory(prev => {
+                      const newInventory = { ...prev };
+                      materials.forEach(({ name, amount }) => {
+                        newInventory[name] = (newInventory[name] || 0) - amount;
+                      });
+                      return newInventory;
+                    });
+
+                    // 2. Determine item quality and name
+                    let craftedItem = recipeName;
+                    let quality = 'Common';
+                    const total = (attributes.strength || 0) + (attributes.speed || 0) + (attributes.magical || 0);
+                    if (total > 20) {
+                      craftedItem = `${craftedItem} (Advanced)`;
+                      quality = 'Uncommon';
+                    }
+                    if (total > 40) {
+                      craftedItem = `${craftedItem} (Masterwork)`;
+                      quality = 'Rare';
+                    }
+
+                    // 3. Add crafted item to inventory
+                    setInventory(prev => ({
+                      ...prev,
+                      [craftedItem]: (prev[craftedItem] || 0) + 1
+                    }));
+
+                    // 4. Show crafted popup
+                    setCraftedPopup({ name: craftedItem, quality });
+                    setTimeout(() => setCraftedPopup(null), 4000);
+                    setLastCraftedItem({ name: craftedItem, quality });
+                    setTimeout(() => setLastCraftedItem(null), 1800);
+                  }}
                 />
+                <div style={{ height: 32 }} /> {/* <-- Add this spacer */}
+                {/* Inventory grid below */}
                 <div className="inventory-grid">
                   {Object.entries(inventory)
                     .filter(([key]) => key !== 'gold')
@@ -802,7 +799,11 @@ function App() {
                           cursor: amount > 0 ? 'pointer' : 'not-allowed',
                           opacity: amount > 0 ? 1 : 0.5,
                         }}
-                        onClick={() => amount > 0 && addMaterialToCraftingRef.current(material)}
+                        onClick={() => {
+                          if (amount > 0 && craftingSectionRef.current) {
+                            craftingSectionRef.current.fillNextSlot(material);
+                          }
+                        }}
                         title={amount > 0 ? `Add ${material} to crafting` : 'Out of stock'}
                       >
                         <span className="material-name">{material}</span>

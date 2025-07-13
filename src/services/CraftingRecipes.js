@@ -84,3 +84,31 @@ export const craftingStations = {
     ]
   }
 };
+
+export const recipes = [
+  {
+    name: "Iron Sword",
+    baseSlots: [
+      { type: "strength" }, // e.g., iron, steel
+      { type: "speed" }     // e.g., wood, thread
+    ],
+    enhancementSlots: 2
+  },
+  {
+    name: "Steel Dagger",
+    baseSlots: [
+      { type: "strength" },
+      { type: "speed" }
+    ],
+    enhancementSlots: 2
+  },
+  {
+    name: "Silver Ring",
+    baseSlots: [
+      { type: "magical" },
+      { type: "magical" }
+    ],
+    enhancementSlots: 2
+  }
+  // Add more recipes as needed
+];
