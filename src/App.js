@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SwipeableOrderCard from './components/SwipeableOrderCard';
 import AdventurerCard from './components/AdventurerCard';
 import AdventurerCustomerCard from './components/AdventurerCustomerCard'; // NEW
@@ -605,6 +605,9 @@ function App() {
     console.log(`Crafted ${quality} ${craftedItem}!`, attributes);
   };
 
+  // Use a ref for the addMaterialToCrafting function
+  const addMaterialToCraftingRef = useRef(() => {});
+
   return (
     <div className="App">
       <header className="App-header">
@@ -764,14 +767,27 @@ function App() {
                 <AnimatedCraftingStation
                   inventory={inventory}
                   onCraft={handleCraft}
+                  onAddMaterial={fn => (addMaterialToCraftingRef.current = fn)}
                 />
                 <div className="inventory-grid">
-                  {Object.entries(inventory).filter(([key]) => key !== 'gold').map(([material, amount]) => (
-                    <div key={material} className="inventory-item">
-                      <span className="material-name">{material}</span>
-                      <span className="material-amount">{amount}</span>
-                    </div>
-                  ))}
+                  {Object.entries(inventory)
+                    .filter(([key]) => key !== 'gold')
+                    .map(([material, amount]) => (
+                      <div
+                        key={material}
+                        className="inventory-item"
+                        style={{
+                          position: 'relative',
+                          cursor: amount > 0 ? 'pointer' : 'not-allowed',
+                          opacity: amount > 0 ? 1 : 0.5,
+                        }}
+                        onClick={() => amount > 0 && addMaterialToCraftingRef.current(material)}
+                        title={amount > 0 ? `Add ${material} to crafting` : 'Out of stock'}
+                      >
+                        <span className="material-name">{material}</span>
+                        <span className="material-amount">{amount}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>

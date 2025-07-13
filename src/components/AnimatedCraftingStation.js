@@ -12,7 +12,7 @@ function getOrbPosition(index, total, radius = 60) {
   };
 }
 
-export default function AnimatedCraftingStation({ inventory, onCraft }) {
+export default function AnimatedCraftingStation({ inventory, onCraft, onAddMaterial }) {
   const [queue, setQueue] = useState([]);
   const [crafting, setCrafting] = useState(false);
   const [crafted, setCrafted] = useState(false);
@@ -72,21 +72,28 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
     else materialColors[mat] = '#a855f7';
   });
 
-  return (
-    <div style={{ textAlign: 'center', margin: 20 }}>
-      <h3 style={{ color: '#d4af37', marginBottom: 10 }}>Crafting Station</h3>
-      <div style={{ position: 'relative', width: 240, height: 240, margin: '0 auto' }}>
-        {/* Anvil SVG */}
-        <svg width={90} height={90} style={{ position: 'absolute', left: 75, top: 75, zIndex: 2 }}>
-          <ellipse cx="45" cy="70" rx="34" ry="12" fill="#2c1810" opacity={0.7} />
-          <rect x="20" y="45" width="50" height="25" rx="8" fill="#8b5a2b" />
-          <rect x="35" y="30" width="20" height="12" rx="4" fill="#d4af37" />
-        </svg>
+  // Expose addMaterial for parent
+  React.useEffect(() => {
+    if (onAddMaterial) onAddMaterial(addMaterial);
+    // eslint-disable-next-line
+  }, [onAddMaterial, inventory, queue]);
 
+  return (
+    <div style={{ textAlign: 'center', margin: 0, padding: 0 }}>
+      <h3 style={{ color: '#d4af37', marginBottom: 10 }}>Crafting Station</h3>
+      <div style={{
+        position: 'relative',
+        width: 260,
+        height: 220,
+        margin: '0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
         {/* Orbs */}
         <AnimatePresence>
           {queue.map((mat, i) => {
-            const { x, y } = getOrbPosition(i, queue.length, 75);
+            const { x, y } = getOrbPosition(i, queue.length, 70);
             return (
               <motion.div
                 key={mat.id}
@@ -100,8 +107,8 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 style={{
                   position: 'absolute',
-                  left: 120,
-                  top: 120,
+                  left: 110,
+                  top: 90,
                   width: 32,
                   height: 32,
                   borderRadius: '50%',
@@ -126,6 +133,13 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
           })}
         </AnimatePresence>
 
+        {/* Anvil SVG */}
+        <svg width={90} height={90} style={{ position: 'absolute', left: 85, top: 70, zIndex: 2 }}>
+          <ellipse cx="45" cy="70" rx="34" ry="12" fill="#2c1810" opacity={0.7} />
+          <rect x="20" y="45" width="50" height="25" rx="8" fill="#8b5a2b" />
+          <rect x="35" y="30" width="20" height="12" rx="4" fill="#d4af37" />
+        </svg>
+
         {/* Press */}
         <motion.div
           initial={false}
@@ -133,7 +147,7 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           style={{
             position: 'absolute',
-            left: 70,
+            left: 80,
             top: 0,
             width: 100,
             height: 80,
@@ -154,8 +168,8 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               style={{
                 position: 'absolute',
-                left: 110,
-                top: 110,
+                left: 105,
+                top: 105,
                 width: 48,
                 height: 48,
                 borderRadius: '50%',
@@ -183,60 +197,7 @@ export default function AnimatedCraftingStation({ inventory, onCraft }) {
         </div>
       )}
 
-      {/* Material grid */}
-      <div style={{ margin: '18px 0 0 0' }}>
-        <div style={{ color: '#cd853f', fontWeight: 'bold', marginBottom: 6 }}>Add Materials</div>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-          gap: 8,
-          maxWidth: 400,
-          margin: '0 auto'
-        }}>
-          {Object.entries(inventory)
-            .filter(([key]) => key !== 'gold' && materialAttributes[key])
-            .map(([mat, amount]) => (
-              <div
-                key={mat}
-                style={{
-                  background: '#2c1810',
-                  border: '1px solid #8b5a2b',
-                  borderRadius: 8,
-                  padding: 8,
-                  color: '#f4e4bc',
-                  opacity: amount <= queue.filter(q => q.name === mat).length ? 0.4 : 1,
-                  cursor: amount <= queue.filter(q => q.name === mat).length ? 'not-allowed' : 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: 13,
-                  textAlign: 'center',
-                  userSelect: 'none',
-                }}
-                onClick={() => addMaterial(mat)}
-                title={amount > 0 ? `Add ${mat}` : 'Out of stock'}
-              >
-                {mat.charAt(0).toUpperCase() + mat.slice(1)}<br />
-                <span style={{ color: '#ffd700' }}>{amount - queue.filter(q => q.name === mat).length}</span>
-              </div>
-            ))}
-        </div>
-        {queue.length > 0 && (
-          <button
-            onClick={clearQueue}
-            style={{
-              marginTop: 10,
-              background: '#8b5a2b',
-              color: '#f4e4bc',
-              border: 'none',
-              borderRadius: 6,
-              padding: '6px 18px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-          >
-            Clear All
-          </button>
-        )}
-      </div>
+      {/* Craft Button */}
       <div style={{ marginTop: 18 }}>
         <button
           onClick={handleCraft}

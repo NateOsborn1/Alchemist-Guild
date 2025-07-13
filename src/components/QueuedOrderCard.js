@@ -45,7 +45,7 @@ const QueuedOrderCard = ({ order, onSwipe, onComplete, inventory }) => {
       dragConstraints={{ left: -100, right: 0 }}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : {}}
+      animate={exitX !== 0 ? { x: exitX } : { x: 0 }} // <-- This ensures snap-back!
       transition={{ type: "spring", stiffness: 400, damping: 40 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
