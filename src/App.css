@@ -592,3 +592,81 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 998;
 }
+
+/* Order Queue Display */
+.order-queue {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(44, 24, 16, 0.4);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+  width: 100%;
+  max-width: 350px;
+}
+
+.order-queue h4 {
+  margin: 0 0 15px 0;
+  color: #d4af37;
+  text-align: center;
+  font-size: 16px;
+}
+
+.queue-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.queue-slot {
+  min-height: 80px;
+  border: 2px dashed #8b5a2b;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.queue-slot.filled {
+  border-style: solid;
+  border-color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.queue-slot.empty {
+  border-color: #8b5a2b;
+  background: rgba(139, 90, 43, 0.1);
+}
+
+.empty-slot {
+  color: #8b5a2b;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Mobile adjustments for order queue */
+@media (max-width: 768px) {
+  .order-queue {
+    margin-top: 15px;
+    padding: 12px;
+  }
+  
+  .queue-slots {
+    gap: 8px;
+  }
+  
+  .queue-slot {
+    min-height: 70px;
+  }
+}
+
+.stat-value.limit-reached {
+  color: #ff6b6b !important;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

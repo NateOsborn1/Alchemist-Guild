@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import './SwipeableOrderCard.css';
 
-const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
+const SwipeableOrderCard = ({ order, onSwipe, inventory, dailyLimitReached }) => {
   const [exitX, setExitX] = useState(0);
   
   // Track the drag position
@@ -19,6 +19,11 @@ const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
   const cardColor = useTransform(x, [-100, 0, 100], [rejectColor, "#2c1810", acceptColor]);
 
   const handleDragEnd = (event, info) => {
+    // Don't allow swiping if daily limit is reached
+    if (dailyLimitReached) {
+      return;
+    }
+    
     const threshold = 100;
     const velocityThreshold = 400;
     
@@ -36,22 +41,32 @@ const SwipeableOrderCard = ({ order, onSwipe, inventory }) => {
 
   return (
     <motion.div
-      className="swipeable-card"
+      className={`swipeable-card ${dailyLimitReached ? 'disabled' : ''}`}
       style={{
         x,
         rotate,
-        opacity,
-        backgroundColor: cardColor,
+        opacity: dailyLimitReached ? 0.5 : opacity,
+        backgroundColor: dailyLimitReached ? "#4a2c1a" : cardColor,
       }}
-      drag="x"
+      drag={dailyLimitReached ? false : "x"}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
       animate={exitX !== 0 ? { x: exitX } : {}}
       transition={{ type: "spring", stiffness: 400, damping: 40 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={dailyLimitReached ? {} : { scale: 1.02 }}
+      whileTap={dailyLimitReached ? {} : { scale: 0.98 }}
     >
+      {dailyLimitReached && (
+        <div className="daily-limit-overlay">
+          <div className="limit-message">
+            <span className="limit-icon">⏰</span>
+            <span className="limit-text">Daily Limit Reached</span>
+            <span className="limit-subtext">Come back tomorrow for new orders</span>
+          </div>
+        </div>
+      )}
+      
       <div className="swipe-indicator left">
         <span>✗</span>
         <span>REJECT</span>

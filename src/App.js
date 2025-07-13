@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import SwipeableOrderCard from './components/SwipeableOrderCard';
 import AdventurerCard from './components/AdventurerCard';
+import AdventurerCustomerCard from './components/AdventurerCustomerCard'; // NEW
+import QueuedOrderCard from './components/QueuedOrderCard'; // NEW
 import ActiveAdventurers from './components/ActiveAdventurers';
 import MarketShop from './components/MarketShop';
 import ProcessingStation from './components/ProcessingStation';
@@ -13,6 +15,9 @@ import { craftingStations } from './services/CraftingRecipes';
 import { generateInitialTowns } from './services/TownSystem';
 import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes } from './services/ShopSystem';
 import './App.css';
+import { generateAdventurerCustomer } from './services/AdventurerCustomerGenerator';
+import CraftingStation from './components/CraftingStation';
+import { calculateCraftingAttributes } from './services/MaterialAttributes';
 
 function App() {
   const [orders, setOrders] = useState([]);
@@ -48,6 +53,18 @@ function App() {
     iron: 20, steel: 15, wood: 25, leather: 18, herbs: 22, crystal: 8,
     oil: 12, parchment: 16, ember: 6, silver: 4, gems: 3, thread: 30
   });
+
+  // NEW: Order queue system
+  const [orderQueue, setOrderQueue] = useState([]); // Max 3 slots
+  const [orderDeadlines, setOrderDeadlines] = useState({}); // Track deadlines
+  const [reputation, setReputation] = useState(50); // Start at 50
+  
+  // NEW: Adventurer customers system
+  const [adventurerCustomers, setAdventurerCustomers] = useState([]);
+  
+  // Add these new state variables after your existing state
+  const [dailyOrdersAccepted, setDailyOrdersAccepted] = useState(0);
+  const [lastOrderReset, setLastOrderReset] = useState(Date.now());
 
   // Generate initial orders when component mounts
   useEffect(() => {
@@ -155,45 +172,106 @@ function App() {
     }
   }, [availableAdventurers.length, nextAdventurerId, currentView]);
 
-  const handleSwipe = (order, action) => {
-    console.log(`${action.toUpperCase()}: ${order.customerName} - ${order.itemName}`);
+  // Add this useEffect to reset daily orders every 24 hours
+  useEffect(() => {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
     
+    if (now - lastOrderReset >= oneDay) {
+      setDailyOrdersAccepted(0);
+      setLastOrderReset(now);
+      console.log('🔄 Daily order limit reset!');
+    }
+  }, [lastOrderReset]);
+
+  // Update the handleOrderSwipe function
+  const handleOrderSwipe = (order, action) => {
     if (action === 'accept') {
-      // Try to fulfill the order immediately
-      const result = fulfillOrder(inventory, order);
+      // Check daily limit first
+      if (dailyOrdersAccepted >= 3) {
+        console.log('❌ Daily order limit reached! Come back tomorrow.');
+        // Don't remove the order from deck, just return
+        return;
+      }
       
-      if (result.success) {
-        // Update inventory with consumed materials and gained gold
-        setInventory(result.newInventory);
-        setAcceptedOrders(prev => [...prev, { ...order, fulfilled: true, profit: result.profit }]);
+      if (orderQueue.length < 3) {
+        // Add to queue with deadline
+        const deadline = Date.now() + (order.deadlineHours * 60 * 60 * 1000);
+        const queuedOrder = {
+          ...order,
+          queueTime: Date.now(),
+          deadline: deadline,
+          status: 'queued'
+        };
         
-        // Update player stats based on order type
-        setPlayerStats(prev => ({
+        setOrderQueue(prev => [...prev, queuedOrder]);
+        setOrderDeadlines(prev => ({
           ...prev,
-          fame: prev.fame + 1,
-          // Increment specialization based on item type
-          military: order.itemName.includes('Sword') || order.itemName.includes('Dagger') || order.itemName.includes('Armor') ? 
-                   prev.military + 1 : prev.military,
-          artisan: order.itemName.includes('Potion') || order.itemName.includes('Scroll') || order.itemName.includes('Staff') ? 
-                  prev.artisan + 1 : prev.artisan,
-          merchant: order.itemName.includes('Ring') ? prev.merchant + 1 : prev.merchant
+          [order.id]: deadline
         }));
         
-        console.log(`✅ Order fulfilled! Gained ${result.profit} gold`);
+        // Increment daily counter
+        setDailyOrdersAccepted(prev => prev + 1);
+        
+        console.log(`Order queued: ${order.customerName} - ${order.itemName} (${dailyOrdersAccepted + 1}/3 today)`);
       } else {
-        // Accept but can't fulfill - keep original inventory, add penalty
-        setAcceptedOrders(prev => [...prev, { ...order, fulfilled: false, reason: result.reason }]);
-        console.log(`❌ Can't fulfill: ${result.reason}`);
+        console.log('Order queue is full!');
       }
     } else {
       setRejectedOrders(prev => [...prev, order]);
     }
     
-    // Remove the order from the main deck after a delay
+    // Remove from main deck
     setTimeout(() => {
       setOrders(prev => prev.filter(o => o.id !== order.id));
     }, 300);
   };
+
+  // NEW: Handle queued order swipe (cancel)
+  const handleQueuedOrderSwipe = (order, action) => {
+    if (action === 'cancel') {
+      setOrderQueue(prev => prev.filter(o => o.id !== order.id));
+      setOrderDeadlines(prev => {
+        const newDeadlines = { ...prev };
+        delete newDeadlines[order.id];
+        return newDeadlines;
+      });
+      console.log(`Order cancelled: ${order.customerName}`);
+    }
+  };
+
+  // NEW: Check for missed deadlines
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      
+      setOrderQueue(prev => {
+        const missed = prev.filter(order => now > order.deadline);
+        const active = prev.filter(order => now <= order.deadline);
+        
+        // Apply reputation penalty for missed orders
+        missed.forEach(order => {
+          setReputation(prev => Math.max(0, prev - 5)); // -5 reputation per missed order
+          console.log(`❌ Missed deadline: ${order.customerName} - Reputation -5`);
+        });
+        
+        return active;
+      });
+      
+      // Clean up deadlines for missed orders
+      setOrderDeadlines(prev => {
+        const newDeadlines = { ...prev };
+        Object.keys(newDeadlines).forEach(orderId => {
+          if (now > newDeadlines[orderId]) {
+            delete newDeadlines[orderId];
+          }
+        });
+        return newDeadlines;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAdventurerSwipe = (adventurer, action) => {
     if (action === 'hire') {
@@ -329,6 +407,204 @@ function App() {
     setInventoryOpen(!inventoryOpen);
   };
 
+  // NEW: Handle adventurer customer swipes
+  const handleAdventurerCustomerSwipe = (customer, action) => {
+    if (action === 'sell') {
+      // Check if we have the item
+      if (inventory[customer.itemName] >= customer.quantity) {
+        // Sell the item
+        setInventory(prev => ({
+          ...prev,
+          [customer.itemName]: prev[customer.itemName] - customer.quantity,
+          gold: prev.gold + customer.priceOffer
+        }));
+        
+        // Add reputation
+        setReputation(prev => prev + customer.reputationBonus);
+        
+        console.log(`Sold ${customer.quantity}x ${customer.itemName} to ${customer.name} for ${customer.priceOffer} gold`);
+      } else {
+        console.log(`Cannot sell ${customer.itemName} - insufficient stock`);
+      }
+    }
+    
+    // Remove from deck
+    setTimeout(() => {
+      setAdventurerCustomers(prev => prev.filter(c => c.id !== customer.id));
+    }, 300);
+  };
+
+  // Generate initial adventurer customers
+  useEffect(() => {
+    const sampleCustomers = [
+      {
+        id: 1,
+        name: "Evya Shieldmaiden",
+        class: "Warrior",
+        missionDescription: "Heading to the frontlines to protect our borders. Need sturdy armor.",
+        itemName: "Leather Armor",
+        quantity: 2,
+        priceOffer: 300,
+        reputationBonus: 5,
+        description: "A seasoned warrior known for her bravery in battle."
+      },
+      {
+        id: 2,
+        name: "Thorin Ironbeard",
+        class: "Miner",
+        missionDescription: "Delving deep into the mountain caves. Need reliable tools.",
+        itemName: "Iron Sword",
+        quantity: 1,
+        priceOffer: 120,
+        reputationBonus: 3,
+        description: "A dwarf miner seeking fortune in the depths."
+      },
+      {
+        id: 3,
+        name: "Lyra Shadowweaver",
+        class: "Mage",
+        missionDescription: "Researching ancient magic. Need enchanted equipment.",
+        itemName: "Enchanted Staff",
+        quantity: 1,
+        priceOffer: 450,
+        reputationBonus: 8,
+        description: "A mysterious mage studying forbidden arts."
+      }
+    ];
+    
+    setAdventurerCustomers(sampleCustomers);
+  }, []);
+
+  // Generate new adventurer customers when deck gets low
+  useEffect(() => {
+    if (currentView === 'adventurers' && adventurerCustomers.length < 2) {
+      const newCustomer = generateAdventurerCustomer(nextOrderId);
+      setAdventurerCustomers(prev => [...prev, newCustomer]);
+      setNextOrderId(prev => prev + 1);
+    }
+  }, [adventurerCustomers.length, currentView, nextOrderId]);
+
+  // Add this new function to handle order completion
+  const handleOrderComplete = (order) => {
+    // Remove from queue
+    setOrderQueue(prev => prev.filter(o => o.id !== order.id));
+    
+    // Add gold and reputation
+    setInventory(prev => ({ ...prev, gold: prev.gold + order.priceOffer }));
+    setReputation(prev => prev + 5); // +5 reputation for completing order
+    
+    // Convert customer to adventurer and start mission
+    const customerAdventurer = {
+      id: `adv_${order.id}`,
+      name: order.customerName,
+      class: getCustomerClass(order.customerTier), // We'll create this function
+      successRate: getCustomerSuccessRate(order.customerTier), // We'll create this function
+      missionTime: getCustomerMissionTime(order.customerTier), // We'll create this function
+      hiringCost: 0, // Already "hired" through order completion
+      lootTable: getCustomerLootTable(order.customerTier), // We'll create this function
+      description: `${order.customerName} is now on a mission after receiving their ${order.itemName}.`,
+      startTime: Date.now(),
+      returnTime: Date.now() + (getCustomerMissionTime(order.customerTier) * 60 * 1000),
+      progress: 0,
+      fromOrder: true // Flag to identify this adventurer came from an order
+    };
+    
+    setActiveAdventurers(prev => [...prev, customerAdventurer]);
+    
+    console.log(`✅ Order completed! ${order.customerName} is now on a mission.`);
+  };
+
+  // Add these helper functions
+  const getCustomerClass = (tier) => {
+    const classMap = {
+      'Bronze': 'Miner',
+      'Silver': 'Ranger', 
+      'Gold': 'Warrior',
+      'Platinum': 'Mage'
+    };
+    return classMap[tier] || 'Ranger';
+  };
+
+  const getCustomerSuccessRate = (tier) => {
+    const rateMap = {
+      'Bronze': 60,
+      'Silver': 70,
+      'Gold': 80,
+      'Platinum': 90
+    };
+    return rateMap[tier] || 70;
+  };
+
+  const getCustomerMissionTime = (tier) => {
+    const timeMap = {
+      'Bronze': 30,
+      'Silver': 40,
+      'Gold': 50,
+      'Platinum': 60
+    };
+    return timeMap[tier] || 40;
+  };
+
+  const getCustomerLootTable = (tier) => {
+    const lootMap = {
+      'Bronze': [
+        { material: 'iron', min: 2, max: 4 },
+        { material: 'wood', min: 3, max: 6 }
+      ],
+      'Silver': [
+        { material: 'steel', min: 1, max: 3 },
+        { material: 'leather', min: 2, max: 4 },
+        { material: 'herbs', min: 2, max: 5 }
+      ],
+      'Gold': [
+        { material: 'silver', min: 1, max: 2 },
+        { material: 'crystal', min: 1, max: 2 },
+        { material: 'oil', min: 2, max: 4 }
+      ],
+      'Platinum': [
+        { material: 'gems', min: 1, max: 3 },
+        { material: 'ember', min: 1, max: 2 },
+        { material: 'parchment', min: 2, max: 4 }
+      ]
+    };
+    return lootMap[tier] || lootMap['Silver'];
+  };
+
+  const handleCraft = (materials) => {
+    // Calculate the crafted item based on attributes
+    const attributes = calculateCraftingAttributes(materials);
+    
+    // Simple crafting logic - you can expand this
+    let craftedItem = 'Basic Component';
+    let quality = 'Common';
+    
+    if (attributes.total > 20) {
+      craftedItem = 'Advanced Component';
+      quality = 'Uncommon';
+    }
+    if (attributes.total > 40) {
+      craftedItem = 'Masterwork Component';
+      quality = 'Rare';
+    }
+    
+    // Consume materials
+    setInventory(prev => {
+      const newInventory = { ...prev };
+      materials.forEach(({ name, amount }) => {
+        newInventory[name] -= amount;
+      });
+      return newInventory;
+    });
+    
+    // Add crafted item
+    setInventory(prev => ({
+      ...prev,
+      [craftedItem]: (prev[craftedItem] || 0) + 1
+    }));
+    
+    console.log(`Crafted ${quality} ${craftedItem}!`, attributes);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -342,6 +618,20 @@ function App() {
           <div className="stat">
             <span className="stat-label">Fame:</span>
             <span className="stat-value">{playerStats.fame}</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Reputation:</span>
+            <span className="stat-value">{reputation}</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Daily:</span>
+            <span className={`stat-value ${dailyOrdersAccepted >= 3 ? 'limit-reached' : ''}`}>
+              {dailyOrdersAccepted}/3
+            </span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Queue:</span>
+            <span className="stat-value">{orderQueue.length}/3</span>
           </div>
           <div className="stat">
             <span className="stat-label">Accepted:</span>
@@ -386,14 +676,15 @@ function App() {
                     {orders.length > 0 ? (
                       <SwipeableOrderCard 
                         order={orders[0]} 
-                        onSwipe={handleSwipe}
+                        onSwipe={handleOrderSwipe}
                         inventory={inventory}
+                        dailyLimitReached={dailyOrdersAccepted >= 3} // NEW
                         key={orders[0].id}
                       />
                     ) : (
                       <div className="no-cards">
-                        <h3>No more orders!</h3>
-                        <p>Check back later for new opportunities.</p>
+                        <h3>{dailyOrdersAccepted >= 3 ? 'Daily Limit Reached!' : 'No more orders!'}</h3>
+                        <p>{dailyOrdersAccepted >= 3 ? 'Come back tomorrow for new opportunities.' : 'Check back later for new opportunities.'}</p>
                       </div>
                     )}
                   </>
@@ -401,38 +692,60 @@ function App() {
                 
                 {currentView === 'adventurers' && (
                   <>
-                    <p>Swipe Right to Hire • Swipe Left to Pass</p>
-                    {availableAdventurers.length > 0 ? (
-                      <AdventurerCard 
-                        adventurer={availableAdventurers[0]}
-                        onSwipe={handleAdventurerSwipe}
-                        canAfford={inventory.gold >= availableAdventurers[0].hiringCost}
-                        key={availableAdventurers[0].id}
+                    <p>Swipe Right to Sell Gear • Swipe Left to Pass</p>
+                    {adventurerCustomers.length > 0 ? (
+                      <AdventurerCustomerCard 
+                        customer={adventurerCustomers[0]}
+                        onSwipe={handleAdventurerCustomerSwipe}
+                        inventory={inventory}
+                        key={adventurerCustomers[0].id}
                       />
                     ) : (
                       <div className="no-cards">
-                        <h3>No more adventurers!</h3>
-                        <p>Check back later for new recruits.</p>
+                        <h3>No customers!</h3>
+                        <p>Build your reputation to attract more adventurers.</p>
                       </div>
                     )}
                   </>
                 )}
               </div>
+              
+              {/* NEW: Order Queue Display */}
+              {currentView === 'orders' && (
+                <div className="order-queue">
+                  <h4>Active Orders ({orderQueue.length}/3)</h4>
+                  <div className="queue-slots">
+                    {[0, 1, 2].map(slotIndex => {
+                      const order = orderQueue[slotIndex];
+                      return (
+                        <div key={slotIndex} className={`queue-slot ${order ? 'filled' : 'empty'}`}>
+                          {order ? (
+                            <QueuedOrderCard 
+                              order={order}
+                              onSwipe={handleQueuedOrderSwipe}
+                              onComplete={handleOrderComplete} // NEW
+                              inventory={inventory} // NEW
+                              key={order.id}
+                            />
+                          ) : (
+                            <div className="empty-slot">
+                              <span>Empty</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             
+            {/* Remove crafting stations from right panel */}
             <div className="right-panel">
-              <div className="processing-stations">
-                {Object.entries(craftingStations).map(([stationId, station]) => (
-                  <ProcessingStation
-                    key={stationId}
-                    stationType={station.name}
-                    recipes={station.recipes}
-                    inventory={inventory}
-                    onStartCrafting={handleStartCrafting}
-                    onCompleteCrafting={handleCompleteCrafting}
-                  />
-                ))}
-              </div>
+              <CraftingStation 
+                inventory={inventory}
+                onCraft={handleCraft}
+              />
             </div>
           </div>
         )}
@@ -451,6 +764,10 @@ function App() {
                 </button>
               </div>
               <div className="inventory-sheet-content">
+                <CraftingStation 
+                  inventory={inventory}
+                  onCraft={handleCraft}
+                />
                 <div className="inventory-grid">
                   {Object.entries(inventory).filter(([key]) => key !== 'gold').map(([material, amount]) => (
                     <div key={material} className="inventory-item">
@@ -464,7 +781,7 @@ function App() {
           </>
         )}
 
-        {/* Bottom Navigation Bar (OUTSIDE header!) */}
+        {/* Updated Bottom Navigation */}
         <div className="bottom-navigation">
           <button
             className={`nav-button inventory-nav${inventoryOpen ? ' active' : ''}`}
@@ -483,13 +800,19 @@ function App() {
             className={`nav-button${currentView === 'adventurers' ? ' active' : ''}`}
             onClick={() => setCurrentView('adventurers')}
           >
-            Hire
+            Adventurers
           </button>
           <button
-            className={`nav-button${currentView === 'towns' ? ' active' : ''}`}
-            onClick={() => setCurrentView('towns')}
+            className={`nav-button${currentView === 'team' ? ' active' : ''}`}
+            onClick={() => setCurrentView('team')}
           >
-            Towns
+            Team
+          </button>
+          <button
+            className={`nav-button${currentView === 'news' ? ' active' : ''}`}
+            onClick={() => setCurrentView('news')}
+          >
+            News
           </button>
         </div>
         

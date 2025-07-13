@@ -1,0 +1,29 @@
+/* src/components/CraftingPolygon.css */
+.crafting-polygon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(44, 24, 16, 0.4);
+  border-radius: 10px;
+  border: 1px solid #8b5a2b;
+  margin: 15px 0;
+}
+
+.attribute-label {
+  font-size: 12px;
+  font-weight: bold;
+  fill: #f4e4bc;
+}
+
+.attribute-label.strength {
+  fill: #ff6b6b;
+}
+
+.attribute-label.speed {
+  fill: #4ecdc4;
+}
+
+.attribute-label.magical {
+  fill: #a855f7;
+} 

@@ -1,0 +1,199 @@
+/* src/components/AdventurerCustomerCard.css */
+.adventurer-customer-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  color: #f4e4bc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+}
+
+.adventurer-customer-card:active {
+  cursor: grabbing;
+}
+
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.swipe-indicator.left {
+  left: 20px;
+  color: #ff6b6b;
+}
+
+.swipe-indicator.right {
+  right: 20px;
+  color: #4ecdc4;
+}
+
+.swipe-indicator span:first-child {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.swipe-indicator span:last-child {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.customer-content {
+  position: relative;
+  z-index: 2;
+}
+
+.customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.customer-header h3 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 18px;
+}
+
+.class-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.class-badge.rogue {
+  background: #8b2635;
+  color: #f4e4bc;
+}
+
+.class-badge.ranger {
+  background: #2d5016;
+  color: #f4e4bc;
+}
+
+.class-badge.miner {
+  background: #5d4e37;
+  color: #f4e4bc;
+}
+
+.class-badge.mage {
+  background: #4a148c;
+  color: #f4e4bc;
+}
+
+.mission-info {
+  margin-bottom: 15px;
+}
+
+.mission-description {
+  font-size: 14px;
+  color: #cd853f;
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.mission-requirements {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requirements-label {
+  font-size: 12px;
+  color: #cd853f;
+}
+
+.item-requirement {
+  background: #4a2c1a;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.item-requirement.available {
+  color: #4ecdc4;
+  border: 1px solid #4ecdc4;
+}
+
+.item-requirement.unavailable {
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.purchase-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.price-offer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gold-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.currency {
+  font-size: 12px;
+  color: #b8860b;
+}
+
+.reputation-bonus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bonus-label {
+  font-size: 11px;
+  color: #cd853f;
+}
+
+.bonus-value {
+  font-size: 12px;
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.customer-description {
+  font-size: 12px;
+  color: #cd853f;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Show indicators when dragging */
+.adventurer-customer-card[style*="translateX"] .swipe-indicator.left {
+  opacity: 1;
+}
+
+.adventurer-customer-card[style*="translateX"] .swipe-indicator.right {
+  opacity: 1;
+}

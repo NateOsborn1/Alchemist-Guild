@@ -1,0 +1,176 @@
+/* src/components/QueuedOrderCard.css */
+.queued-order-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 5px;
+  width: 100%;
+  color: #f4e4bc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', serif;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+}
+
+.queued-order-card:active {
+  cursor: grabbing;
+}
+
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.swipe-indicator.left {
+  left: 15px;
+  color: #ff6b6b;
+}
+
+.swipe-indicator span:first-child {
+  font-size: 18px;
+  margin-bottom: 3px;
+}
+
+.swipe-indicator span:last-child {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.queued-order-content {
+  position: relative;
+  z-index: 2;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.order-header h4 {
+  margin: 0;
+  color: #f4e4bc;
+  font-size: 14px;
+}
+
+.customer-tier {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.item-request {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quantity {
+  background: #4a2c1a;
+  color: #f4e4bc;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #d4af37;
+}
+
+.price-offer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.gold-amount {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.currency {
+  font-size: 10px;
+  color: #b8860b;
+}
+
+.deadline-info {
+  text-align: center;
+  font-size: 11px;
+  color: #cd853f;
+  border-top: 1px solid #8b5a2b;
+  padding-top: 6px;
+}
+
+.deadline.urgent {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.deadline.normal {
+  color: #cd853f;
+}
+
+/* Show indicator when dragging */
+.queued-order-card[style*="translateX"] .swipe-indicator.left {
+  opacity: 1;
+} 
+
+.order-actions {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.complete-btn {
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.complete-btn.can-complete {
+  background: #4ecdc4;
+  color: #2c1810;
+}
+
+.complete-btn.can-complete:hover {
+  background: #45b7aa;
+  transform: translateY(-1px);
+}
+
+.complete-btn.cannot-complete {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  cursor: not-allowed;
+} 
