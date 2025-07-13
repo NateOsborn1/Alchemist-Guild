@@ -544,8 +544,12 @@
 }
 
 .inventory-sheet-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 20px;
-  padding-bottom: 110px; /* <-- This ensures the nav bar never covers the last row */
+  padding-bottom: 110px; /* for nav bar */
   max-height: 60vh;
   overflow-y: auto;
   background: inherit;

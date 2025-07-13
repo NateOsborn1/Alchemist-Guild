@@ -16,7 +16,7 @@ import { generateInitialTowns } from './services/TownSystem';
 import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes } from './services/ShopSystem';
 import './App.css';
 import { generateAdventurerCustomer } from './services/AdventurerCustomerGenerator';
-import CraftingStation from './components/CraftingStation';
+import AnimatedCraftingStation from './components/AnimatedCraftingStation';
 import { calculateCraftingAttributes } from './services/MaterialAttributes';
 
 function App() {
@@ -742,10 +742,7 @@ function App() {
             
             {/* Remove crafting stations from right panel */}
             <div className="right-panel">
-              <CraftingStation 
-                inventory={inventory}
-                onCraft={handleCraft}
-              />
+              {/* Crafting station is now only in the inventory sheet */}
             </div>
           </div>
         )}
@@ -764,7 +761,7 @@ function App() {
                 </button>
               </div>
               <div className="inventory-sheet-content">
-                <CraftingStation 
+                <AnimatedCraftingStation
                   inventory={inventory}
                   onCraft={handleCraft}
                 />
