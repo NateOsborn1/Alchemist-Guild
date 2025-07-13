@@ -691,3 +691,39 @@
     gap: 12px;
   }
 }
+
+.crafted-banner-popup {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #2c1810 80%, #4a2c1a 100%);
+  color: #ffd700;
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 22px 44px;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 4px 24px #000a;
+  z-index: 3000;
+  border: 2px solid #d4af37;
+  animation: craftedBannerDrop 4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  max-width: 90vw;
+  text-align: center;
+  letter-spacing: 0.5px;
+  font-family: 'Georgia', serif;
+}
+
+@keyframes craftedBannerDrop {
+  0%   { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+  10%  { transform: translateX(-50%) translateY(0);     opacity: 1; }
+  85%  { transform: translateX(-50%) translateY(0);     opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+}
+
+.crafted-quality.common { color: #f4e4bc; }
+.crafted-quality.uncommon { color: #4ecdc4; }
+.crafted-quality.rare { color: #a855f7; }

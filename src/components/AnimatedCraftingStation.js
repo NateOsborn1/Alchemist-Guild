@@ -12,7 +12,7 @@ function getOrbPosition(index, total, radius = 60) {
   };
 }
 
-export default function AnimatedCraftingStation({ inventory, onCraft, onAddMaterial }) {
+export default function AnimatedCraftingStation({ inventory, onCraft, onAddMaterial, lastCraftedItem }) {
   const [queue, setQueue] = useState([]);
   const [crafting, setCrafting] = useState(false);
   const [crafted, setCrafted] = useState(false);
@@ -160,7 +160,7 @@ export default function AnimatedCraftingStation({ inventory, onCraft, onAddMater
 
         {/* Crafted item pop */}
         <AnimatePresence>
-          {crafted && (
+          {crafted && lastCraftedItem && (
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1.2, opacity: 1 }}
@@ -170,21 +170,31 @@ export default function AnimatedCraftingStation({ inventory, onCraft, onAddMater
                 position: 'absolute',
                 left: 105,
                 top: 105,
-                width: 48,
-                height: 48,
+                width: 64,
+                height: 64,
                 borderRadius: '50%',
                 background: '#ffd700',
                 color: '#2c1810',
                 fontWeight: 'bold',
-                fontSize: 22,
+                fontSize: 18,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 20,
                 boxShadow: '0 2px 12px #0008',
               }}
             >
-              ★
+              <span style={{ fontSize: 16 }}>{lastCraftedItem.name}</span>
+              <span style={{
+                fontSize: 12,
+                color: lastCraftedItem.quality === 'Rare' ? '#a855f7'
+                      : lastCraftedItem.quality === 'Uncommon' ? '#4ecdc4'
+                      : '#d4af37',
+                marginTop: 2,
+              }}>
+                {lastCraftedItem.quality}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>

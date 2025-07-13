@@ -65,6 +65,8 @@ function App() {
   // Add these new state variables after your existing state
   const [dailyOrdersAccepted, setDailyOrdersAccepted] = useState(0);
   const [lastOrderReset, setLastOrderReset] = useState(Date.now());
+  const [craftedPopup, setCraftedPopup] = useState(null);
+  const [lastCraftedItem, setLastCraftedItem] = useState(null);
 
   // Generate initial orders when component mounts
   useEffect(() => {
@@ -602,6 +604,11 @@ function App() {
       [craftedItem]: (prev[craftedItem] || 0) + 1
     }));
     
+    setCraftedPopup({ name: craftedItem, quality });
+    setTimeout(() => setCraftedPopup(null), 4000); // 4 seconds
+    setLastCraftedItem({ name: craftedItem, quality }); // <-- Add this
+    setTimeout(() => setLastCraftedItem(null), 1800); // Hide after animation
+
     console.log(`Crafted ${quality} ${craftedItem}!`, attributes);
   };
 
@@ -610,6 +617,19 @@ function App() {
 
   return (
     <div className="App">
+      {craftedPopup && (
+        <div className="crafted-banner-popup">
+          <span>
+            <b>You've crafted:</b> {craftedPopup.name}
+            {craftedPopup.quality && (
+              <span className={`crafted-quality ${craftedPopup.quality.toLowerCase()}`}>
+                &nbsp;({craftedPopup.quality})
+              </span>
+            )}
+            !
+          </span>
+        </div>
+      )}
       <header className="App-header">
         <h1>The Alchemist's Guild</h1>
         
@@ -768,6 +788,7 @@ function App() {
                   inventory={inventory}
                   onCraft={handleCraft}
                   onAddMaterial={fn => (addMaterialToCraftingRef.current = fn)}
+                  lastCraftedItem={lastCraftedItem}
                 />
                 <div className="inventory-grid">
                   {Object.entries(inventory)
