@@ -727,3 +727,136 @@
 .crafted-quality.common { color: #f4e4bc; }
 .crafted-quality.uncommon { color: #4ecdc4; }
 .crafted-quality.rare { color: #a855f7; }
+
+/* Shop Screen Styles */
+.shop-screen {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.shop-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.shop-header h2 {
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.current-event {
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.event-name {
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.event-time {
+  color: #cd853f;
+  font-size: 14px;
+}
+
+.shop-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.adventurers-section h3 {
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.no-adventurers {
+  text-align: center;
+  color: #cd853f;
+  font-style: italic;
+  padding: 40px;
+}
+
+.adventurers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.adventurer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.zone-assignment {
+  background: rgba(44, 24, 16, 0.4);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.zone-assignment h4 {
+  color: #d4af37;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.zone-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zone-btn {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.zone-btn.available:hover {
+  background: #d4af37;
+  color: #2c1810;
+}
+
+.zone-btn.unavailable {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  cursor: not-allowed;
+  border-color: #8b5a2b;
+}
+
+.zone-btn .unknown {
+  color: #cd853f;
+  font-style: italic;
+}
+
+/* Placeholder screens */
+.zones-screen,
+.upgrades-screen,
+.stats-screen {
+  padding: 40px;
+  text-align: center;
+  color: #f4e4bc;
+}
+
+.zones-screen h2,
+.upgrades-screen h2,
+.stats-screen h2 {
+  color: #d4af37;
+  margin-bottom: 20px;
+}
