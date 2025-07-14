@@ -124,8 +124,8 @@ const calculateReputationRequirement = (baseRequirement, gameState) => {
   if (gameState.seasonalEvent === 'foreign_convoy') {
     return 0; // Foreign convoys ignore reputation
   }
-  
-  const event = populationEvents[gameState.seasonalEvent] || populationEvents.normal;
+  // Fix: fallback to { reputationMultiplier: 1 } if event is not found
+  const event = populationEvents[gameState.seasonalEvent] || { reputationMultiplier: 1 };
   return Math.floor(baseRequirement * event.reputationMultiplier);
 };
 

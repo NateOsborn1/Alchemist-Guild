@@ -299,7 +299,8 @@ const getAvailableUpgrades = (category, playerGold, purchasedUpgrades) => {
   }
 
   return Object.entries(categoryData.upgrades).map(([id, upgrade]) => {
-    const isPurchased = purchasedUpgrades[category]?.[id]?.purchased || false;
+    // Check if explicitly purchased OR if it's a default upgrade (cost 0 and purchased: true)
+    const isPurchased = purchasedUpgrades[category]?.[id]?.purchased || (upgrade.cost === 0 && upgrade.purchased === true);
     const canAfford = playerGold >= upgrade.cost;
     
     return {

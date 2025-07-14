@@ -77,11 +77,8 @@ function App() {
 
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
-    setAdventurers(prev => prev.map(a =>
-      a.id === adventurer.id
-        ? { ...a, status: 'assigned', zoneId, mission: null }
-        : a
-    ));
+    // Start the mission immediately when assigned
+    handleAdventurerAssignment(adventurer, zoneId);
   };
 
   // Handler for unassigning (dragging out of a zone)
@@ -302,12 +299,19 @@ function App() {
       const now = Date.now();
       
       setAdventurers(prevAdventurers => {
-        const completed = prevAdventurers.filter(adventurer => now >= adventurer.returnTime);
-        const active = prevAdventurers.filter(adventurer => now < adventurer.returnTime);
+        // Find completed and active missions using mission.returnTime
+        const completed = prevAdventurers.filter(adventurer => 
+          adventurer.status === 'onMission' && adventurer.mission && now >= adventurer.mission.returnTime
+        );
+        const active = prevAdventurers.filter(adventurer => 
+          adventurer.status === 'onMission' && adventurer.mission && now < adventurer.mission.returnTime
+        );
+        console.log('[mission completion useEffect] setAdventurers: completed', completed.length, completed, 'active', active.length, active);
         
         // Process completed missions
         completed.forEach(adventurer => {
-          const success = Math.random() * 100 < adventurer.successChance;
+          console.log('Mission completed:', adventurer.name, 'now:', now, 'returnTime:', adventurer.mission.returnTime);
+          const success = Math.random() * 100 < adventurer.mission.successChance;
           
           // Update zone
           setZones(prevZones => {
@@ -327,7 +331,7 @@ function App() {
           if (success) {
             setInventory(prevInventory => {
               const newInventory = { ...prevInventory };
-              adventurer.mission.materials.forEach(material => {
+              adventurer.mission.materials?.forEach(material => {
                 if (Math.random() < 0.7) { // 70% chance for each material
                   const amount = Math.floor(Math.random() * 3) + 1;
                   newInventory[material] = (newInventory[material] || 0) + amount;
@@ -345,9 +349,43 @@ function App() {
           
           console.log(`${adventurer.name} returned! Success: ${success}`);
         });
-        
-        return active;
+        // Only update completed adventurers, keep all others unchanged
+        return prevAdventurers.map(a => {
+          if (a.status === 'onMission' && a.mission && now >= a.mission.returnTime) {
+            // Mark as available, clear mission and zoneId
+            return { ...a, status: 'available', mission: null, zoneId: null };
+          }
+          return a;
+        });
       });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [adventurers.filter(a => a.status === 'onMission').length]);
+
+  // Update mission progress
+  useEffect(() => {
+    if (adventurers.filter(a => a.status === 'onMission').length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      
+      setAdventurers(prev => prev.map(adventurer => {
+        if (adventurer.status === 'onMission' && adventurer.mission) {
+          const total = adventurer.mission.returnTime - adventurer.mission.startTime;
+          const elapsed = now - adventurer.mission.startTime;
+          const progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
+          
+          return {
+            ...adventurer,
+            mission: {
+              ...adventurer.mission,
+              progress
+            }
+          };
+        }
+        return adventurer;
+      }));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -355,30 +393,39 @@ function App() {
 
   // Handle adventurer assignment to zones
   const handleAdventurerAssignment = (adventurer, zoneId) => {
+    console.log('handleAdventurerAssignment called with:', adventurer, zoneId);
+    if (!adventurer || typeof adventurer !== 'object' || !adventurer.id) {
+      console.error('Invalid adventurer object passed to handleAdventurerAssignment:', adventurer);
+      return;
+    }
+    // Always get the latest adventurer from state
+    const latestAdventurer = adventurers.find(a => a.id === adventurer.id);
+    if (!latestAdventurer) return;
+
     const zone = zones.find(z => z.id === zoneId);
     if (!zone) return;
-    
-    // Check reputation requirement
-    const requiredRep = calculateReputationRequirement(adventurer.reputationRequirement, gameState);
+
+    // Use the latest adventurer object
+    const requiredRep = calculateReputationRequirement(latestAdventurer.reputationRequirement, gameState);
     if (gameState.reputation < requiredRep) {
       console.log(`❌ Reputation too low! Need ${requiredRep}, have ${gameState.reputation}`);
       return;
     }
-    
+
     // Reveal zone if not already revealed (or if scouting upgrade is active)
     if (!zone.isRevealed || upgradeEffects.zoneReveal) {
       setZones(prevZones => prevZones.map(z => 
         z.id === zoneId ? revealZone(z) : z
       ));
     }
-    
+
     // Calculate mission success chance
-    const successChance = calculateMissionSuccess(adventurer, zone);
-    
+    const successChance = calculateMissionSuccess(latestAdventurer, zone);
+
     // Create mission
     const mission = {
       id: Date.now(),
-      adventurer,
+      adventurer: latestAdventurer,
       zone,
       zoneId,
       startTime: Date.now(),
@@ -386,18 +433,21 @@ function App() {
       successChance,
       progress: 0
     };
-    
-    // Add to active missions
-    setAdventurers(prev => prev.map(a =>
-      a.id === adventurer.id
-        ? { ...a, status: 'onMission', mission }
-        : a
-    ));
-    
-    // Remove adventurer from available list
-    setAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
-    
-    console.log(`🗺️ ${adventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
+
+    // Only update the adventurer's status and mission, do not remove from array
+    setAdventurers(prev => {
+      const updated = prev.map(a => {
+        if (a.id === latestAdventurer.id) {
+          console.log('Updating adventurer:', a, 'to onMission with mission:', mission);
+          return { ...a, status: 'onMission', mission, zoneId };
+        }
+        return a;
+      });
+      console.log('[handleAdventurerAssignment] setAdventurers:', updated.length, updated);
+      return updated;
+    });
+
+    console.log(`🗺️ ${latestAdventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
   };
 
   // NEW: Handle queued order swipe (cancel)

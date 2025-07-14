@@ -53,6 +53,42 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
                 fromZoneId={zone.id}
                 isMobile={isMobile}
               />
+              
+              {/* Mission progress indicator */}
+              {adv.status === 'onMission' && adv.mission && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: -8,
+                  left: 0,
+                  right: 0,
+                  background: '#2c1810',
+                  border: '1px solid #8b5a2b',
+                  borderRadius: 4,
+                  padding: '2px 4px',
+                  fontSize: isMobile ? 10 : 12,
+                  color: '#cd853f'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Mission: {Math.round(adv.mission.progress || 0)}%</span>
+                    <span>{Math.max(0, Math.ceil((adv.mission.returnTime - Date.now()) / 60000))}m</span>
+                  </div>
+                  <div style={{ 
+                    background: '#8b5a2b', 
+                    height: 2, 
+                    borderRadius: 1,
+                    marginTop: 2
+                  }}>
+                    <div style={{ 
+                      background: '#ffd700', 
+                      height: '100%', 
+                      width: `${Math.min(100, Math.max(0, adv.mission.progress || 0))}%`,
+                      borderRadius: 1,
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+              )}
+              
               {/* Desktop: drag handle */}
               {!isMobile && (
                 <div style={{ position: 'absolute', top: 6, right: 10, color: '#ffd700', fontSize: 18, cursor: 'grab', pointerEvents: 'none' }}>⠿</div>

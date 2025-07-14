@@ -86,7 +86,7 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={adventurers.filter(a => a.status === 'assigned' && a.zoneId === zone.id)}
+              assignedAdventurers={adventurers.filter(a => (a.status === 'assigned' || a.status === 'onMission') && a.zoneId === zone.id)}
               onDropAdventurer={onAssignAdventurer}
               isMobile={true}
               onUnassignAdventurer={onUnassignAdventurer}
@@ -169,7 +169,7 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={adventurers.filter(a => a.status === 'assigned' && a.zoneId === zone.id)}
+              assignedAdventurers={adventurers.filter(a => (a.status === 'assigned' || a.status === 'onMission') && a.zoneId === zone.id)}
               onDropAdventurer={onAssignAdventurer}
               isMobile={false}
               onUnassignAdventurer={onUnassignAdventurer}
