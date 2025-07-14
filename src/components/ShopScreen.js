@@ -61,7 +61,7 @@ const ShopScreen = ({
           )}
         </div>
         <div className="adventurers-section">
-          <h3>Available Adventurers ({availableAdventurers.length})</h3>
+          <h3 style={{ textAlign: 'center', marginBottom: 18 }}>Available Adventurers ({availableAdventurers.length})</h3>
           {availableAdventurers.length === 0 ? (
             <div className="no-adventurers">
               <p>No adventurers available. Check back later!</p>
@@ -80,8 +80,8 @@ const ShopScreen = ({
             </div>
           )}
         </div>
-        <h3 style={{ marginTop: 32 }}>Active Zones</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h3 style={{ margin: '32px 0 16px 0', textAlign: 'center' }}>Active Zones</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', width: '100%' }}>
           {zones.map(zone => (
             <ZoneDropPanel
               key={zone.id}

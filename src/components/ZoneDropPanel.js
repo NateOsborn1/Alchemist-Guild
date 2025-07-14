@@ -25,16 +25,21 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
         border: `2px dashed ${isOver ? '#ffd700' : '#8b5a2b'}`,
         background: isOver ? 'rgba(212,175,55,0.08)' : 'rgba(44,24,16,0.2)',
         borderRadius: 10,
-        padding: 16,
-        minHeight: 120,
+        padding: isMobile ? 8 : 16,
+        minHeight: isMobile ? 60 : 120,
         transition: 'background 0.2s',
+        maxWidth: isMobile ? '95vw' : undefined,
+        margin: isMobile ? '12px auto' : undefined,
+        fontSize: isMobile ? 14 : undefined,
+        width: isMobile ? '95%' : undefined,
+        display: 'block',
       }}
     >
-      <div style={{ fontWeight: 'bold', color: '#d4af37', marginBottom: 8 }}>
+      <div style={{ fontWeight: 'bold', color: '#d4af37', marginBottom: 6, fontSize: isMobile ? 16 : 18 }}>
         {zone.name} <span style={{ color: '#cd853f', fontWeight: 'normal' }}>({zone.status})</span>
       </div>
-      <div style={{ fontSize: 13, color: '#cd853f', marginBottom: 8 }}>{zone.description}</div>
-      <div style={{ minHeight: 40, display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ fontSize: isMobile ? 13 : 15, color: '#cd853f', marginBottom: 6 }}>{zone.description}</div>
+      <div style={{ minHeight: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: isMobile ? 6 : 12 }}>
         {assignedAdventurers.length === 0 ? (
           <span style={{ color: '#8b5a2b', fontStyle: 'italic' }}>No adventurers assigned</span>
         ) : (
