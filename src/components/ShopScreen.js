@@ -61,13 +61,13 @@ const ShopScreen = ({
           )}
         </div>
         <div className="adventurers-section">
-          <h3 style={{ textAlign: 'center', marginBottom: 18 }}>Available Adventurers ({availableAdventurers.length})</h3>
+          <h3 style={{ textAlign: 'center', marginBottom: 14 }}>Available Adventurers ({availableAdventurers.length})</h3>
           {availableAdventurers.length === 0 ? (
             <div className="no-adventurers">
               <p>No adventurers available. Check back later!</p>
             </div>
           ) : (
-            <div className="adventurers-grid">
+            <div className="adventurers-grid" style={{ gap: 10, justifyContent: 'center' }}>
               {availableAdventurers.map(adventurer => (
                 <AdventurerCard 
                   key={adventurer.id}
@@ -80,8 +80,8 @@ const ShopScreen = ({
             </div>
           )}
         </div>
-        <h3 style={{ margin: '32px 0 16px 0', textAlign: 'center' }}>Active Zones</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', width: '100%' }}>
+        <h3 style={{ margin: '24px 0 10px 0', textAlign: 'center' }}>Active Zones</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', width: '100%' }}>
           {zones.map(zone => (
             <ZoneDropPanel
               key={zone.id}
@@ -99,22 +99,22 @@ const ShopScreen = ({
             position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, zIndex: 2000,
             background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center'
           }} onClick={() => setAssigningAdventurer(null)}>
-            <div style={{ background: '#2c1810', borderRadius: 12, padding: 24, minWidth: 260 }} onClick={e => e.stopPropagation()}>
-              <h4 style={{ color: '#ffd700', marginBottom: 16 }}>Assign to Zone</h4>
+            <div style={{ background: '#2c1810', borderRadius: 12, padding: 18, minWidth: 220 }} onClick={e => e.stopPropagation()}>
+              <h4 style={{ color: '#ffd700', marginBottom: 12 }}>Assign to Zone</h4>
               {zones.map(zone => (
                 <button
                   key={zone.id}
                   style={{
-                    display: 'block', width: '100%', margin: '8px 0', padding: 12,
+                    display: 'block', width: '100%', margin: '6px 0', padding: 10,
                     background: '#8b5a2b', color: '#fff', border: 'none', borderRadius: 8,
-                    fontWeight: 'bold', fontSize: 16, cursor: 'pointer'
+                    fontWeight: 'bold', fontSize: 15, cursor: 'pointer'
                   }}
                   onClick={() => handleMobileAssign(assigningAdventurer, zone.id)}
                 >
                   {zone.name}
                 </button>
               ))}
-              <button style={{ marginTop: 12, width: '100%', padding: 10, background: '#4a2c1a', color: '#ffd700', border: 'none', borderRadius: 8 }} onClick={() => setAssigningAdventurer(null)}>Cancel</button>
+              <button style={{ marginTop: 10, width: '100%', padding: 8, background: '#4a2c1a', color: '#ffd700', border: 'none', borderRadius: 8, fontSize: 14 }} onClick={() => setAssigningAdventurer(null)}>Cancel</button>
             </div>
           </div>
         )}

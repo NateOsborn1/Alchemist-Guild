@@ -32,15 +32,13 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
   if (isMobile) {
     // MOBILE: No drag/swipe, just show card and assign button
     return (
-      <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1, width: '96vw', maxWidth: 400, margin: '12px auto 0 auto', padding: 12, fontSize: 15 }}>
+      <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1, width: '85vw', maxWidth: 320, margin: '10px auto 0 auto', padding: 8, fontSize: 14 }}>
         <div className="adventurer-content">
-          <div className="adventurer-header" style={{ fontSize: 18 }}>
-            <h3 style={{ fontSize: 18, margin: 0 }}>{adventurer.name}</h3>
-            <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
-              {adventurer.class}
-            </span>
+          <div className="adventurer-header" style={{ fontSize: 16 }}>
+            <h3 style={{ fontSize: 16, margin: 0 }}>{adventurer.name}</h3>
+            <span className={`class-badge ${adventurer.class.toLowerCase()}`}>{adventurer.class}</span>
           </div>
-          <div className="adventurer-stats" style={{ marginBottom: 10 }}>
+          <div className="adventurer-stats" style={{ marginBottom: 8 }}>
             <div className="stat-row">
               <span className="stat-label">Success Rate:</span>
               <span className="stat-value">{adventurer.successRate}%</span>
@@ -54,7 +52,7 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
               <span className={`stat-value ${canAfford ? 'affordable' : 'expensive'}`}>{adventurer.hiringCost}g</span>
             </div>
           </div>
-          <div className="loot-preview" style={{ padding: 6, fontSize: 13 }}>
+          <div className="loot-preview" style={{ padding: 4, fontSize: 12 }}>
             <div className="loot-title">Potential Loot:</div>
             <div className="loot-items">
               {adventurer.lootTable && adventurer.lootTable.map((item, index) => (
@@ -64,22 +62,22 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
               ))}
             </div>
           </div>
-          <div className="adventurer-description" style={{ fontSize: 13, marginBottom: 8 }}>
+          <div className="adventurer-description" style={{ fontSize: 12, marginBottom: 6 }}>
             {adventurer.description}
           </div>
           {onAssign && (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button
                 style={{
-                  marginTop: 8,
-                  width: 180,
-                  padding: '10px 0',
+                  marginTop: 6,
+                  width: 140,
+                  padding: '8px 0',
                   background: '#ffd700',
                   color: '#2c1810',
                   border: 'none',
                   borderRadius: 8,
                   fontWeight: 'bold',
-                  fontSize: 16,
+                  fontSize: 15,
                   cursor: 'pointer',
                   boxShadow: '0 2px 8px #d4af3740',
                 }}

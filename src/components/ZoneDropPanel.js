@@ -28,18 +28,18 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
         padding: isMobile ? 8 : 16,
         minHeight: isMobile ? 60 : 120,
         transition: 'background 0.2s',
-        width: isMobile ? '96vw' : undefined,
-        maxWidth: isMobile ? 400 : undefined,
-        margin: isMobile ? '12px auto 0 auto' : undefined,
-        fontSize: isMobile ? 14 : undefined,
+        width: isMobile ? '85vw' : undefined,
+        maxWidth: isMobile ? 320 : undefined,
+        margin: isMobile ? '10px auto 0 auto' : undefined,
+        fontSize: isMobile ? 13 : undefined,
         display: 'block',
       }}
     >
-      <div style={{ fontWeight: 'bold', color: '#d4af37', marginBottom: 6, fontSize: isMobile ? 16 : 18 }}>
+      <div style={{ fontWeight: 'bold', color: '#d4af37', marginBottom: 5, fontSize: isMobile ? 15 : 18 }}>
         {zone.name} <span style={{ color: '#cd853f', fontWeight: 'normal' }}>({zone.status})</span>
       </div>
-      <div style={{ fontSize: isMobile ? 13 : 15, color: '#cd853f', marginBottom: 6 }}>{zone.description}</div>
-      <div style={{ minHeight: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: isMobile ? 6 : 12 }}>
+      <div style={{ fontSize: isMobile ? 12 : 15, color: '#cd853f', marginBottom: 5 }}>{zone.description}</div>
+      <div style={{ minHeight: 28, display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: isMobile ? 4 : 12 }}>
         {assignedAdventurers.length === 0 ? (
           <span style={{ color: '#8b5a2b', fontStyle: 'italic' }}>No adventurers assigned</span>
         ) : (
@@ -61,7 +61,7 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
               {isMobile && onUnassignAdventurer && (
                 <button
                   style={{
-                    position: 'absolute', top: 6, right: 10, background: '#ff6b6b', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 8px', fontWeight: 'bold', cursor: 'pointer', fontSize: 13
+                    position: 'absolute', top: 6, right: 10, background: '#ff6b6b', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 8px', fontWeight: 'bold', cursor: 'pointer', fontSize: 12
                   }}
                   onClick={() => onUnassignAdventurer(adv, zone.id)}
                 >
