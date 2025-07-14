@@ -1,8 +1,19 @@
 // src/components/ShopScreen.js
-import React from 'react';
+import React, { useState } from 'react';
 import AdventurerCard from './AdventurerCard';
 import ZoneDropPanel from './ZoneDropPanel';
 import { useDrop } from 'react-dnd';
+
+// Simple mobile detection hook
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 800);
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 800);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return isMobile;
+}
 
 const ShopScreen = ({ 
   availableAdventurers, 
@@ -13,7 +24,10 @@ const ShopScreen = ({
   onUnassignAdventurer,
   currentEvent 
 }) => {
-  // Drop target for returning adventurers to available list
+  const isMobile = useIsMobile();
+  const [assigningAdventurer, setAssigningAdventurer] = useState(null);
+
+  // Drop target for returning adventurers to available list (desktop only)
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: 'ADVENTURER',
     drop: (item) => {
@@ -28,6 +42,87 @@ const ShopScreen = ({
     }),
   });
 
+  // Handler for mobile assign
+  const handleMobileAssign = (adventurer, zoneId) => {
+    onAssignAdventurer(adventurer, zoneId, null);
+    setAssigningAdventurer(null);
+  };
+
+  if (isMobile) {
+    // MOBILE LAYOUT: Stack adventurers and zones vertically, use tap-to-assign
+    return (
+      <div className="shop-screen" style={{ display: 'block', padding: 8 }}>
+        <div className="shop-header">
+          {currentEvent && (
+            <div className="current-event">
+              <span className="event-name">{currentEvent.name}</span>
+              <span className="event-time">{currentEvent.minutesRemaining}m remaining</span>
+            </div>
+          )}
+        </div>
+        <div className="adventurers-section">
+          <h3>Available Adventurers ({availableAdventurers.length})</h3>
+          {availableAdventurers.length === 0 ? (
+            <div className="no-adventurers">
+              <p>No adventurers available. Check back later!</p>
+            </div>
+          ) : (
+            <div className="adventurers-grid">
+              {availableAdventurers.map(adventurer => (
+                <AdventurerCard 
+                  key={adventurer.id}
+                  adventurer={adventurer}
+                  canAfford={true}
+                  isMobile={true}
+                  onAssign={() => setAssigningAdventurer(adventurer)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <h3 style={{ marginTop: 32 }}>Active Zones</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {zones.map(zone => (
+            <ZoneDropPanel
+              key={zone.id}
+              zone={zone}
+              assignedAdventurers={zoneAssignments[zone.id] || []}
+              onDropAdventurer={onAssignAdventurer}
+              isMobile={true}
+              onUnassignAdventurer={onUnassignAdventurer}
+            />
+          ))}
+        </div>
+        {/* Modal for zone selection */}
+        {assigningAdventurer && (
+          <div style={{
+            position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, zIndex: 2000,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }} onClick={() => setAssigningAdventurer(null)}>
+            <div style={{ background: '#2c1810', borderRadius: 12, padding: 24, minWidth: 260 }} onClick={e => e.stopPropagation()}>
+              <h4 style={{ color: '#ffd700', marginBottom: 16 }}>Assign to Zone</h4>
+              {zones.map(zone => (
+                <button
+                  key={zone.id}
+                  style={{
+                    display: 'block', width: '100%', margin: '8px 0', padding: 12,
+                    background: '#8b5a2b', color: '#fff', border: 'none', borderRadius: 8,
+                    fontWeight: 'bold', fontSize: 16, cursor: 'pointer'
+                  }}
+                  onClick={() => handleMobileAssign(assigningAdventurer, zone.id)}
+                >
+                  {zone.name}
+                </button>
+              ))}
+              <button style={{ marginTop: 12, width: '100%', padding: 10, background: '#4a2c1a', color: '#ffd700', border: 'none', borderRadius: 8 }} onClick={() => setAssigningAdventurer(null)}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // DESKTOP LAYOUT: Drag-and-drop
   return (
     <div className="shop-screen" style={{ display: 'flex', gap: 32 }}>
       {/* Left: Adventurers (drop target) */}
@@ -55,6 +150,7 @@ const ShopScreen = ({
                   canAfford={true}
                   onSwipe={() => {}}
                   draggable // Will use react-dnd in the card
+                  isMobile={false}
                 />
               ))}
             </div>
@@ -74,6 +170,8 @@ const ShopScreen = ({
               zone={zone}
               assignedAdventurers={zoneAssignments[zone.id] || []}
               onDropAdventurer={onAssignAdventurer}
+              isMobile={false}
+              onUnassignAdventurer={onUnassignAdventurer}
             />
           ))}
         </div>

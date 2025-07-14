@@ -2,7 +2,7 @@ import React from 'react';
 import { useDrop } from 'react-dnd';
 import AdventurerCard from './AdventurerCard';
 
-const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer }) => {
+const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile = false, onUnassignAdventurer }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: 'ADVENTURER',
     drop: (item) => {
@@ -20,7 +20,7 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer }) => {
 
   return (
     <div
-      ref={drop}
+      ref={!isMobile ? drop : undefined}
       style={{
         border: `2px dashed ${isOver ? '#ffd700' : '#8b5a2b'}`,
         background: isOver ? 'rgba(212,175,55,0.08)' : 'rgba(44,24,16,0.2)',
@@ -44,16 +44,30 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer }) => {
                 adventurer={adv}
                 canAfford={true}
                 onSwipe={() => {}}
-                draggable={true}
+                draggable={!isMobile}
                 fromZoneId={zone.id}
+                isMobile={isMobile}
               />
-              {/* Optional: Add a drag handle or X icon for clarity */}
-              <div style={{ position: 'absolute', top: 6, right: 10, color: '#ffd700', fontSize: 18, cursor: 'grab', pointerEvents: 'none' }}>⠿</div>
+              {/* Desktop: drag handle */}
+              {!isMobile && (
+                <div style={{ position: 'absolute', top: 6, right: 10, color: '#ffd700', fontSize: 18, cursor: 'grab', pointerEvents: 'none' }}>⠿</div>
+              )}
+              {/* Mobile: Unassign button */}
+              {isMobile && onUnassignAdventurer && (
+                <button
+                  style={{
+                    position: 'absolute', top: 6, right: 10, background: '#ff6b6b', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 8px', fontWeight: 'bold', cursor: 'pointer', fontSize: 13
+                  }}
+                  onClick={() => onUnassignAdventurer(adv, zone.id)}
+                >
+                  Unassign
+                </button>
+              )}
             </div>
           ))
         )}
       </div>
-      {isOver && canDrop && (
+      {!isMobile && isOver && canDrop && (
         <div style={{ color: '#ffd700', marginTop: 8 }}>Drop adventurer here!</div>
       )}
     </div>

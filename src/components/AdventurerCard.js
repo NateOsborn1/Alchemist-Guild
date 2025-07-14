@@ -4,7 +4,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import './AdventurerCard.css';
 import { useDrag } from 'react-dnd';
 
-const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fromZoneId }) => {
+const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fromZoneId, isMobile = false, onAssign }) => {
   const [exitX, setExitX] = useState(0);
   
   // Track the drag position
@@ -19,6 +19,79 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
   const rejectColor = useTransform(x, [-100, 0], ["#4d1a1a", "#2c1810"]);
   const cardColor = useTransform(x, [-100, 0, 100], [rejectColor, "#2c1810", acceptColor]);
 
+  // DnD drag source
+  const [{ isDragging }, drag] = useDrag({
+    type: 'ADVENTURER',
+    item: { adventurer, fromZoneId },
+    canDrag: draggable,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  if (isMobile) {
+    // MOBILE: No drag/swipe, just show card and assign button
+    return (
+      <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1 }}>
+        <div className="adventurer-content">
+          <div className="adventurer-header">
+            <h3>{adventurer.name}</h3>
+            <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
+              {adventurer.class}
+            </span>
+          </div>
+          <div className="adventurer-stats">
+            <div className="stat-row">
+              <span className="stat-label">Success Rate:</span>
+              <span className="stat-value">{adventurer.successRate}%</span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-label">Mission Time:</span>
+              <span className="stat-value">{adventurer.missionTime}min</span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-label">Hiring Cost:</span>
+              <span className={`stat-value ${canAfford ? 'affordable' : 'expensive'}`}>{adventurer.hiringCost}g</span>
+            </div>
+          </div>
+          <div className="loot-preview">
+            <div className="loot-title">Potential Loot:</div>
+            <div className="loot-items">
+              {adventurer.lootTable && adventurer.lootTable.map((item, index) => (
+                <span key={index} className="loot-item">
+                  {item.min}-{item.max}x {item.material}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="adventurer-description">
+            {adventurer.description}
+          </div>
+          {onAssign && (
+            <button
+              style={{
+                marginTop: 16,
+                width: '100%',
+                padding: 12,
+                background: '#ffd700',
+                color: '#2c1810',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 'bold',
+                fontSize: 16,
+                cursor: 'pointer',
+              }}
+              onClick={() => onAssign(adventurer)}
+            >
+              Assign
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // DESKTOP: Drag-and-drop/swipe
   const handleDragEnd = (event, info) => {
     const threshold = 100;
     const velocityThreshold = 400;
@@ -34,16 +107,6 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
     }
     // If neither condition is met, the card will automatically spring back due to dragConstraints
   };
-
-  // DnD drag source
-  const [{ isDragging }, drag] = useDrag({
-    type: 'ADVENTURER',
-    item: { adventurer, fromZoneId },
-    canDrag: draggable,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
 
   return (
     <motion.div
@@ -94,9 +157,7 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
           </div>
           <div className="stat-row">
             <span className="stat-label">Hiring Cost:</span>
-            <span className={`stat-value ${canAfford ? 'affordable' : 'expensive'}`}>
-              {adventurer.hiringCost}g
-            </span>
+            <span className={`stat-value ${canAfford ? 'affordable' : 'expensive'}`}>{adventurer.hiringCost}g</span>
           </div>
         </div>
         
