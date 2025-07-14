@@ -130,7 +130,7 @@ const calculateReputationRequirement = (baseRequirement, gameState) => {
 };
 
 // Process mission outcome and update game state
-const processMissionOutcome = (adventurer, zone, success, gameState) => {
+const processMissionOutcome = (adventurer, zone, success, gameState, upgradeEffects = {}) => {
   const updatedState = { ...gameState };
   
   // Update adventurer stats
@@ -142,12 +142,15 @@ const processMissionOutcome = (adventurer, zone, success, gameState) => {
     updatedState.adventurerStats.gearCollected += 1;
   }
   
-  // Calculate reputation change with seasonal modifiers
+  // Calculate reputation change with seasonal modifiers and upgrade effects
   let reputationChange = 0;
   if (success) {
     reputationChange = adventurer.reputationGainOnSuccess;
   } else {
     reputationChange = adventurer.reputationLossOnDeath;
+    // Apply reputation loss reduction from upgrades
+    const lossReduction = upgradeEffects.reputationLossReduction || 0;
+    reputationChange = Math.floor(reputationChange * (1 - lossReduction));
   }
   
   // Apply seasonal event multiplier

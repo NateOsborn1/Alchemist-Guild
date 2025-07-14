@@ -23,6 +23,9 @@ import CraftingSection from './components/CraftingSection';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import ZonesScreen from './components/ZonesScreen';
+import UpgradesScreen from './components/UpgradesScreen';
+import StatsScreen from './components/StatsScreen';
+import SaveManager from './components/SaveManager';
 
 function App() {
   // Core game state
@@ -70,6 +73,7 @@ function App() {
   // UI state
   const [craftedPopup, setCraftedPopup] = useState(null);
   const [lastCraftedItem, setLastCraftedItem] = useState(null);
+  const [saveManagerOpen, setSaveManagerOpen] = useState(false);
 
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
@@ -97,11 +101,11 @@ function App() {
   // Update zone danger levels over time
   useEffect(() => {
     const interval = setInterval(() => {
-      setZones(prevZones => updateZoneDanger(prevZones));
+      setZones(prevZones => updateZoneDanger(prevZones, upgradeEffects));
     }, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, []);
+  }, [upgradeEffects]);
 
   // Check for population events
   useEffect(() => {
@@ -145,6 +149,37 @@ function App() {
     return () => clearInterval(interval);
   }, [buildingShops.length]);
 
+  // Auto-save functionality
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      const gameData = {
+        gameState,
+        inventory,
+        zones,
+        adventurers,
+        towns,
+        buildingShops,
+        playerStats,
+        reputation,
+        shopStock,
+        purchasedUpgrades,
+        upgradeEffects,
+        nextAdventurerId,
+        nextOrderId,
+        orderQueue,
+        orderDeadlines,
+        adventurerCustomers
+      };
+      
+      // Import autoSave function
+      import('./services/SaveSystem').then(({ autoSave }) => {
+        autoSave(gameData);
+      });
+    }, 60000); // Auto-save every minute
+
+    return () => clearInterval(autoSaveInterval);
+  }, [gameState, inventory, zones, adventurers, towns, buildingShops, playerStats, reputation, shopStock, purchasedUpgrades, upgradeEffects, nextAdventurerId, nextOrderId, orderQueue, orderDeadlines, adventurerCustomers]);
+
   // Update shop construction progress
   useEffect(() => {
     if (buildingShops.length === 0) return;
@@ -179,7 +214,7 @@ function App() {
   useEffect(() => {
     const initialAdventurers = [];
     for (let i = 1; i <= 3; i++) {
-      const adv = generateAdventurer(i, gameState.population);
+      const adv = generateAdventurer(i, gameState.population, upgradeEffects);
       adv.status = 'available';
       adv.zoneId = null;
       adv.mission = null;
@@ -194,7 +229,7 @@ function App() {
       return [...prev, ...unique];
     });
     setNextAdventurerId(4);
-  }, [gameState.population]);
+  }, [gameState.population, upgradeEffects]);
 
   // Generate initial adventurer customers
   useEffect(() => {
@@ -241,14 +276,14 @@ function App() {
   useEffect(() => {
     const availableCount = adventurers.filter(a => a.status === 'available').length;
     if (currentView === 'shop' && availableCount < 2) {
-      const newAdventurer = generateAdventurer(nextAdventurerId, gameState.population);
+      const newAdventurer = generateAdventurer(nextAdventurerId, gameState.population, upgradeEffects);
       newAdventurer.status = 'available';
       newAdventurer.zoneId = null;
       newAdventurer.mission = null;
       setAdventurers(prev => prev.some(a => a.id === newAdventurer.id) ? prev : [...prev, newAdventurer]);
       setNextAdventurerId(prev => prev + 1);
     }
-  }, [adventurers, nextAdventurerId, currentView, gameState.population]);
+  }, [adventurers, nextAdventurerId, currentView, gameState.population, upgradeEffects]);
 
   // Generate new adventurer customers when deck gets low
   useEffect(() => {
@@ -285,8 +320,8 @@ function App() {
             return prevZones;
           });
           
-          // Update game state
-          setGameState(prevState => processMissionOutcome(adventurer, adventurer.mission, success, prevState));
+          // Update game state with upgrade effects
+          setGameState(prevState => processMissionOutcome(adventurer, adventurer.mission, success, prevState, upgradeEffects));
           
           // Add materials to inventory if successful
           if (success) {
@@ -300,6 +335,12 @@ function App() {
               });
               return newInventory;
             });
+          }
+          
+          // Handle death rewards from upgrades
+          if (!success && upgradeEffects.deathGoldReward) {
+            setInventory(prev => ({ ...prev, gold: prev.gold + upgradeEffects.deathGoldReward }));
+            console.log(`Received ${upgradeEffects.deathGoldReward} gold from death insurance`);
           }
           
           console.log(`${adventurer.name} returned! Success: ${success}`);
@@ -324,8 +365,8 @@ function App() {
       return;
     }
     
-    // Reveal zone if not already revealed
-    if (!zone.isRevealed) {
+    // Reveal zone if not already revealed (or if scouting upgrade is active)
+    if (!zone.isRevealed || upgradeEffects.zoneReveal) {
       setZones(prevZones => prevZones.map(z => 
         z.id === zoneId ? revealZone(z) : z
       ));
@@ -503,6 +544,35 @@ function App() {
     }));
     
     console.log(`Collected ${amount} gold from shop income`);
+  };
+
+  // Handle upgrade purchase
+  const handlePurchaseUpgrade = (cost, newPurchasedUpgrades) => {
+    setInventory(prev => ({ ...prev, gold: prev.gold - cost }));
+    setPurchasedUpgrades(newPurchasedUpgrades);
+    setUpgradeEffects(calculateUpgradeEffects(newPurchasedUpgrades));
+    console.log(`Purchased upgrade for ${cost} gold`);
+  };
+
+  // Handle loading game data
+  const handleLoadGame = (saveData) => {
+    setGameState(saveData.gameState);
+    setInventory(saveData.inventory);
+    setZones(saveData.zones);
+    setAdventurers(saveData.adventurers);
+    setTowns(saveData.towns);
+    setBuildingShops(saveData.buildingShops);
+    setPlayerStats(saveData.playerStats);
+    setReputation(saveData.reputation);
+    setShopStock(saveData.shopStock);
+    setPurchasedUpgrades(saveData.purchasedUpgrades);
+    setUpgradeEffects(saveData.upgradeEffects);
+    setNextAdventurerId(saveData.nextAdventurerId);
+    setNextOrderId(saveData.nextOrderId);
+    setOrderQueue(saveData.orderQueue);
+    setOrderDeadlines(saveData.orderDeadlines);
+    setAdventurerCustomers(saveData.adventurerCustomers);
+    console.log('Game loaded successfully');
   };
 
   const handleBuyMaterial = (material, cost) => {
@@ -713,6 +783,13 @@ function App() {
                   : 0}%
               </span>
             </div>
+            <button 
+              className="save-button"
+              onClick={() => setSaveManagerOpen(true)}
+              title="Save/Load Game"
+            >
+              💾
+            </button>
           </div>
           
           {currentView === 'shop' && (
@@ -746,17 +823,22 @@ function App() {
           )}
           
           {currentView === 'upgrades' && (
-            <div className="upgrades-screen">
-              <h2>Upgrades</h2>
-              <p>Upgrade system coming soon...</p>
-            </div>
+            <UpgradesScreen
+              playerGold={inventory.gold}
+              purchasedUpgrades={purchasedUpgrades}
+              onPurchaseUpgrade={handlePurchaseUpgrade}
+              upgradeEffects={upgradeEffects}
+            />
           )}
           
           {currentView === 'stats' && (
-            <div className="stats-screen">
-              <h2>Statistics</h2>
-              <p>Statistics screen coming soon...</p>
-            </div>
+            <StatsScreen
+              gameState={gameState}
+              adventurers={adventurers}
+              zones={zones}
+              inventory={inventory}
+              purchasedUpgrades={purchasedUpgrades}
+            />
           )}
           
           {/* Inventory Sheet (only when open) */}
@@ -893,6 +975,31 @@ function App() {
           
           {/* Desktop Inventory Display (hidden on mobile) */}
         </header>
+        
+        {/* Save Manager */}
+        <SaveManager
+          gameData={{
+            gameState,
+            inventory,
+            zones,
+            adventurers,
+            towns,
+            buildingShops,
+            playerStats,
+            reputation,
+            shopStock,
+            purchasedUpgrades,
+            upgradeEffects,
+            nextAdventurerId,
+            nextOrderId,
+            orderQueue,
+            orderDeadlines,
+            adventurerCustomers
+          }}
+          onLoadGame={handleLoadGame}
+          isOpen={saveManagerOpen}
+          onClose={() => setSaveManagerOpen(false)}
+        />
       </div>
     </DndProvider>
   );

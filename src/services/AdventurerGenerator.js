@@ -137,7 +137,7 @@ const wealthLevels = {
   }
 };
 
-const generateAdventurer = (id, townPopulation = 1000) => {
+const generateAdventurer = (id, townPopulation = 1000, upgradeEffects = {}) => {
   const classKeys = Object.keys(adventurerClasses);
   const selectedClass = classKeys[Math.floor(Math.random() * classKeys.length)];
   const classData = adventurerClasses[selectedClass];
@@ -155,8 +155,11 @@ const generateAdventurer = (id, townPopulation = 1000) => {
   const wealthKeys = Object.keys(wealthLevels);
   let selectedWealth = wealthKeys[1]; // Default to average
   
-  // Wealthy adventurers appear based on town population
-  const wealthyChance = Math.min(0.15, townPopulation / 10000); // Max 15% chance
+  // Wealthy adventurers appear based on town population and upgrades
+  const baseWealthyChance = Math.min(0.15, townPopulation / 10000); // Max 15% chance
+  const upgradeBonus = upgradeEffects.wealthyChance || 0;
+  const wealthyChance = Math.min(0.25, baseWealthyChance + upgradeBonus); // Cap at 25%
+  
   if (Math.random() < wealthyChance) {
     selectedWealth = wealthKeys[2]; // wealthy
   } else if (Math.random() < 0.3) {
@@ -167,7 +170,8 @@ const generateAdventurer = (id, townPopulation = 1000) => {
   
   // Calculate final stats with modifiers
   const baseExperience = classData.baseExperience + typeData.experienceModifier + wealthData.wealthModifier;
-  const experience = Math.max(10, Math.min(100, baseExperience + (Math.random() * 20 - 10)));
+  const experienceBonus = upgradeEffects.experienceBonus || 0;
+  const experience = Math.max(10, Math.min(100, baseExperience + experienceBonus + (Math.random() * 20 - 10)));
   
   const baseSurvival = classData.baseSurvivalRate + typeData.survivalModifier;
   const survivalRate = Math.max(30, Math.min(95, baseSurvival + (Math.random() * 20 - 10)));
@@ -175,8 +179,10 @@ const generateAdventurer = (id, townPopulation = 1000) => {
   const baseWealth = classData.baseWealth + typeData.wealthModifier + wealthData.wealthModifier;
   const wealth = Math.max(5, Math.min(100, baseWealth + (Math.random() * 20 - 10)));
   
-  // Calculate reputation requirements based on experience and wealth
-  const reputationRequirement = Math.max(0, Math.floor((experience + wealth) / 4) - 10);
+  // Calculate reputation requirements based on experience and wealth and upgrades
+  const baseReputationRequirement = Math.max(0, Math.floor((experience + wealth) / 4) - 10);
+  const reputationReduction = upgradeEffects.reputationRequirementReduction || 0;
+  const reputationRequirement = Math.max(0, baseReputationRequirement - reputationReduction);
   
   // Generate gear based on wealth and class
   const gear = generateAdventurerGear(selectedClass, wealthData.gearQuality, wealth);

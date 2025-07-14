@@ -93,12 +93,16 @@ const generateInitialZones = () => {
 };
 
 // Update zone danger levels over time
-const updateZoneDanger = (zones) => {
+const updateZoneDanger = (zones, upgradeEffects = {}) => {
   const now = Date.now();
   
   return zones.map(zone => {
     const timeDiff = (now - zone.lastGrowthTime) / (1000 * 60); // Convert to minutes
-    const dangerIncrease = timeDiff * zone.growthRate;
+    const baseDangerIncrease = timeDiff * zone.growthRate;
+    
+    // Apply danger growth reduction from upgrades
+    const growthReduction = upgradeEffects.dangerGrowthReduction || 0;
+    const dangerIncrease = baseDangerIncrease * (1 - growthReduction);
     
     const newDangerLevel = Math.min(zone.maxDanger, zone.dangerLevel + dangerIncrease);
     

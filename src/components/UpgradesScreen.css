@@ -1,0 +1,317 @@
+/* src/components/UpgradesScreen.css */
+.upgrades-screen {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #f4e4bc;
+  font-family: 'Georgia', serif;
+}
+
+.upgrades-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.upgrades-header h2 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  font-size: 2rem;
+}
+
+.upgrades-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(44, 24, 16, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.gold-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gold-label {
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.gold-amount {
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.effects-toggle {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.effects-toggle:hover {
+  background: #d4af37;
+  color: #2c1810;
+}
+
+.current-effects {
+  background: rgba(44, 24, 16, 0.4);
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.current-effects h3 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.effects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.effect-item {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+
+.effect-description {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.category-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  border-color: #d4af37;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.category-header h3 {
+  color: #d4af37;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.category-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.progress-bar {
+  width: 80px;
+  height: 8px;
+  background: #2c1810;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #ffd700);
+  transition: width 0.3s ease;
+}
+
+.category-description {
+  color: #cd853f;
+  font-style: italic;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.upgrades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.upgrade-item {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.2s ease;
+}
+
+.upgrade-item.purchased {
+  border-color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.upgrade-item.available:hover {
+  border-color: #d4af37;
+  transform: translateY(-1px);
+}
+
+.upgrade-item.unavailable {
+  opacity: 0.6;
+}
+
+.upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.upgrade-header h4 {
+  color: #f4e4bc;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.upgrade-cost {
+  display: flex;
+  align-items: center;
+}
+
+.purchased-badge {
+  background: #4ecdc4;
+  color: #2c1810;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.cost-amount {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.cost-amount.affordable {
+  color: #4ecdc4;
+}
+
+.cost-amount.expensive {
+  color: #ff6b6b;
+}
+
+.upgrade-description {
+  color: #cd853f;
+  font-size: 13px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.upgrade-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.effect-badge {
+  background: #4a2c1a;
+  color: #d4af37;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid #8b5a2b;
+}
+
+.purchase-btn {
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.purchase-btn.available {
+  background: #4ecdc4;
+  color: #2c1810;
+}
+
+.purchase-btn.available:hover {
+  background: #45b7aa;
+  transform: translateY(-1px);
+}
+
+.purchase-btn.unavailable {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .upgrades-screen {
+    padding: 15px;
+  }
+  
+  .upgrades-summary {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .category-progress {
+    align-items: flex-start;
+  }
+  
+  .upgrade-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+} 

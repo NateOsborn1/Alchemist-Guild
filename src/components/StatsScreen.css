@@ -1,0 +1,559 @@
+/* src/components/StatsScreen.css */
+.stats-screen {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #f4e4bc;
+  font-family: 'Georgia', serif;
+}
+
+.stats-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stats-header h2 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.stats-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.tab-button:hover {
+  background: #d4af37;
+  color: #2c1810;
+}
+
+.tab-button.active {
+  background: #ffd700;
+  color: #2c1810;
+  border-color: #ffd700;
+}
+
+.stats-content {
+  background: rgba(44, 24, 16, 0.4);
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Overview Tab */
+.stats-overview {
+  padding: 10px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: #d4af37;
+  transform: translateY(-2px);
+}
+
+.stat-card h3 {
+  color: #d4af37;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.stat-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.stat-breakdown span {
+  color: #cd853f;
+}
+
+.stat-breakdown .success {
+  color: #4ecdc4;
+}
+
+.stat-breakdown .failure {
+  color: #ff6b6b;
+}
+
+/* Missions Tab */
+.stats-missions {
+  padding: 10px;
+}
+
+.stats-missions h3 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.mission-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.mission-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chart-label {
+  color: #cd853f;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.chart-bar-container {
+  position: relative;
+  background: #2c1810;
+  border-radius: 6px;
+  height: 30px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 6px;
+}
+
+.chart-bar-fill.success {
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+}
+
+.chart-bar-fill.failure {
+  background: linear-gradient(90deg, #ff6b6b, #e74c3c);
+}
+
+.chart-value {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f4e4bc;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.mission-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(74, 44, 26, 0.6);
+  border-radius: 6px;
+  border: 1px solid #8b5a2b;
+}
+
+.detail-label {
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.detail-value {
+  color: #f4e4bc;
+  font-weight: bold;
+}
+
+.detail-value.success {
+  color: #4ecdc4;
+}
+
+.detail-value.failure {
+  color: #ff6b6b;
+}
+
+/* Zones Tab */
+.stats-zones {
+  padding: 10px;
+}
+
+.stats-zones h3 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.zones-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.zone-stat-card {
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
+  border: 2px solid #8b5a2b;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.zone-header h4 {
+  color: #f4e4bc;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.zone-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.zone-status.safe {
+  background: #4ecdc4;
+  color: #2c1810;
+}
+
+.zone-status.dangerous {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.zone-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zone-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.zone-progress span {
+  color: #cd853f;
+  font-size: 14px;
+}
+
+.danger-bar {
+  background: #2c1810;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.danger-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.zone-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #8b5a2b;
+}
+
+/* Reputation Tab */
+.stats-reputation {
+  padding: 10px;
+}
+
+.stats-reputation h3 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.reputation-summary {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.reputation-current {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #8b5a2b;
+}
+
+.current-label {
+  color: #cd853f;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.current-value {
+  color: #ffd700;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.reputation-breakdown {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.breakdown-label {
+  color: #cd853f;
+  font-size: 14px;
+}
+
+.breakdown-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.breakdown-value.positive {
+  color: #4ecdc4;
+}
+
+.breakdown-value.negative {
+  color: #ff6b6b;
+}
+
+.reputation-history {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.reputation-history h4 {
+  color: #d4af37;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(44, 24, 16, 0.4);
+  border-radius: 6px;
+  border: 1px solid #8b5a2b;
+}
+
+.history-day {
+  color: #cd853f;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.history-value {
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.history-event {
+  color: #f4e4bc;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Upgrades Tab */
+.stats-upgrades {
+  padding: 10px;
+}
+
+.stats-upgrades h3 {
+  color: #d4af37;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.upgrades-summary {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.upgrade-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upgrade-progress span {
+  color: #cd853f;
+  font-weight: bold;
+  text-align: center;
+}
+
+.progress-bar {
+  background: #2c1810;
+  border-radius: 6px;
+  height: 12px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #ffd700);
+  transition: width 0.3s ease;
+  border-radius: 6px;
+}
+
+.upgrades-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.upgrade-category {
+  background: rgba(74, 44, 26, 0.6);
+  border: 1px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.category-header h4 {
+  color: #f4e4bc;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.category-progress {
+  color: #cd853f;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.category-bar {
+  background: #2c1810;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid #8b5a2b;
+}
+
+.category-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #45b7aa);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .stats-screen {
+    padding: 15px;
+  }
+  
+  .stats-tabs {
+    gap: 5px;
+  }
+  
+  .tab-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mission-stats {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .zones-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .reputation-breakdown {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+} 

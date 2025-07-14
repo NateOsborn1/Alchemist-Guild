@@ -675,6 +675,25 @@
   100% { opacity: 1; }
 }
 
+/* Save button in game stats */
+.save-button {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.save-button:hover {
+  background: #d4af37;
+  color: #2c1810;
+  transform: translateY(-1px);
+}
+
 .inventory-sheet-content .inventory-grid {
   margin-top: 32px;
 }
