@@ -883,17 +883,6 @@ function App() {
           {/* This is now handled by the JSX structure */}
           
           {/* Desktop Inventory Display (hidden on mobile) */}
-          <div className="inventory-display desktop-only">
-            <h4>Inventory</h4>
-            <div className="inventory-grid">
-              {Object.entries(inventory).filter(([key]) => key !== 'gold').map(([material, amount]) => (
-                <div key={material} className="inventory-item">
-                  <span className="material-name">{material}</span>
-                  <span className="material-amount">{amount}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </header>
       </div>
     </DndProvider>
