@@ -16,10 +16,9 @@ function useIsMobile() {
 }
 
 const ShopScreen = ({ 
-  availableAdventurers, 
+  adventurers,
   zones, 
   gameState, 
-  zoneAssignments,
   onAssignAdventurer,
   onUnassignAdventurer,
   currentEvent 
@@ -50,6 +49,7 @@ const ShopScreen = ({
 
   if (isMobile) {
     // MOBILE LAYOUT: Stack adventurers and zones vertically, use tap-to-assign
+    const availableAdventurers = adventurers.filter(a => a.status === 'available');
     return (
       <div className="shop-screen" style={{ display: 'block', padding: 8 }}>
         <div className="shop-header">
@@ -86,7 +86,7 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={zoneAssignments[zone.id] || []}
+              assignedAdventurers={adventurers.filter(a => a.status === 'assigned' && a.zoneId === zone.id)}
               onDropAdventurer={onAssignAdventurer}
               isMobile={true}
               onUnassignAdventurer={onUnassignAdventurer}
@@ -123,6 +123,7 @@ const ShopScreen = ({
   }
 
   // DESKTOP LAYOUT: Drag-and-drop
+  const availableAdventurers = adventurers.filter(a => a.status === 'available');
   return (
     <div className="shop-screen" style={{ display: 'flex', gap: 32 }}>
       {/* Left: Adventurers (drop target) */}
@@ -168,7 +169,7 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={zoneAssignments[zone.id] || []}
+              assignedAdventurers={adventurers.filter(a => a.status === 'assigned' && a.zoneId === zone.id)}
               onDropAdventurer={onAssignAdventurer}
               isMobile={false}
               onUnassignAdventurer={onUnassignAdventurer}

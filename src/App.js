@@ -22,21 +22,19 @@ import { calculateCraftingAttributes } from './services/MaterialAttributes';
 import CraftingSection from './components/CraftingSection';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import ZonesScreen from './components/ZonesScreen';
 
 function App() {
   // Core game state
   const [gameState, setGameState] = useState(initialGameState);
   const [inventory, setInventory] = useState(initialResources);
   const [inventoryOpen, setInventoryOpen] = useState(false);
-  
   // Zone system
   const [zones, setZones] = useState(generateInitialZones());
-  
-  // Adventurer system
-  const [availableAdventurers, setAvailableAdventurers] = useState([]);
-  const [activeMissions, setActiveMissions] = useState([]);
+  // Adventurers: single source of truth
+  const [adventurers, setAdventurers] = useState([]); // All adventurers
   const [nextAdventurerId, setNextAdventurerId] = useState(1);
-  const [currentView, setCurrentView] = useState('shop'); // 'shop', 'zones', 'inventory', 'town', 'upgrades', 'stats'
+  const [currentView, setCurrentView] = useState('shop');
   
   // Legacy order system (keeping for compatibility)
   const [orderQueue, setOrderQueue] = useState([]);
@@ -73,37 +71,22 @@ function App() {
   const [craftedPopup, setCraftedPopup] = useState(null);
   const [lastCraftedItem, setLastCraftedItem] = useState(null);
 
-  // Adventurer-Zone assignments for drag-and-drop
-  const [zoneAssignments, setZoneAssignments] = useState({}); // { zoneId: [adventurer, ...] }
-
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
-    // Remove from available list
-    setAvailableAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
-    // Remove from all zones
-    setZoneAssignments(prev => {
-      const updated = {};
-      Object.keys(prev).forEach(zid => {
-        updated[zid] = (prev[zid] || []).filter(a => a.id !== adventurer.id);
-      });
-      const current = updated[zoneId] || [];
-      updated[zoneId] = [...current, adventurer];
-      return updated;
-    });
+    setAdventurers(prev => prev.map(a =>
+      a.id === adventurer.id
+        ? { ...a, status: 'assigned', zoneId, mission: null }
+        : a
+    ));
   };
 
   // Handler for unassigning (dragging out of a zone)
   const handleUnassignAdventurer = (adventurer, fromZoneId) => {
-    // Remove from all zones
-    setZoneAssignments(prev => {
-      const updated = {};
-      Object.keys(prev).forEach(zid => {
-        updated[zid] = (prev[zid] || []).filter(a => a.id !== adventurer.id);
-      });
-      return updated;
-    });
-    // Add to available list
-    setAvailableAdventurers(prev => [...prev, adventurer]);
+    setAdventurers(prev => prev.map(a =>
+      a.id === adventurer.id
+        ? { ...a, status: 'available', zoneId: null, mission: null }
+        : a
+    ));
   };
 
   // Generate initial towns
@@ -196,9 +179,20 @@ function App() {
   useEffect(() => {
     const initialAdventurers = [];
     for (let i = 1; i <= 3; i++) {
-      initialAdventurers.push(generateAdventurer(i, gameState.population));
+      const adv = generateAdventurer(i, gameState.population);
+      adv.status = 'available';
+      adv.zoneId = null;
+      adv.mission = null;
+      // Only add if id is unique
+      if (!initialAdventurers.some(a => a.id === adv.id)) {
+        initialAdventurers.push(adv);
+      }
     }
-    setAvailableAdventurers(initialAdventurers);
+    setAdventurers(prev => {
+      // Only add if id is unique in the main array too
+      const unique = initialAdventurers.filter(na => !prev.some(a => a.id === na.id));
+      return [...prev, ...unique];
+    });
     setNextAdventurerId(4);
   }, [gameState.population]);
 
@@ -245,12 +239,16 @@ function App() {
 
   // Add new adventurer when deck gets low
   useEffect(() => {
-    if (currentView === 'shop' && availableAdventurers.length < 2) {
+    const availableCount = adventurers.filter(a => a.status === 'available').length;
+    if (currentView === 'shop' && availableCount < 2) {
       const newAdventurer = generateAdventurer(nextAdventurerId, gameState.population);
-      setAvailableAdventurers(prev => [...prev, newAdventurer]);
+      newAdventurer.status = 'available';
+      newAdventurer.zoneId = null;
+      newAdventurer.mission = null;
+      setAdventurers(prev => prev.some(a => a.id === newAdventurer.id) ? prev : [...prev, newAdventurer]);
       setNextAdventurerId(prev => prev + 1);
     }
-  }, [availableAdventurers.length, nextAdventurerId, currentView, gameState.population]);
+  }, [adventurers, nextAdventurerId, currentView, gameState.population]);
 
   // Generate new adventurer customers when deck gets low
   useEffect(() => {
@@ -263,38 +261,38 @@ function App() {
 
   // Check for completed missions
   useEffect(() => {
-    if (activeMissions.length === 0) return;
+    if (adventurers.filter(a => a.status === 'onMission').length === 0) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
       
-      setActiveMissions(prevMissions => {
-        const completed = prevMissions.filter(mission => now >= mission.returnTime);
-        const active = prevMissions.filter(mission => now < mission.returnTime);
+      setAdventurers(prevAdventurers => {
+        const completed = prevAdventurers.filter(adventurer => now >= adventurer.returnTime);
+        const active = prevAdventurers.filter(adventurer => now < adventurer.returnTime);
         
         // Process completed missions
-        completed.forEach(mission => {
-          const success = Math.random() * 100 < mission.successChance;
+        completed.forEach(adventurer => {
+          const success = Math.random() * 100 < adventurer.successChance;
           
           // Update zone
           setZones(prevZones => {
-            const zoneIndex = prevZones.findIndex(z => z.id === mission.zoneId);
+            const zoneIndex = prevZones.findIndex(z => z.id === adventurer.zoneId);
             if (zoneIndex !== -1) {
               const updatedZones = [...prevZones];
-              updatedZones[zoneIndex] = processZoneOutcome(mission.adventurer, updatedZones[zoneIndex], success);
+              updatedZones[zoneIndex] = processZoneOutcome(adventurer, updatedZones[zoneIndex], success);
               return updatedZones;
             }
             return prevZones;
           });
           
           // Update game state
-          setGameState(prevState => processMissionOutcome(mission.adventurer, mission.zone, success, prevState));
+          setGameState(prevState => processMissionOutcome(adventurer, adventurer.mission, success, prevState));
           
           // Add materials to inventory if successful
           if (success) {
             setInventory(prevInventory => {
               const newInventory = { ...prevInventory };
-              mission.zone.materials.forEach(material => {
+              adventurer.mission.materials.forEach(material => {
                 if (Math.random() < 0.7) { // 70% chance for each material
                   const amount = Math.floor(Math.random() * 3) + 1;
                   newInventory[material] = (newInventory[material] || 0) + amount;
@@ -304,7 +302,7 @@ function App() {
             });
           }
           
-          console.log(`${mission.adventurer.name} returned! Success: ${success}`);
+          console.log(`${adventurer.name} returned! Success: ${success}`);
         });
         
         return active;
@@ -312,7 +310,7 @@ function App() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeMissions.length]);
+  }, [adventurers.filter(a => a.status === 'onMission').length]);
 
   // Handle adventurer assignment to zones
   const handleAdventurerAssignment = (adventurer, zoneId) => {
@@ -349,10 +347,14 @@ function App() {
     };
     
     // Add to active missions
-    setActiveMissions(prev => [...prev, mission]);
+    setAdventurers(prev => prev.map(a =>
+      a.id === adventurer.id
+        ? { ...a, status: 'onMission', mission }
+        : a
+    ));
     
     // Remove adventurer from available list
-    setAvailableAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
+    setAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
     
     console.log(`🗺️ ${adventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
   };
@@ -412,19 +414,27 @@ function App() {
         const missionDuration = adventurer.missionTime * 60 * 1000; // Convert minutes to milliseconds
         const hiredAdventurer = {
           ...adventurer,
-          startTime: Date.now(),
-          returnTime: Date.now() + missionDuration,
-          progress: 0
+          status: 'onMission',
+          mission: {
+            id: Date.now(),
+            adventurer: hiredAdventurer,
+            zone: null, // Will be set by handleAdventurerAssignment
+            zoneId: null, // Will be set by handleAdventurerAssignment
+            startTime: Date.now(),
+            returnTime: Date.now() + missionDuration,
+            successChance: 0, // Will be set by handleAdventurerAssignment
+            progress: 0
+          }
         };
         
-        setActiveMissions(prev => [...prev, hiredAdventurer]);
+        setAdventurers(prev => [...prev, hiredAdventurer]);
         console.log(`Hired ${adventurer.name} for ${adventurer.hiringCost} gold`);
       }
     }
     
     // Remove from available deck
     setTimeout(() => {
-      setAvailableAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
+      setAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
     }, 300);
   };
 
@@ -591,7 +601,7 @@ function App() {
       fromOrder: true // Flag to identify this adventurer came from an order
     };
     
-    setActiveMissions(prev => [...prev, customerAdventurer]);
+    setAdventurers(prev => [...prev, customerAdventurer]);
     
     console.log(`✅ Order completed! ${order.customerName} is now on a mission.`);
   };
@@ -689,11 +699,11 @@ function App() {
             </div>
             <div className="stat">
               <span className="stat-label">Active Missions:</span>
-              <span className="stat-value">{activeMissions.length}</span>
+              <span className="stat-value">{adventurers.filter(a => a.status === 'onMission').length}</span>
             </div>
             <div className="stat">
               <span className="stat-label">Available:</span>
-              <span className="stat-value">{availableAdventurers.length}</span>
+              <span className="stat-value">{adventurers.filter(a => a.status === 'available').length}</span>
             </div>
             <div className="stat">
               <span className="stat-label">Success Rate:</span>
@@ -707,10 +717,9 @@ function App() {
           
           {currentView === 'shop' && (
             <ShopScreen
-              availableAdventurers={availableAdventurers}
+              adventurers={adventurers}
               zones={zones}
               gameState={gameState}
-              zoneAssignments={zoneAssignments}
               onAssignAdventurer={handleAssignAdventurerToZone}
               onUnassignAdventurer={handleUnassignAdventurer}
               currentEvent={getCurrentEventInfo(gameState)}
@@ -718,10 +727,10 @@ function App() {
           )}
           
           {currentView === 'zones' && (
-            <div className="zones-screen">
-              <h2>Zone Management</h2>
-              <p>Zone management screen coming soon...</p>
-            </div>
+            <ZonesScreen
+              zones={zones}
+              adventurers={adventurers}
+            />
           )}
           
           {currentView === 'town' && (
