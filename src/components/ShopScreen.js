@@ -67,7 +67,7 @@ const ShopScreen = ({
               <p>No adventurers available. Check back later!</p>
             </div>
           ) : (
-            <div className="adventurers-grid" style={{ gap: 10, justifyContent: 'center' }}>
+            <div className="adventurers-grid" style={{ gap: 10, justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
               {availableAdventurers.map(adventurer => (
                 <AdventurerCard 
                   key={adventurer.id}
@@ -81,7 +81,7 @@ const ShopScreen = ({
           )}
         </div>
         <h3 style={{ margin: '24px 0 10px 0', textAlign: 'center' }}>Active Zones</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', width: '100%', margin: '0 auto' }}>
           {zones.map(zone => (
             <ZoneDropPanel
               key={zone.id}
