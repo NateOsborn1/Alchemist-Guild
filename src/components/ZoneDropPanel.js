@@ -28,10 +28,10 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
         padding: isMobile ? 8 : 16,
         minHeight: isMobile ? 60 : 120,
         transition: 'background 0.2s',
-        maxWidth: isMobile ? '95vw' : undefined,
-        margin: isMobile ? '12px auto' : undefined,
+        width: isMobile ? '96vw' : undefined,
+        maxWidth: isMobile ? 400 : undefined,
+        margin: isMobile ? '12px auto 0 auto' : undefined,
         fontSize: isMobile ? 14 : undefined,
-        width: isMobile ? '95%' : undefined,
         display: 'block',
       }}
     >

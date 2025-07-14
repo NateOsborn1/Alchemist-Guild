@@ -32,7 +32,7 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
   if (isMobile) {
     // MOBILE: No drag/swipe, just show card and assign button
     return (
-      <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1, maxWidth: 340, margin: '12px auto', padding: 12, fontSize: 15 }}>
+      <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1, width: '96vw', maxWidth: 400, margin: '12px auto 0 auto', padding: 12, fontSize: 15 }}>
         <div className="adventurer-content">
           <div className="adventurer-header" style={{ fontSize: 18 }}>
             <h3 style={{ fontSize: 18, margin: 0 }}>{adventurer.name}</h3>
