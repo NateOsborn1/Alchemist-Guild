@@ -1,35 +1,38 @@
 /* src/components/AdventurerCard.css */
 .adventurer-card {
+  width: 100%;
+  max-width: 320px;
+  min-height: 200px;
+  margin: 8px auto;
+  cursor: pointer;
+  user-select: none;
   background: linear-gradient(135deg, #2c1810, #4a2c1a);
   border: 2px solid #8b5a2b;
   border-radius: 12px;
-  padding: 20px;
-  margin: 10px;
-  width: 320px;
-  color: #f4e4bc;
+  padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   font-family: 'Georgia', serif;
-  position: relative;
-  cursor: grab;
-  user-select: none;
-  overflow: hidden;
+  color: #f4e4bc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.adventurer-card:active {
-  cursor: grabbing;
-}
-
-.adventurer-header {
+/* Header row: Name and Class */
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
-.adventurer-header h3 {
+.adventurer-name {
   margin: 0;
-  color: #f4e4bc;
   font-size: 18px;
+  color: #f4e4bc;
+  font-weight: bold;
+  flex: 1;
+  margin-right: 8px;
 }
 
 .class-badge {
@@ -38,6 +41,7 @@
   font-size: 11px;
   font-weight: bold;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .class-badge.rogue {
@@ -60,111 +64,183 @@
   color: #f4e4bc;
 }
 
-.adventurer-stats {
-  margin-bottom: 15px;
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #cd853f;
-}
-
-.stat-value {
-  font-size: 13px;
-  font-weight: bold;
+.class-badge.warrior {
+  background: #8b4513;
   color: #f4e4bc;
 }
 
-.stat-value.affordable {
-  color: #4ecdc4;
+/* Rank Badge - Clear indicator */
+.rank-badge {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  width: fit-content;
 }
 
-.stat-value.expensive {
-  color: #ff6b6b;
-}
-
-.loot-preview {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: rgba(74, 44, 26, 0.4);
-  border-radius: 6px;
+/* Success Rate - BIGGEST number */
+.success-rate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 8px;
   border: 1px solid #8b5a2b;
 }
 
-.loot-title {
-  font-size: 12px;
+.rate-label {
+  font-size: 14px;
   color: #cd853f;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-.loot-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  justify-content: center;
-}
-
-.loot-item {
-  background: #4a2c1a;
-  color: #d4af37;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
   font-weight: bold;
 }
 
-.adventurer-description {
-  font-size: 12px;
-  color: #cd853f;
-  font-style: italic;
-  text-align: center;
-  line-height: 1.4;
+.rate-value {
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.swipe-indicator {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+/* Cost Section - Clear business cost */
+.cost-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+}
+
+.cost-label {
+  font-size: 14px;
+  color: #cd853f;
+  font-weight: bold;
+}
+
+.cost-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.reputation-icon {
+  font-size: 16px;
+}
+
+/* Specialty - ONE LINE only */
+.specialty-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(74, 44, 26, 0.4);
+  border-radius: 8px;
+  border: 1px solid #8b5a2b;
+  margin-bottom: 12px;
+}
+
+.specialty-label {
+  font-size: 12px;
+  color: #cd853f;
   font-weight: bold;
-  font-size: 16px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 1;
+  text-transform: uppercase;
 }
 
-.swipe-indicator.left {
-  left: 20px;
-  color: #ff6b6b;
-}
-
-.swipe-indicator.right {
-  right: 20px;
+.specialty-text {
+  font-size: 14px;
   color: #4ecdc4;
+  line-height: 1.3;
+  /* Ensure one line only */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.swipe-indicator span:first-child {
-  font-size: 20px;
-  margin-bottom: 5px;
-}
-
-.swipe-indicator span:last-child {
-  font-size: 10px;
+/* Action Button */
+.assign-button {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: 1px solid #d4af37;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.adventurer-content {
-  position: relative;
-  z-index: 2;
+.assign-button:hover {
+  background: #d4af37;
+  color: #2c1810;
+}
+
+.assign-button:active {
+  transform: translateY(1px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .adventurer-card {
+    width: 90vw;
+    max-width: 300px;
+    min-height: 180px;
+    margin: 6px auto;
+    padding: 12px;
+  }
+  
+  .adventurer-name {
+    font-size: 16px;
+  }
+  
+  .class-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  
+  .rank-badge {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  
+  .rate-value {
+    font-size: 20px;
+  }
+  
+  .cost-value {
+    font-size: 16px;
+  }
+  
+  .specialty-text {
+    font-size: 13px;
+  }
+  
+  .assign-button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+/* Drag and drop states */
+.adventurer-card:active {
+  cursor: grabbing;
+}
+
+.adventurer-card[style*="opacity: 0.3"] {
+  transform: scale(0.95);
+}
+
+/* Remove flip animation - no more collectible card style */
+.card-inner,
+.card-front,
+.card-back {
+  display: none;
 }

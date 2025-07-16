@@ -89,6 +89,9 @@ function App() {
   // Game log system
   const [gameLog, setGameLog] = useState([]);
   
+  // Track processed missions to prevent duplicates
+  const processedMissionsRef = useRef(new Set());
+  
   // Helper function to add log entries
   const addLogEntry = (message, type = 'info') => {
     const entry = {
@@ -418,7 +421,8 @@ function App() {
 
   // Check for completed missions
   useEffect(() => {
-    if (adventurers.filter(a => a.status === 'onMission').length === 0) return;
+    const onMissionAdventurers = adventurers.filter(a => a.status === 'onMission');
+    if (onMissionAdventurers.length === 0) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -431,22 +435,55 @@ function App() {
         const active = prevAdventurers.filter(adventurer => 
           adventurer.status === 'onMission' && adventurer.mission && now < adventurer.mission.returnTime
         );
+        
+        // Only process if there are actually completed missions
+        if (completed.length === 0) return prevAdventurers;
+        
         console.log('[mission completion useEffect] setAdventurers: completed', completed.length, completed, 'active', active.length, active);
         
         // Process completed missions
         completed.forEach(adventurer => {
+          const missionKey = `${adventurer.id}_${adventurer.mission.id}`;
+          if (processedMissionsRef.current.has(missionKey)) {
+            console.log('Mission already processed, skipping:', missionKey);
+            return;
+          }
+          processedMissionsRef.current.add(missionKey);
+
           console.log('Mission completed:', adventurer.name, 'now:', now, 'returnTime:', adventurer.mission.returnTime);
           const success = Math.random() * 100 < adventurer.mission.successChance;
           
           // Store success result for this adventurer
           const adventurerWithResult = { ...adventurer, lastMissionFailed: !success };
           
+          // Calculate damage dealt to zone first
+          const zone = zones.find(z => z.id === adventurerWithResult.zoneId);
+          let damagePercentage = 0;
+          if (zone) {
+            const newZone = processZoneOutcome(adventurerWithResult, zone, success);
+            const damageDealt = zone.currentHealth - newZone.currentHealth;
+            damagePercentage = zone.maxHealth > 0 ? (damageDealt / zone.maxHealth) * 100 : 0;
+          }
+          
           // Update zone
           setZones(prevZones => {
             const zoneIndex = prevZones.findIndex(z => z.id === adventurerWithResult.zoneId);
             if (zoneIndex !== -1) {
               const updatedZones = [...prevZones];
-              updatedZones[zoneIndex] = processZoneOutcome(adventurerWithResult, updatedZones[zoneIndex], success);
+              const oldZone = updatedZones[zoneIndex];
+              const newZone = processZoneOutcome(adventurerWithResult, oldZone, success);
+              
+              // Check if zone was just cleared (health went from >0 to 0)
+              if (oldZone.currentHealth > 0 && newZone.currentHealth <= 0 && !oldZone.isInDowntime) {
+                // Zone was just cleared - give reputation bonus
+                setGameState(prev => ({
+                  ...prev,
+                  reputation: prev.reputation + newZone.reputationBonus
+                }));
+                addLogEntry(`🏆 ${newZone.name} has been cleared! +${newZone.reputationBonus} ⭐ reputation bonus!`, 'success');
+              }
+              
+              updatedZones[zoneIndex] = newZone;
               return updatedZones;
             }
             return prevZones;
@@ -455,35 +492,35 @@ function App() {
           // Update game state with upgrade effects
           setGameState(prevState => processMissionOutcome(adventurerWithResult, adventurerWithResult.mission, success, prevState, upgradeEffects));
           
-          // Add materials to inventory if successful
-          if (success) {
-            setInventory(prevInventory => {
-              const newInventory = { ...prevInventory };
-              // Add a random gear drop
-              if (!newInventory.collectedGear) newInventory.collectedGear = [];
-              const gearDrop = {
-                id: `gear_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-                name: `${adventurerWithResult.class}'s Trophy`,
-                quality: ['Common', 'Uncommon', 'Rare'][Math.floor(Math.random() * 3)],
-                value: Math.floor(Math.random() * 100) + 50,
-                adventurer: adventurerWithResult.name,
-                description: `Recovered from a successful mission by ${adventurerWithResult.name}.`
-              };
-              newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
-              
-              // Add log entry here where gearDrop is in scope
-              const baseReward = Math.max(5, Math.floor(adventurerWithResult.experience / 8));
-              const upgradeBonus = upgradeEffects.reputationBonus || 0;
-              const reputationGain = baseReward + (adventurerWithResult.reputationGainOnSuccess || 0) + upgradeBonus;
-              addLogEntry(`${adventurerWithResult.name} successfully returned with ${gearDrop.name} (+${reputationGain} ⭐)`, 'success');
-              
-              return newInventory;
-            });
-          } else {
-            // Failed mission - player loses the reputation they invested
-            const hireCost = Math.max(3, Math.floor(adventurerWithResult.experience / 10));
-            addLogEntry(`${adventurerWithResult.name} failed to return (-${hireCost} ⭐ reputation lost)`, 'error');
-          }
+                        // Add materials to inventory if successful
+              if (success) {
+                setInventory(prevInventory => {
+                  const newInventory = { ...prevInventory };
+                  // Add a random gear drop
+                  if (!newInventory.collectedGear) newInventory.collectedGear = [];
+                  const gearDrop = {
+                    id: `gear_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+                    name: `${adventurerWithResult.class}'s Trophy`,
+                    quality: ['Common', 'Uncommon', 'Rare'][Math.floor(Math.random() * 3)],
+                    value: Math.floor(Math.random() * 100) + 50,
+                    adventurer: adventurerWithResult.name,
+                    description: `Recovered from a successful mission by ${adventurerWithResult.name}.`
+                  };
+                  newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
+                  
+                  // Add log entry here where gearDrop is in scope
+                  const baseReward = Math.max(5, Math.floor(adventurerWithResult.experience / 8));
+                  const upgradeBonus = upgradeEffects.reputationBonus || 0;
+                  const reputationGain = baseReward + (adventurerWithResult.reputationGainOnSuccess || 0) + upgradeBonus;
+                  
+                  addLogEntry(`${adventurerWithResult.name} successfully returned with ${gearDrop.name} (+${reputationGain} ⭐, dealt ${damagePercentage.toFixed(2)}% damage to zone)`, 'success');
+                  
+                  return newInventory;
+                });
+              } else {
+                // Failed mission - no additional reputation penalty (already paid when hiring)
+                addLogEntry(`${adventurerWithResult.name} failed to return (dealt ${damagePercentage.toFixed(2)}% damage to zone)`, 'error');
+              }
           
           // Handle death rewards from upgrades
           if (!success && upgradeEffects.deathGoldReward) {
@@ -498,6 +535,7 @@ function App() {
           }
           
           console.log(`${adventurerWithResult.name} returned! Success: ${success}`);
+          
         });
         // Only update completed adventurers, keep all others unchanged
         return prevAdventurers.map(a => {
@@ -610,8 +648,8 @@ function App() {
     // Check if adventurer is in pool (needs to be hired first)
     const isInPool = adventurerPool.some(a => a.id === adventurer.id);
     if (isInPool) {
-      // Calculate hire cost
-      const hireCost = Math.max(3, Math.floor(adventurer.experience / 10)); // 3-10 reputation based on experience
+      // Use the new reputation cost system
+      const hireCost = adventurer.reputationCost;
       if (gameState.reputation < hireCost) {
         console.log(`❌ Reputation too low! Need ${hireCost}, have ${gameState.reputation}`);
         return;
@@ -1279,7 +1317,6 @@ function App() {
           gameLog={gameLog}
         />
         <header className="App-header">
-          <h1>The Alchemist's Guild</h1>
           
           {currentView === 'shop' && (
             <ShopScreen

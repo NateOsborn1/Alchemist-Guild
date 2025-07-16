@@ -80,21 +80,21 @@
 /* Game Interface - No title */
 .App-header {
   padding: 20px;
+  padding-top: 80px; /* Add top padding to account for removed title and stats bar */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
   padding-bottom: 100px; /* Space for bottom navigation */
-  padding-top: 0; /* Remove top padding since no title */
 }
 
 /* Mobile-first responsive design */
 @media (max-width: 768px) {
   .App-header {
     padding: 15px;
+    padding-top: 70px; /* Slightly less padding on mobile */
     padding-bottom: 100px;
-    padding-top: 0;
   }
 }
 
@@ -864,6 +864,30 @@
   font-style: italic;
 }
 
+/* Mobile optimizations for shop screen */
+@media (max-width: 768px) {
+  .shop-screen {
+    padding: 8px 16px;
+  }
+  
+  .adventurers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .adventurer-container {
+    width: 100%;
+    max-width: 320px;
+  }
+  
+  .current-event {
+    max-width: 100%;
+    margin: 0 auto 16px auto;
+  }
+}
+
 /* Placeholder screens */
 .zones-screen,
 .upgrades-screen,
@@ -878,4 +902,70 @@
 .stats-screen h2 {
   color: #d4af37;
   margin-bottom: 20px;
+}
+
+/* Zone health bar animations */
+@keyframes healthGlow {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+/* Zone panel adjustments for health bar */
+.zone-drop-panel {
+  position: relative;
+  padding-bottom: 60px; /* Space for health bar */
+}
+
+/* Health bar styling */
+.zone-health-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 200px;
+  background: #2c1810;
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.health-bar-fill {
+  transition: width 0.5s ease, background 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(255,255,255,0.3);
+}
+
+.health-bar-glow {
+  animation: healthGlow 2s ease-in-out infinite alternate;
+}
+
+/* Downtime styling */
+.zone-downtime {
+  text-align: center;
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+.zone-downtime .trophy {
+  font-size: 1.2em;
+  margin-bottom: 4px;
+}
+
+.zone-downtime .time-remaining {
+  font-size: 0.9em;
+  color: #cd853f;
+}
+
+/* Mobile optimizations for health bar */
+@media (max-width: 768px) {
+  .zone-drop-panel {
+    padding-bottom: 50px;
+  }
+  
+  .zone-health-bar {
+    width: 85%;
+    max-width: 180px;
+  }
 }

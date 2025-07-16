@@ -42,14 +42,17 @@ const ShopScreen = ({
     }),
   });
 
-
-
   if (isMobile) {
-    // MOBILE LAYOUT: Stack adventurers and zones vertically, use tap-to-assign
+    // MOBILE LAYOUT: Vertical scrollable cards, one at a time
     const availableAdventurers = adventurerPool; // Use pool for available adventurers
     return (
-      <div className="shop-screen" style={{ display: 'block', padding: 8 }}>
-        <div className="shop-header">
+      <div className="shop-screen" style={{ 
+        display: 'block', 
+        padding: '8px 16px',
+        maxWidth: '100%',
+        margin: '0 auto'
+      }}>
+        <div className="shop-header" style={{ marginBottom: '16px' }}>
           {currentEvent && (
             <div className="current-event">
               <span className="event-name">{currentEvent.name}</span>
@@ -57,29 +60,70 @@ const ShopScreen = ({
             </div>
           )}
         </div>
+        
         <div className="adventurers-section">
-          <h3 style={{ textAlign: 'center', marginBottom: 14 }}>Available Adventurers ({availableAdventurers.length})</h3>
+          <h3 style={{ 
+            textAlign: 'center', 
+            marginBottom: '16px',
+            color: '#d4af37',
+            fontSize: '18px'
+          }}>
+            Available Adventurers ({availableAdventurers.length})
+          </h3>
+          
           {availableAdventurers.length === 0 ? (
-            <div className="no-adventurers">
+            <div className="no-adventurers" style={{
+              textAlign: 'center',
+              color: '#cd853f',
+              fontStyle: 'italic',
+              padding: '40px 20px',
+              background: 'rgba(44, 24, 16, 0.4)',
+              border: '1px solid #8b5a2b',
+              borderRadius: '12px'
+            }}>
               <p>No adventurers available. Check back later!</p>
             </div>
           ) : (
-            <div className="adventurers-grid" style={{ gap: 10, justifyContent: 'center', alignItems: 'center', margin: '0 auto' }}>
+            <div style={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              alignItems: 'center',
+              maxHeight: '60vh',
+              overflowY: 'auto',
+              padding: '8px 0'
+            }}>
               {availableAdventurers.map(adventurer => (
                 <AdventurerCard 
                   key={adventurer.id}
                   adventurer={adventurer}
-                  canAfford={true}
+                  canAfford={gameState.reputation >= adventurer.reputationCost}
                   isMobile={true}
-                  draggable={true}
+                  draggable={false} // No drag on mobile
                   fromZoneId={null}
+                  onAssignAdventurer={onAssignAdventurer}
                 />
               ))}
             </div>
           )}
         </div>
-        <h3 style={{ margin: '24px 0 10px 0', textAlign: 'center' }}>Active Zones</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', width: '100%', margin: '0 auto' }}>
+        
+        <h3 style={{ 
+          margin: '24px 0 12px 0', 
+          textAlign: 'center',
+          color: '#d4af37',
+          fontSize: '18px'
+        }}>
+          Active Zones
+        </h3>
+        
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px', 
+          alignItems: 'center',
+          marginBottom: '20px'
+        }}>
           {zones.map(zone => (
             <ZoneDropPanel
               key={zone.id}
@@ -91,7 +135,6 @@ const ShopScreen = ({
             />
           ))}
         </div>
-        {/* Remove the unused modal - we're using direct hire buttons now */}
       </div>
     );
   }
@@ -122,10 +165,11 @@ const ShopScreen = ({
                 <AdventurerCard 
                   key={adventurer.id}
                   adventurer={adventurer}
-                  canAfford={true}
+                  canAfford={gameState.reputation >= adventurer.reputationCost}
                   draggable={true}
                   fromZoneId={null}
                   isMobile={false}
+                  onAssignAdventurer={onAssignAdventurer}
                 />
               ))}
             </div>
