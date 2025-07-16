@@ -98,7 +98,6 @@ const adventurerTypes = {
     survivalModifier: -15,
     wealthModifier: -10,
     reputationGainOnSuccess: 15,
-    reputationLossOnDeath: -5,
     description: "Young and eager, but lacking experience."
   },
   experienced: {
@@ -107,7 +106,6 @@ const adventurerTypes = {
     survivalModifier: 15,
     wealthModifier: 10,
     reputationGainOnSuccess: 8,
-    reputationLossOnDeath: -8,
     description: "Seasoned adventurer with proven skills."
   }
 };
@@ -118,21 +116,18 @@ const wealthLevels = {
     name: "Poor",
     wealthModifier: -15,
     gearQuality: "low",
-    reputationLossOnDeath: -3,
     description: "Carries basic equipment."
   },
   average: {
     name: "Average",
     wealthModifier: 0,
     gearQuality: "medium",
-    reputationLossOnDeath: -5,
     description: "Standard adventuring gear."
   },
   wealthy: {
     name: "Wealthy",
     wealthModifier: 25,
     gearQuality: "high",
-    reputationLossOnDeath: -12,
     description: "Carries expensive, high-quality equipment."
   }
 };
@@ -209,7 +204,6 @@ const generateAdventurer = (id, townPopulation = 1000, upgradeEffects = {}) => {
     description: `${typeData.description} ${classData.description}`,
     // Mission outcome modifiers
     reputationGainOnSuccess: typeData.reputationGainOnSuccess,
-    reputationLossOnDeath: typeData.reputationLossOnDeath + wealthData.reputationLossOnDeath,
     // Zone clearing effectiveness
     zoneClearingPower: Math.floor(experience / 10) + (selectedType === 'experienced' ? 2 : 0)
   };

@@ -207,7 +207,24 @@ function App() {
   // Check for population events
   useEffect(() => {
     const interval = setInterval(() => {
-      setGameState(prevState => checkPopulationEvent(prevState));
+      setGameState(prevState => {
+        const newState = checkPopulationEvent(prevState);
+        
+        // Log when events start
+        if (newState.seasonalEvent !== prevState.seasonalEvent) {
+          if (newState.seasonalEvent === 'festival') {
+            addLogEntry('🎉 Town Festival has begun! Reputation matters more during celebrations.', 'success');
+          } else if (newState.seasonalEvent === 'desperation') {
+            addLogEntry('😰 Desperate times have fallen. Reputation matters less as people are desperate for help.', 'warning');
+          } else if (newState.seasonalEvent === 'foreign_convoy') {
+            addLogEntry('🚢 Foreign convoy has arrived! Travelers ignore reputation requirements.', 'info');
+          } else if (newState.seasonalEvent === 'normal') {
+            addLogEntry('📅 Seasonal event has ended. Back to normal conditions.', 'info');
+          }
+        }
+        
+        return newState;
+      });
     }, 300000); // Check every 5 minutes
 
     return () => clearInterval(interval);
@@ -421,19 +438,22 @@ function App() {
           console.log('Mission completed:', adventurer.name, 'now:', now, 'returnTime:', adventurer.mission.returnTime);
           const success = Math.random() * 100 < adventurer.mission.successChance;
           
+          // Store success result for this adventurer
+          const adventurerWithResult = { ...adventurer, lastMissionFailed: !success };
+          
           // Update zone
           setZones(prevZones => {
-            const zoneIndex = prevZones.findIndex(z => z.id === adventurer.zoneId);
+            const zoneIndex = prevZones.findIndex(z => z.id === adventurerWithResult.zoneId);
             if (zoneIndex !== -1) {
               const updatedZones = [...prevZones];
-              updatedZones[zoneIndex] = processZoneOutcome(adventurer, updatedZones[zoneIndex], success);
+              updatedZones[zoneIndex] = processZoneOutcome(adventurerWithResult, updatedZones[zoneIndex], success);
               return updatedZones;
             }
             return prevZones;
           });
           
           // Update game state with upgrade effects
-          setGameState(prevState => processMissionOutcome(adventurer, adventurer.mission, success, prevState, upgradeEffects));
+          setGameState(prevState => processMissionOutcome(adventurerWithResult, adventurerWithResult.mission, success, prevState, upgradeEffects));
           
           // Add materials to inventory if successful
           if (success) {
@@ -443,21 +463,26 @@ function App() {
               if (!newInventory.collectedGear) newInventory.collectedGear = [];
               const gearDrop = {
                 id: `gear_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-                name: `${adventurer.class}'s Trophy`,
+                name: `${adventurerWithResult.class}'s Trophy`,
                 quality: ['Common', 'Uncommon', 'Rare'][Math.floor(Math.random() * 3)],
                 value: Math.floor(Math.random() * 100) + 50,
-                adventurer: adventurer.name,
-                description: `Recovered from a successful mission by ${adventurer.name}.`
+                adventurer: adventurerWithResult.name,
+                description: `Recovered from a successful mission by ${adventurerWithResult.name}.`
               };
               newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
               
               // Add log entry here where gearDrop is in scope
-              addLogEntry(`${adventurer.name} successfully returned with ${gearDrop.name}`, 'success');
+              const baseReward = Math.max(5, Math.floor(adventurerWithResult.experience / 8));
+              const upgradeBonus = upgradeEffects.reputationBonus || 0;
+              const reputationGain = baseReward + (adventurerWithResult.reputationGainOnSuccess || 0) + upgradeBonus;
+              addLogEntry(`${adventurerWithResult.name} successfully returned with ${gearDrop.name} (+${reputationGain} ⭐)`, 'success');
               
               return newInventory;
             });
           } else {
-            addLogEntry(`${adventurer.name} failed to return`, 'error');
+            // Failed mission - player loses the reputation they invested
+            const hireCost = Math.max(3, Math.floor(adventurerWithResult.experience / 10));
+            addLogEntry(`${adventurerWithResult.name} failed to return (-${hireCost} ⭐ reputation lost)`, 'error');
           }
           
           // Handle death rewards from upgrades
@@ -472,13 +497,20 @@ function App() {
             console.log(`Received ${upgradeEffects.deathGoldReward} gold from death insurance`);
           }
           
-          console.log(`${adventurer.name} returned! Success: ${success}`);
+          console.log(`${adventurerWithResult.name} returned! Success: ${success}`);
         });
         // Only update completed adventurers, keep all others unchanged
         return prevAdventurers.map(a => {
           if (a.status === 'onMission' && a.mission && now >= a.mission.returnTime) {
-            // Mark as available, clear mission and zoneId
-            return { ...a, status: 'available', mission: null, zoneId: null };
+            // Find the processed result for this adventurer
+            const processedAdventurer = completed.find(c => c.id === a.id);
+            return { 
+              ...a, 
+              status: 'available', 
+              mission: null, 
+              zoneId: null,
+              lastMissionFailed: processedAdventurer ? processedAdventurer.lastMissionFailed : false
+            };
           }
           return a;
         });
@@ -607,7 +639,8 @@ function App() {
         ...adventurer, 
         status: 'onMission', 
         mission, 
-        zoneId 
+        zoneId,
+        lastMissionFailed: false // Clear the failed flag when hiring
       }]);
       
       addLogEntry(`Hired ${adventurer.name} for ${zone.name} (${hireCost} ⭐)`, 'success');
@@ -1010,19 +1043,39 @@ function App() {
         const totalGold = baseGold + bonusGold;
 
         if (totalGold > 0) {
-                      setInventory(prev => {
-              const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
-              setGameState(prevState => {
-                const newState = { ...prevState };
-                logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
-                return newState;
-              });
-              // Show non-blocking popup
-              setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
-              setTimeout(() => setAfkGoldPopup(null), 4000);
-              addLogEntry(`Earned ${totalGold}g from AFK rewards (${afkSeconds}s)`, 'success');
-              return newInventory;
+          setInventory(prev => {
+            const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
+            
+            // Chance to find gear from dead adventurers during AFK time
+            const deadAdventurers = adventurers.filter(a => a.status === 'available' && a.lastMissionFailed);
+            if (deadAdventurers.length > 0 && Math.random() < 0.3) { // 30% chance
+              const deadAdventurer = deadAdventurers[Math.floor(Math.random() * deadAdventurers.length)];
+              if (deadAdventurer.gear) {
+                const recoveredGear = {
+                  id: `recovered_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+                  name: `${deadAdventurer.name}'s ${deadAdventurer.gear.weapon}`,
+                  quality: deadAdventurer.gear.quality,
+                  value: Math.floor(deadAdventurer.gear.value * 0.7), // Reduced value for recovered gear
+                  adventurer: deadAdventurer.name,
+                  description: `Recovered from ${deadAdventurer.name}'s remains after their failed mission.`
+                };
+                if (!newInventory.collectedGear) newInventory.collectedGear = [];
+                newInventory.collectedGear.push(recoveredGear);
+                addLogEntry(`Recovered ${recoveredGear.name} from ${deadAdventurer.name}'s remains`, 'warning');
+              }
+            }
+            
+            setGameState(prevState => {
+              const newState = { ...prevState };
+              logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
+              return newState;
             });
+            // Show non-blocking popup
+            setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
+            setTimeout(() => setAfkGoldPopup(null), 4000);
+            addLogEntry(`Earned ${totalGold}g from AFK rewards (${afkSeconds}s)`, 'success');
+            return newInventory;
+          });
         }
       }
     }

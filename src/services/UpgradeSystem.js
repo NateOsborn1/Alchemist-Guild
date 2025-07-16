@@ -73,28 +73,28 @@ const upgradeCategories = {
   },
   
   insurance: {
-    name: "Insurance",
-    description: "Protect against reputation loss and profit from deaths",
+    name: "Death Insurance",
+    description: "Profit from adventurer deaths and recover their gear",
     upgrades: {
       basic_insurance: {
         name: "Basic Insurance",
-        description: "Reduce reputation loss from deaths by 25%",
+        description: "Gain gold when adventurers die (morbid but profitable)",
         cost: 150,
-        effect: { reputationLossReduction: 0.25 },
+        effect: { deathGoldReward: 30 },
         purchased: false
       },
       life_insurance: {
         name: "Life Insurance",
-        description: "Gain gold when adventurers die (morbid but profitable)",
+        description: "Gain more gold when adventurers die",
         cost: 300,
-        effect: { deathGoldReward: 50 },
+        effect: { deathGoldReward: 75 },
         purchased: false
       },
       premium_insurance: {
         name: "Premium Insurance",
-        description: "Reduce reputation loss by 50% and gain gold on deaths",
+        description: "Maximum gold rewards from deaths and bonus reputation on success",
         cost: 600,
-        effect: { reputationLossReduction: 0.5, deathGoldReward: 100 },
+        effect: { deathGoldReward: 150, reputationBonus: 2 },
         purchased: false
       }
     }
@@ -195,7 +195,6 @@ const calculateUpgradeEffects = (purchasedUpgrades) => {
     dangerGrowthReduction: 0,
     expeditionClear: 0,
     dangerIncrease: 0,
-    reputationLossReduction: 0,
     deathGoldReward: 0,
     populationGrowth: 0,
     populationReduction: 0,

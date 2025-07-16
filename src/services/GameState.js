@@ -143,15 +143,17 @@ const processMissionOutcome = (adventurer, zone, success, gameState, upgradeEffe
     updatedState.adventurerStats.gearCollected += 1;
   }
   
-  // Calculate reputation change with seasonal modifiers and upgrade effects
+  // Calculate reputation change - reward for success, penalty for failure
   let reputationChange = 0;
   if (success) {
-    reputationChange = adventurer.reputationGainOnSuccess;
+    // Give reputation reward for successful missions (more than the hire cost to encourage gameplay)
+    const baseReward = Math.max(5, Math.floor(adventurer.experience / 8)); // 5-12 reputation based on experience
+    const upgradeBonus = upgradeEffects.reputationBonus || 0;
+    reputationChange = baseReward + (adventurer.reputationGainOnSuccess || 0) + upgradeBonus;
   } else {
-    reputationChange = adventurer.reputationLossOnDeath;
-    // Apply reputation loss reduction from upgrades
-    const lossReduction = upgradeEffects.reputationLossReduction || 0;
-    reputationChange = Math.floor(reputationChange * (1 - lossReduction));
+    // Failed mission - player loses the reputation they invested to hire the adventurer
+    const hireCost = Math.max(3, Math.floor(adventurer.experience / 10)); // Same calculation as hiring cost
+    reputationChange = -hireCost;
   }
   
   // Apply seasonal event multiplier
