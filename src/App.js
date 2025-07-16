@@ -887,6 +887,39 @@ function App() {
     // eslint-disable-next-line
   }, [gameLoaded]);
 
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible' && gameLoaded) {
+        const lastActive = localStorage.getItem('alchemistGuildLastActive');
+        if (lastActive && inventory && typeof inventory.gold === 'number') {
+          const now = Date.now();
+          const afkSeconds = Math.floor((now - parseInt(lastActive, 10)) / 1000);
+          if (afkSeconds > 30) {
+            let baseGold = Math.floor(afkSeconds / 10);
+            const onMissionCount = adventurers.filter(a => a.status === 'onMission').length;
+            const bonusGold = Math.floor(baseGold * 0.2 * onMissionCount);
+            const totalGold = baseGold + bonusGold;
+
+            if (totalGold > 0) {
+              setInventory(prev => {
+                const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
+                setGameState(prevState => {
+                  const newState = { ...prevState };
+                  logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
+                  return newState;
+                });
+                setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
+                return newInventory;
+              });
+            }
+          }
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [gameLoaded, inventory, adventurers]);
+
   // On mount, load saved game if it exists
   useEffect(() => {
     const saved = loadGame();
@@ -913,6 +946,13 @@ function App() {
     setGameLoaded(true); // <-- Add this line
   }, []);
 
+  useEffect(() => {
+    if (afkGoldPopup) {
+      const timer = setTimeout(() => setAfkGoldPopup(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [afkGoldPopup]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App">
@@ -930,11 +970,45 @@ function App() {
           </div>
         )}
         {afkGoldPopup && (
-          <div className="crafted-banner-popup" style={{ background: '#4ecdc4', color: '#2c1810' }}>
+          <div className="crafted-banner-popup" style={{
+            background: '#2c1810',
+            color: '#ffd700',
+            border: '2px solid #d4af37',
+            boxShadow: '0 4px 24px #000a',
+            fontWeight: 'bold',
+            fontSize: '1.2rem',
+            zIndex: 4001
+          }}>
             <span>
-              <b>AFK Gold:</b> +{afkGoldPopup.gold}g <span style={{ fontStyle: 'italic', color: '#2c1810' }}>({afkGoldPopup.seconds}s offline)</span>
+              <b>AFK Gold:</b> +{afkGoldPopup.gold}g <span style={{ fontStyle: 'italic', color: '#cd853f' }}>({afkGoldPopup.seconds}s offline)</span>
             </span>
           </div>
+        )}
+        {process.env.NODE_ENV !== 'production' && (
+          <button
+            style={{
+              position: 'fixed',
+              top: 70,
+              right: 20,
+              zIndex: 4000,
+              background: '#4ecdc4',
+              color: '#2c1810',
+              border: '2px solid #d4af37',
+              borderRadius: 8,
+              padding: '8px 18px',
+              fontWeight: 'bold',
+              fontSize: 15,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px #0004'
+            }}
+            onClick={() => {
+              setAfkGoldPopup({ gold: 123, seconds: 456 });
+              // No need to setTimeout here if you use the effect above
+              console.log('AFK popup set!');
+            }}
+          >
+            Test AFK Gold Popup
+          </button>
         )}
         {selectedGear && (
           <div
