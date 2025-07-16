@@ -10,7 +10,7 @@ import ProcessingStation from './components/ProcessingStation';
 import TownInteraction from './components/TownInteraction';
 import ShopScreen from './components/ShopScreen';
 import { generateAdventurer } from './services/AdventurerGenerator';
-import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo } from './services/GameState';
+import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo, logGoldTransaction } from './services/GameState';
 import { generateInitialZones, updateZoneDanger, calculateMissionSuccess, processMissionOutcome as processZoneOutcome, revealZone } from './services/ZoneSystem';
 import { generateInitialTowns } from './services/TownSystem';
 import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes } from './services/ShopSystem';
@@ -344,6 +344,11 @@ function App() {
           // Handle death rewards from upgrades
           if (!success && upgradeEffects.deathGoldReward) {
             setInventory(prev => ({ ...prev, gold: prev.gold + upgradeEffects.deathGoldReward }));
+            setGameState(prev => {
+              const newState = { ...prev };
+              logGoldTransaction(newState, upgradeEffects.deathGoldReward, 'earn', 'death_insurance');
+              return newState;
+            });
             console.log(`Received ${upgradeEffects.deathGoldReward} gold from death insurance`);
           }
           
@@ -578,6 +583,11 @@ function App() {
 
   const handleCollectIncome = (townId, amount) => {
     setInventory(prev => ({ ...prev, gold: prev.gold + amount }));
+    setGameState(prev => {
+      const newState = { ...prev };
+      logGoldTransaction(newState, amount, 'earn', 'shop_income');
+      return newState;
+    });
     
     // Update shop's last collection time
     setTowns(prev => prev.map(town => {
@@ -637,6 +647,11 @@ function App() {
       [material]: prev[material] - 1
     }));
     
+    setGameState(prev => {
+      const newState = { ...prev };
+      logGoldTransaction(newState, -cost, 'spend', 'buy_material');
+      return newState;
+    });
     console.log(`Bought 1x ${material} for ${cost} gold`);
   };
 

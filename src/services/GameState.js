@@ -40,7 +40,8 @@ const initialGameState = {
   },
   reputationHistory: [
     { day: 1, value: 50, event: 'Game Start' }
-  ]
+  ],
+  goldHistory: []
 };
 
 // Population events that affect reputation importance
@@ -286,6 +287,23 @@ const getCurrentEventInfo = (gameState) => {
   };
 };
 
+// Log a gold transaction to gameState.goldHistory
+const logGoldTransaction = (gameState, amount, type, reason = '') => {
+  // Defensive: ensure goldHistory exists
+  if (!gameState.goldHistory) gameState.goldHistory = [];
+  // Add new entry
+  gameState.goldHistory.push({
+    timestamp: Date.now(),
+    amount, // positive for earn, negative for spend
+    type,   // 'earn' or 'spend'
+    reason  // e.g. 'mission', 'shop', 'sell_gear', etc.
+  });
+  // Optional: prune to last 500 entries to avoid unbounded growth
+  if (gameState.goldHistory.length > 500) {
+    gameState.goldHistory = gameState.goldHistory.slice(-500);
+  }
+};
+
 export { 
   initialResources, 
   initialGameState,
@@ -296,5 +314,6 @@ export {
   addGearToInventory,
   sellGear,
   updatePopulation,
-  getCurrentEventInfo
+  getCurrentEventInfo,
+  logGoldTransaction
 };

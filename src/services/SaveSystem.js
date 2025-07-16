@@ -23,7 +23,8 @@ const createEmptySaveData = () => ({
   orderQueue: [],
   orderDeadlines: {},
   adventurerCustomers: [],
-  gameTime: Date.now()
+  gameTime: Date.now(),
+  goldHistory: []
 });
 
 // Save the game state
@@ -48,7 +49,8 @@ export const saveGame = (gameData) => {
       orderQueue: gameData.orderQueue,
       orderDeadlines: gameData.orderDeadlines,
       adventurerCustomers: gameData.adventurerCustomers,
-      gameTime: Date.now()
+      gameTime: Date.now(),
+      goldHistory: gameData.gameState.goldHistory
     };
 
     const saveString = JSON.stringify(saveData);
@@ -70,7 +72,7 @@ export const loadGame = () => {
       return { success: false, message: 'No save data found' };
     }
 
-    const saveData = JSON.parse(saveString);
+    let saveData = JSON.parse(saveString);
     
     // Check if save data needs migration
     if (saveData.version !== CURRENT_SAVE_VERSION) {
@@ -142,7 +144,8 @@ const migrateFromV0ToV1 = (v0Data) => {
     },
     reputationHistory: [
       { day: 1, value: 50, event: 'Game Start' }
-    ]
+    ],
+    goldHistory: [] // <-- ADD THIS LINE
   };
   
   newData.inventory = v0Data.inventory || {
@@ -184,6 +187,7 @@ const migrateFromV0ToV1 = (v0Data) => {
   newData.orderQueue = v0Data.orderQueue || [];
   newData.orderDeadlines = v0Data.orderDeadlines || {};
   newData.adventurerCustomers = v0Data.adventurerCustomers || [];
+  newData.goldHistory = v0Data.goldHistory || []; // <-- ADD THIS LINE
   
   // Preserve timestamp from original save
   newData.timestamp = v0Data.timestamp || Date.now();
