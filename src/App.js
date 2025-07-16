@@ -79,6 +79,72 @@ function App() {
   const [gameLoaded, setGameLoaded] = useState(false);
   const [afkGoldPopup, setAfkGoldPopup] = useState(null);
 
+  // Add population state and adventurer pool state
+  const [populationState, setPopulationState] = useState('Stable'); // 'Struggling', 'Stable', 'Booming'
+  const [adventurerPool, setAdventurerPool] = useState([]); // The current pool of available adventurers
+  const [poolRefreshTime, setPoolRefreshTime] = useState(Date.now() + 12 * 60 * 60 * 1000); // Next refresh in 12 hours (playtime based)
+  const [failedMissionsSinceRefresh, setFailedMissionsSinceRefresh] = useState(0);
+
+  // Helper: get pool size based on population state
+  const getPoolSize = (state) => {
+    if (state === 'Struggling') return 8;
+    if (state === 'Booming') return 16;
+    return 12; // Stable
+  };
+
+  // Helper: update population state based on gameState.population
+  useEffect(() => {
+    if (gameState.population < 600) {
+      setPopulationState('Struggling');
+    } else if (gameState.population >= 1200) {
+      setPopulationState('Booming');
+    } else {
+      setPopulationState('Stable');
+    }
+  }, [gameState.population]);
+
+  // Pool refresh logic (twice per playday, playtime-based)
+  useEffect(() => {
+    // Calculate time until next refresh (12 hours of playtime for now)
+    const now = Date.now();
+    if (now >= poolRefreshTime) {
+      // Refresh the pool
+      const poolSize = getPoolSize(populationState) - failedMissionsSinceRefresh;
+      const newPool = [];
+      for (let i = 0; i < poolSize; i++) {
+        const adv = generateAdventurer(nextAdventurerId + i, gameState.population, upgradeEffects);
+        adv.status = 'available';
+        adv.zoneId = null;
+        adv.mission = null;
+        newPool.push(adv);
+      }
+      setAdventurerPool(newPool);
+      setNextAdventurerId(prev => prev + poolSize);
+      setFailedMissionsSinceRefresh(0);
+      setPoolRefreshTime(now + 12 * 60 * 60 * 1000); // Next refresh in 12 hours
+    }
+    // Set up interval to check every minute
+    const interval = setInterval(() => {
+      const now = Date.now();
+      if (now >= poolRefreshTime) {
+        const poolSize = getPoolSize(populationState) - failedMissionsSinceRefresh;
+        const newPool = [];
+        for (let i = 0; i < poolSize; i++) {
+          const adv = generateAdventurer(nextAdventurerId + i, gameState.population, upgradeEffects);
+          adv.status = 'available';
+          adv.zoneId = null;
+          adv.mission = null;
+          newPool.push(adv);
+        }
+        setAdventurerPool(newPool);
+        setNextAdventurerId(prev => prev + poolSize);
+        setFailedMissionsSinceRefresh(0);
+        setPoolRefreshTime(Date.now() + 12 * 60 * 60 * 1000);
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [poolRefreshTime, populationState, failedMissionsSinceRefresh, gameState.population, upgradeEffects, nextAdventurerId]);
+
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
     // Start the mission immediately when assigned
@@ -555,6 +621,7 @@ function App() {
       console.log(`${adventurer.name} succeeded and brought back:`, loot);
     } else {
       console.log(`${adventurer.name} failed their mission`);
+      setFailedMissionsSinceRefresh(prev => prev + 1); // Increment failed missions
     }
   };
 
