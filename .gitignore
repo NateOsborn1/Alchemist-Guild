@@ -8,6 +8,7 @@ node_modules/
 
 # Production
 /build
+/Workspaces
 
 # Environment variables
 .env
