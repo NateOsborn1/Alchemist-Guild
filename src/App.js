@@ -26,6 +26,7 @@ import ZonesScreen from './components/ZonesScreen';
 import UpgradesScreen from './components/UpgradesScreen';
 import StatsScreen from './components/StatsScreen';
 import SaveManager from './components/SaveManager';
+import StatsBar from './components/StatsBar';
 
 function App() {
   // Core game state
@@ -608,11 +609,15 @@ function App() {
 
   // Handle upgrade purchase
   const handlePurchaseUpgrade = (cost, newPurchasedUpgrades) => {
-    setInventory(prev => ({ ...prev, gold: prev.gold - cost }));
-    setPurchasedUpgrades(newPurchasedUpgrades);
-    setUpgradeEffects(calculateUpgradeEffects(newPurchasedUpgrades));
-    console.log(`Purchased upgrade for ${cost} gold`);
-  };
+  setInventory(prev => ({ ...prev, gold: prev.gold - cost }));
+  setGameState(prev => {
+    const newState = { ...prev };
+    logGoldTransaction(newState, -cost, 'spend', 'purchase_upgrade');
+    return newState;
+  });
+  setPurchasedUpgrades(newPurchasedUpgrades);
+  setUpgradeEffects(calculateUpgradeEffects(newPurchasedUpgrades));
+};
 
   // Handle loading game data
   const handleLoadGame = (saveData) => {
@@ -816,46 +821,16 @@ function App() {
             </span>
           </div>
         )}
+        {/* StatsBar at the top */}
+        <StatsBar 
+          inventory={inventory}
+          gameState={gameState}
+          adventurers={adventurers}
+          zones={zones}
+          purchasedUpgrades={purchasedUpgrades}
+        />
         <header className="App-header">
           <h1>The Alchemist's Guild</h1>
-          
-          <div className="game-stats">
-            <div className="stat">
-              <span className="stat-label">Gold:</span>
-              <span className="stat-value">{inventory.gold}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Reputation:</span>
-              <span className="stat-value">{gameState.reputation}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Population:</span>
-              <span className="stat-value">{gameState.population}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Active Missions:</span>
-              <span className="stat-value">{adventurers.filter(a => a.status === 'onMission').length}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Available:</span>
-              <span className="stat-value">{adventurers.filter(a => a.status === 'available').length}</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Success Rate:</span>
-              <span className="stat-value">
-                {gameState.adventurerStats.totalSent > 0 
-                  ? Math.round((gameState.adventurerStats.successfulMissions / gameState.adventurerStats.totalSent) * 100)
-                  : 0}%
-              </span>
-            </div>
-            <button 
-              className="save-button"
-              onClick={() => setSaveManagerOpen(true)}
-              title="Save/Load Game"
-            >
-              💾
-            </button>
-          </div>
           
           {currentView === 'shop' && (
             <ShopScreen
@@ -893,16 +868,6 @@ function App() {
               purchasedUpgrades={purchasedUpgrades}
               onPurchaseUpgrade={handlePurchaseUpgrade}
               upgradeEffects={upgradeEffects}
-            />
-          )}
-          
-          {currentView === 'stats' && (
-            <StatsScreen
-              gameState={gameState}
-              adventurers={adventurers}
-              zones={zones}
-              inventory={inventory}
-              purchasedUpgrades={purchasedUpgrades}
             />
           )}
           
