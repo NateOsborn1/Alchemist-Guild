@@ -77,22 +77,17 @@ const ActiveAdventurers = ({ activeAdventurers, onMissionComplete }) => {
       <div className="missions-list">
         {adventurers.map(adventurer => {
           const timeRemaining = Math.max(0, Math.ceil((adventurer.returnTime - Date.now()) / 1000));
-          const minutes = Math.floor(timeRemaining / 60);
-          const seconds = timeRemaining % 60;
-          
+          // Remove minutes/seconds split, just show seconds
           return (
             <div key={adventurer.id} className="mission-item">
               <div className="mission-header">
                 <span className="adventurer-name">{adventurer.name}</span>
-                <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
-                  {adventurer.class}
-                </span>
+                <span className={`class-badge ${adventurer.class.toLowerCase()}`}>{adventurer.class}</span>
               </div>
-              
               <div className="mission-stats">
                 <span className="success-rate">{adventurer.successRate}% success</span>
                 <span className="time-remaining">
-                  {timeRemaining > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : 'Returning...'}
+                  {timeRemaining > 0 ? `${timeRemaining}s` : 'Returning...'}
                 </span>
               </div>
               

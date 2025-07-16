@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect, useRef } from 'react';
 import SwipeableOrderCard from './components/SwipeableOrderCard';
 import AdventurerCard from './components/AdventurerCard';
@@ -10,7 +9,7 @@ import ProcessingStation from './components/ProcessingStation';
 import TownInteraction from './components/TownInteraction';
 import ShopScreen from './components/ShopScreen';
 import { generateAdventurer } from './services/AdventurerGenerator';
-import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo, logGoldTransaction } from './services/GameState';
+import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo, logGoldTransaction, sellGear } from './services/GameState';
 import { generateInitialZones, updateZoneDanger, calculateMissionSuccess, processMissionOutcome as processZoneOutcome, revealZone } from './services/ZoneSystem';
 import { generateInitialTowns } from './services/TownSystem';
 import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes } from './services/ShopSystem';
@@ -75,6 +74,7 @@ function App() {
   const [craftedPopup, setCraftedPopup] = useState(null);
   const [lastCraftedItem, setLastCraftedItem] = useState(null);
   const [saveManagerOpen, setSaveManagerOpen] = useState(false);
+  const [selectedGear, setSelectedGear] = useState(null);
 
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
@@ -332,12 +332,17 @@ function App() {
           if (success) {
             setInventory(prevInventory => {
               const newInventory = { ...prevInventory };
-              adventurer.mission.materials?.forEach(material => {
-                if (Math.random() < 0.7) { // 70% chance for each material
-                  const amount = Math.floor(Math.random() * 3) + 1;
-                  newInventory[material] = (newInventory[material] || 0) + amount;
-                }
-              });
+              // Add a random gear drop
+              if (!newInventory.collectedGear) newInventory.collectedGear = [];
+              const gearDrop = {
+                id: `gear_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+                name: `${adventurer.class}'s Trophy`,
+                quality: ['Common', 'Uncommon', 'Rare'][Math.floor(Math.random() * 3)],
+                value: Math.floor(Math.random() * 100) + 50,
+                adventurer: adventurer.name,
+                description: `Recovered from a successful mission by ${adventurer.name}.`
+              };
+              newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
               return newInventory;
             });
           }
@@ -435,7 +440,7 @@ function App() {
       zone,
       zoneId,
       startTime: Date.now(),
-      returnTime: Date.now() + (30 * 60 * 1000), // 30 minutes
+      returnTime: Date.now() + (30 * 1000), // 30 seconds
       successChance,
       progress: 0
     };
@@ -675,10 +680,20 @@ function App() {
   };
 
   const handleCompleteCrafting = (itemName, quantity) => {
-    setInventory(prev => ({
-      ...prev,
-      [itemName]: (prev[itemName] || 0) + quantity
-    }));
+    setInventory(prev => {
+      const newInventory = { ...prev };
+      if (!newInventory.collectedGear) newInventory.collectedGear = [];
+      for (let i = 0; i < quantity; i++) {
+        newInventory.collectedGear.push({
+          id: `crafted_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+          name: itemName,
+          quality: ['Common', 'Uncommon', 'Rare'][Math.floor(Math.random() * 3)],
+          value: Math.floor(Math.random() * 100) + 30,
+          description: `Handcrafted in your guild's workshop.`
+        });
+      }
+      return newInventory;
+    });
     console.log(`✅ Completed crafting ${quantity}x ${itemName}`);
   };
 
@@ -805,6 +820,21 @@ function App() {
   // Ref for CraftingSection to allow inventory click-to-fill
   const craftingSectionRef = useRef();
 
+  const handleSellGear = (gearId) => {
+    // Get the new inventory and gold earned
+    const { inventory: newInventory, gold } = sellGear(gearId, inventory);
+
+    // Update inventory (this triggers a re-render)
+    setInventory(newInventory);
+
+    // Log the gold transaction and update gameState
+    setGameState(prev => {
+      const newState = { ...prev };
+      logGoldTransaction(newState, gold, 'earn', 'sell_gear');
+      return newState;
+    });
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App">
@@ -819,6 +849,83 @@ function App() {
               )}
               !
             </span>
+          </div>
+        )}
+        {selectedGear && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.6)',
+              zIndex: 3000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => setSelectedGear(null)}
+          >
+            <div
+              style={{
+                background: '#2c1810',
+                border: '2px solid #d4af37',
+                borderRadius: 12,
+                padding: 24,
+                minWidth: 260,
+                maxWidth: 340,
+                color: '#f4e4bc',
+                position: 'relative'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                style={{
+                  position: 'absolute', top: 8, right: 8,
+                  background: 'none', border: 'none', color: '#ffd700', fontSize: 22, cursor: 'pointer'
+                }}
+                onClick={() => setSelectedGear(null)}
+                title="Close"
+              >✕</button>
+              <h3 style={{ color: '#ffd700', marginBottom: 8 }}>{selectedGear.name}</h3>
+              <div style={{ marginBottom: 8 }}>
+                <b>Quality:</b> {selectedGear.quality}
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <b>Value:</b> {selectedGear.value}g
+              </div>
+              {selectedGear.adventurer && (
+                <div style={{ marginBottom: 8 }}>
+                  <b>Collected from:</b> <span style={{ fontStyle: 'italic' }}>{selectedGear.adventurer}</span>
+                </div>
+              )}
+              {selectedGear.description && (
+                <div style={{ marginBottom: 8, fontStyle: 'italic', color: '#cd853f' }}>
+                  {selectedGear.description}
+                </div>
+              )}
+              {/* Optional: Add Sell button here too */}
+              <div style={{ marginBottom: 8, color: '#ffd700' }}>
+                <b>Sell Price:</b> {Math.floor(selectedGear.value * 0.7)}g
+              </div>
+              <button
+                style={{
+                  marginTop: 12,
+                  background: '#ff6b6b',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '6px 18px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  handleSellGear(selectedGear.id);
+                  setSelectedGear(null);
+                }}
+                title="Sell for gold"
+              >
+                Sell
+              </button>
+            </div>
           </div>
         )}
         {/* StatsBar at the top */}
@@ -875,7 +982,7 @@ function App() {
           {inventoryOpen && (
             <>
               <div className="inventory-overlay" onClick={toggleInventory} />
-              <div className="inventory-sheet">
+              <div className="inventory-sheet" style={{ marginTop: 60 }}>
                 <div className="inventory-sheet-header">
                   <button 
                     className="inventory-close-btn"
@@ -886,70 +993,88 @@ function App() {
                 </div>
                 <div className="inventory-sheet-content">
                   {/* Crafting station at the top */}
-                  <CraftingSection
-                    ref={craftingSectionRef}
-                    inventory={inventory}
-                    onCraft={(materials, recipeName, attributes) => {
-                      // 1. Consume materials from inventory
-                      setInventory(prev => {
-                        const newInventory = { ...prev };
-                        materials.forEach(({ name, amount }) => {
-                          newInventory[name] = (newInventory[name] || 0) - amount;
+                  {false && (
+                    <CraftingSection
+                      ref={craftingSectionRef}
+                      inventory={inventory}
+                      onCraft={(materials, recipeName, attributes) => {
+                        // 1. Consume materials from inventory
+                        setInventory(prev => {
+                          const newInventory = { ...prev };
+                          materials.forEach(({ name, amount }) => {
+                            newInventory[name] = (newInventory[name] || 0) - amount;
+                          });
+                          return newInventory;
                         });
-                        return newInventory;
-                      });
 
-                      // 2. Determine item quality and name
-                      let craftedItem = recipeName;
-                      let quality = 'Common';
-                      const total = (attributes.strength || 0) + (attributes.speed || 0) + (attributes.magical || 0);
-                      if (total > 20) {
-                        craftedItem = `${craftedItem} (Advanced)`;
-                        quality = 'Uncommon';
-                      }
-                      if (total > 40) {
-                        craftedItem = `${craftedItem} (Masterwork)`;
-                        quality = 'Rare';
-                      }
+                        // 2. Determine item quality and name
+                        let craftedItem = recipeName;
+                        let quality = 'Common';
+                        const total = (attributes.strength || 0) + (attributes.speed || 0) + (attributes.magical || 0);
+                        if (total > 20) {
+                          craftedItem = `${craftedItem} (Advanced)`;
+                          quality = 'Uncommon';
+                        }
+                        if (total > 40) {
+                          craftedItem = `${craftedItem} (Masterwork)`;
+                          quality = 'Rare';
+                        }
 
-                      // 3. Add crafted item to inventory
-                      setInventory(prev => ({
-                        ...prev,
-                        [craftedItem]: (prev[craftedItem] || 0) + 1
-                      }));
+                        // 3. Add crafted item to inventory
+                        setInventory(prev => ({
+                          ...prev,
+                          [craftedItem]: (prev[craftedItem] || 0) + 1
+                        }));
 
-                      // 4. Show crafted popup
-                      setCraftedPopup({ name: craftedItem, quality });
-                      setTimeout(() => setCraftedPopup(null), 4000);
-                      setLastCraftedItem({ name: craftedItem, quality });
-                      setTimeout(() => setLastCraftedItem(null), 1800);
-                    }}
-                  />
+                        // 4. Show crafted popup
+                        setCraftedPopup({ name: craftedItem, quality });
+                        setTimeout(() => setCraftedPopup(null), 4000);
+                        setLastCraftedItem({ name: craftedItem, quality });
+                        setTimeout(() => setLastCraftedItem(null), 1800);
+                      }}
+                    />
+                  )}
                   <div style={{ height: 32 }} /> {/* <-- Add this spacer */}
                   {/* Inventory grid below */}
                   <div className="inventory-grid">
-                    {Object.entries(inventory)
-                      .filter(([key]) => key !== 'gold')
-                      .map(([material, amount]) => (
-                        <div
-                          key={material}
-                          className="inventory-item"
-                          style={{
-                            position: 'relative',
-                            cursor: amount > 0 ? 'pointer' : 'not-allowed',
-                            opacity: amount > 0 ? 1 : 0.5,
-                          }}
-                          onClick={() => {
-                            if (amount > 0 && craftingSectionRef.current) {
-                              craftingSectionRef.current.fillNextSlot(material);
-                            }
-                          }}
-                          title={amount > 0 ? `Add ${material} to crafting` : 'Out of stock'}
-                        >
-                          <span className="material-name">{material}</span>
-                          <span className="material-amount">{amount}</span>
+                    {(inventory.collectedGear || []).length === 0 ? (
+                      <div style={{ fontStyle: 'italic', color: '#cd853f' }}>No gear collected yet.</div>
+                    ) : (
+                      inventory.collectedGear.map(gear => (
+                        <div key={gear.id} className="inventory-item">
+                          <span
+                            className="material-name"
+                            style={{ fontStyle: 'italic', cursor: 'pointer', textDecoration: 'underline' }}
+                            onClick={() => setSelectedGear(gear)}
+                            title="View details"
+                          >
+                            {gear.name}
+                          </span>
+                          <span className="material-amount" style={{ color: '#ffd700', fontWeight: 'bold', fontSize: 16 }}>
+                            {Math.floor(gear.value * 0.7)}g
+                          </span>
+                          <span style={{ fontSize: 11, color: '#cd853f', fontStyle: 'italic', marginBottom: 2 }}>
+                            Sale Price
+                          </span>
+                          <button
+                            style={{
+                              marginTop: 4,
+                              background: '#ff6b6b',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: 6,
+                              padding: '4px 10px',
+                              fontWeight: 'bold',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleSellGear(gear.id)}
+                            title={`Sell for ${Math.floor(gear.value * 0.7)} gold`}
+                          >
+                            Sell
+                          </button>
                         </div>
-                      ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </div>

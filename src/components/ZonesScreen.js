@@ -8,7 +8,7 @@ function ActiveMissionCard({ adventurer }) {
   const total = mission ? (mission.returnTime - mission.startTime) : 1;
   const elapsed = mission ? Math.max(0, now - mission.startTime) : 0;
   const progress = Math.min(100, Math.round((elapsed / total) * 100));
-  const timeLeft = mission ? Math.max(0, Math.ceil((mission.returnTime - now) / 60000)) : 0; // in minutes
+  const timeLeft = mission ? Math.max(0, Math.ceil((mission.returnTime - now) / 1000)) : 0; // in seconds
 
   return (
     <div style={{
@@ -29,7 +29,7 @@ function ActiveMissionCard({ adventurer }) {
       </div>
       <div style={{ marginBottom: 4 }}>
         <span>Success: <b style={{ color: '#4ecdc4' }}>{mission?.successChance || 0}%</b></span>
-        <span style={{ marginLeft: 12 }}>Time left: <b>{timeLeft}m</b></span>
+        <span style={{ marginLeft: 12 }}>Time left: <b>{timeLeft}s</b></span>
       </div>
       <div style={{ background: '#2c1810', borderRadius: 6, height: 8, margin: '6px 0', overflow: 'hidden' }}>
         <div style={{ background: '#ffd700', width: `${progress}%`, height: '100%' }} />
@@ -55,7 +55,9 @@ export default function ZonesScreen({ zones, adventurers }) {
           }}>
             <h3>{zone.name}</h3>
             <div style={{ color: '#cd853f', fontSize: 14, marginBottom: 4 }}>{zone.description}</div>
-            <div style={{ fontSize: 13, marginBottom: 4 }}>Danger: <b style={{ color: '#ff6b6b' }}>{zone.dangerLevel}</b> / {zone.maxDanger}</div>
+            <div style={{ fontSize: 13, marginBottom: 4 }}>
+              Danger: <b style={{ color: '#ff6b6b' }}>{zone.dangerLevel.toFixed(1)}</b> / {zone.maxDanger}
+            </div>
             <div style={{ fontSize: 13, marginBottom: 4 }}>Status: <b style={{ color: '#ffd700' }}>{zone.status}</b></div>
             <div style={{ fontSize: 13, marginBottom: 4 }}>Monsters: <span style={{ color: '#a855f7' }}>{zone.monsterTypes.join(', ')}</span></div>
             <div style={{ marginTop: 10 }}>

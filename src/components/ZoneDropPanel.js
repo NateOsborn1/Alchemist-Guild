@@ -70,7 +70,7 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Mission: {Math.round(adv.mission.progress || 0)}%</span>
-                    <span>{Math.max(0, Math.ceil((adv.mission.returnTime - Date.now()) / 60000))}m</span>
+                    <span>{Math.max(0, Math.ceil((adv.mission.returnTime - Date.now()) / 1000))}s</span>
                   </div>
                   <div style={{ 
                     background: '#8b5a2b', 

@@ -59,14 +59,18 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
     <div style={{
       background: '#2c1810',
       borderBottom: '2px solid #8b5a2b',
-      position: 'sticky',
+      position: 'fixed',
       top: 0,
-      zIndex: 200,
+      left: 0,
+      right: 0,
+      zIndex: 3001,
       width: '100%',
       boxShadow: '0 2px 8px #0004',
+      minHeight: 56, // ensure enough height for touch
+      padding: '8px 0', // vertical padding
     }}>
       {/* Collapsed bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 8, cursor: 'pointer' }} onClick={() => setExpanded(e => !e)}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 18px', cursor: 'pointer' }} onClick={() => setExpanded(e => !e)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <span title="Gold" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaCoins color="#ffd700" /> {inventory.gold}</span>
           <span title="Reputation" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaStar color="#d4af37" /> {gameState.reputation}</span>
