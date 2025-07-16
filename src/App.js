@@ -26,6 +26,7 @@ import UpgradesScreen from './components/UpgradesScreen';
 import StatsScreen from './components/StatsScreen';
 import SaveManager from './components/SaveManager';
 import StatsBar from './components/StatsBar';
+import { loadGame } from './services/SaveSystem';
 
 function App() {
   // Core game state
@@ -75,6 +76,8 @@ function App() {
   const [lastCraftedItem, setLastCraftedItem] = useState(null);
   const [saveManagerOpen, setSaveManagerOpen] = useState(false);
   const [selectedGear, setSelectedGear] = useState(null);
+  const [gameLoaded, setGameLoaded] = useState(false);
+  const [afkGoldPopup, setAfkGoldPopup] = useState(null);
 
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
@@ -642,6 +645,7 @@ function App() {
     setOrderQueue(saveData.orderQueue);
     setOrderDeadlines(saveData.orderDeadlines);
     setAdventurerCustomers(saveData.adventurerCustomers);
+    setGameLoaded(true); // <-- Add this line
     console.log('Game loaded successfully');
   };
 
@@ -835,6 +839,80 @@ function App() {
     });
   };
 
+  // Track last active timestamp for AFK rewards
+  useEffect(() => {
+    const saveLastActive = () => {
+      localStorage.setItem('alchemistGuildLastActive', Date.now().toString());
+    };
+    window.addEventListener('beforeunload', saveLastActive);
+    window.addEventListener('blur', saveLastActive);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveLastActive();
+    });
+    return () => {
+      window.removeEventListener('beforeunload', saveLastActive);
+      window.removeEventListener('blur', saveLastActive);
+      document.removeEventListener('visibilitychange', saveLastActive);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!gameLoaded) return;
+    const lastActive = localStorage.getItem('alchemistGuildLastActive');
+    if (lastActive && inventory && typeof inventory.gold === 'number') {
+      const now = Date.now();
+      const afkSeconds = Math.floor((now - parseInt(lastActive, 10)) / 1000);
+      if (afkSeconds > 30) {
+        let baseGold = Math.floor(afkSeconds / 10);
+        const onMissionCount = adventurers.filter(a => a.status === 'onMission').length;
+        const bonusGold = Math.floor(baseGold * 0.2 * onMissionCount);
+        const totalGold = baseGold + bonusGold;
+
+        if (totalGold > 0) {
+          setInventory(prev => {
+            const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
+            setGameState(prevState => {
+              const newState = { ...prevState };
+              logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
+              return newState;
+            });
+            // Show non-blocking popup
+            setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
+            setTimeout(() => setAfkGoldPopup(null), 4000);
+            return newInventory;
+          });
+        }
+      }
+    }
+    // eslint-disable-next-line
+  }, [gameLoaded]);
+
+  // On mount, load saved game if it exists
+  useEffect(() => {
+    const saved = loadGame();
+    if (saved.success && saved.data) {
+      const data = saved.data;
+      setGameState(data.gameState);
+      setInventory(data.inventory);
+      setZones(data.zones);
+      setAdventurers(data.adventurers);
+      setTowns(data.towns);
+      setBuildingShops(data.buildingShops);
+      setPlayerStats(data.playerStats);
+      setReputation(data.reputation);
+      setShopStock(data.shopStock);
+      setPurchasedUpgrades(data.purchasedUpgrades);
+      setUpgradeEffects(data.upgradeEffects);
+      setNextAdventurerId(data.nextAdventurerId);
+      setNextOrderId(data.nextOrderId);
+      setOrderQueue(data.orderQueue);
+      setOrderDeadlines(data.orderDeadlines);
+      setAdventurerCustomers(data.adventurerCustomers);
+      // Optionally: show a message "Game loaded!"
+    }
+    setGameLoaded(true); // <-- Add this line
+  }, []);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="App">
@@ -848,6 +926,13 @@ function App() {
                 </span>
               )}
               !
+            </span>
+          </div>
+        )}
+        {afkGoldPopup && (
+          <div className="crafted-banner-popup" style={{ background: '#4ecdc4', color: '#2c1810' }}>
+            <span>
+              <b>AFK Gold:</b> +{afkGoldPopup.gold}g <span style={{ fontStyle: 'italic', color: '#2c1810' }}>({afkGoldPopup.seconds}s offline)</span>
             </span>
           </div>
         )}
@@ -935,6 +1020,7 @@ function App() {
           adventurers={adventurers}
           zones={zones}
           purchasedUpgrades={purchasedUpgrades}
+          onOpenSaveManager={() => setSaveManagerOpen(true)}
         />
         <header className="App-header">
           <h1>The Alchemist's Guild</h1>

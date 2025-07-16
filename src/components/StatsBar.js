@@ -3,19 +3,19 @@ import { FaChevronDown, FaChevronUp, FaCoins, FaUserFriends, FaStar, FaMapMarked
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 // Helper to format gold history for chart
-function getGoldHistoryData(goldHistory, range = 'day') {
-  // Group by hour (day), day (week), or day (month)
+function getGoldHistoryData(goldHistory, range = 'minute') {
+  // Group by minute (minute), hour (hour), or day (day)
   const now = Date.now();
   let cutoff;
   let groupBy;
-  if (range === 'day') {
-    cutoff = now - 24 * 60 * 60 * 1000;
+  if (range === 'minute') {
+    cutoff = now - 60 * 60 * 1000; // last 60 minutes
+    groupBy = 60 * 1000; // 1 minute
+  } else if (range === 'hour') {
+    cutoff = now - 24 * 60 * 60 * 1000; // last 24 hours
     groupBy = 60 * 60 * 1000; // 1 hour
-  } else if (range === 'week') {
-    cutoff = now - 7 * 24 * 60 * 60 * 1000;
-    groupBy = 24 * 60 * 60 * 1000; // 1 day
   } else {
-    cutoff = now - 30 * 24 * 60 * 60 * 1000;
+    cutoff = now - 30 * 24 * 60 * 60 * 1000; // last 30 days
     groupBy = 24 * 60 * 60 * 1000; // 1 day
   }
   const filtered = goldHistory.filter(e => e.timestamp >= cutoff);
@@ -29,14 +29,14 @@ function getGoldHistoryData(goldHistory, range = 'day') {
   // Sort by time
   return Object.values(buckets).sort((a, b) => a.timestamp - b.timestamp).map(b => ({
     ...b,
-    time: new Date(b.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    time: new Date(b.timestamp).toLocaleString([], range === 'minute' ? { hour: '2-digit', minute: '2-digit' } : range === 'hour' ? { month: 'short', day: 'numeric', hour: '2-digit' } : { month: 'short', day: 'numeric' })
   }));
 }
 
-export default function StatsBar({ inventory, gameState, adventurers, zones, purchasedUpgrades }) {
+export default function StatsBar({ inventory, gameState, adventurers, zones, purchasedUpgrades, onOpenSaveManager }) {
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState('overview');
-  const [graphRange, setGraphRange] = useState('day');
+  const [graphRange, setGraphRange] = useState('minute');
   const goldHistory = gameState.goldHistory || [];
   const chartData = getGoldHistoryData(goldHistory, graphRange);
 
@@ -77,7 +77,22 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
           <span title="Population" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaUserFriends color="#4ecdc4" /> {gameState.population}</span>
           <span title="Active Missions" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaMapMarkedAlt color="#a855f7" /> {onMissionAdventurers}</span>
         </div>
-        <div style={{ marginLeft: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12 }}>
+          <button
+            onClick={e => { e.stopPropagation(); onOpenSaveManager && onOpenSaveManager(); }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ffd700',
+              fontSize: 20,
+              cursor: 'pointer',
+              padding: 0,
+              marginRight: 2
+            }}
+            title="Save/Load"
+          >
+            💾
+          </button>
           {expanded ? <FaChevronUp color="#ffd700" /> : <FaChevronDown color="#ffd700" />}
         </div>
       </div>
@@ -113,9 +128,9 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
           {tab === 'graph' && (
             <div style={{ width: '100%', height: 260, marginTop: 8 }}>
               <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <button onClick={() => setGraphRange('minute')} style={{ fontWeight: graphRange === 'minute' ? 'bold' : 'normal', background: 'none', border: 'none', color: graphRange === 'minute' ? '#ffd700' : '#f4e4bc', cursor: 'pointer' }}>Minute</button>
+                <button onClick={() => setGraphRange('hour')} style={{ fontWeight: graphRange === 'hour' ? 'bold' : 'normal', background: 'none', border: 'none', color: graphRange === 'hour' ? '#ffd700' : '#f4e4bc', cursor: 'pointer' }}>Hour</button>
                 <button onClick={() => setGraphRange('day')} style={{ fontWeight: graphRange === 'day' ? 'bold' : 'normal', background: 'none', border: 'none', color: graphRange === 'day' ? '#ffd700' : '#f4e4bc', cursor: 'pointer' }}>Day</button>
-                <button onClick={() => setGraphRange('week')} style={{ fontWeight: graphRange === 'week' ? 'bold' : 'normal', background: 'none', border: 'none', color: graphRange === 'week' ? '#ffd700' : '#f4e4bc', cursor: 'pointer' }}>Week</button>
-                <button onClick={() => setGraphRange('month')} style={{ fontWeight: graphRange === 'month' ? 'bold' : 'normal', background: 'none', border: 'none', color: graphRange === 'month' ? '#ffd700' : '#f4e4bc', cursor: 'pointer' }}>Month</button>
               </div>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
