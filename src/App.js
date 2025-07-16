@@ -82,14 +82,15 @@ function App() {
   // Add population state and adventurer pool state
   const [populationState, setPopulationState] = useState('Stable'); // 'Struggling', 'Stable', 'Booming'
   const [adventurerPool, setAdventurerPool] = useState([]); // The current pool of available adventurers
-  const [poolRefreshTime, setPoolRefreshTime] = useState(Date.now() + 12 * 60 * 60 * 1000); // Next refresh in 12 hours (playtime based)
+  const [poolRefreshTime, setPoolRefreshTime] = useState(Date.now() + 12 * 60 * 60 * 1000); // Next refresh in 12 hours (real time)
   const [failedMissionsSinceRefresh, setFailedMissionsSinceRefresh] = useState(0);
+  const [refreshesUsed, setRefreshesUsed] = useState(0); // Track refreshes used (max 2 per 12 hours)
 
   // Helper: get pool size based on population state
   const getPoolSize = (state) => {
-    if (state === 'Struggling') return 8;
-    if (state === 'Booming') return 16;
-    return 12; // Stable
+    if (state === 'Struggling') return 4;
+    if (state === 'Booming') return 8;
+    return 6; // Stable
   };
 
   // Helper: update population state based on gameState.population
@@ -103,12 +104,29 @@ function App() {
     }
   }, [gameState.population]);
 
-  // Pool refresh logic (twice per playday, playtime-based)
+  // Pool refresh logic (twice per 12 hours, real time)
   useEffect(() => {
-    // Calculate time until next refresh (12 hours of playtime for now)
     const now = Date.now();
     if (now >= poolRefreshTime) {
-      // Refresh the pool
+      // Reset refresh counter and timer
+      setRefreshesUsed(0);
+      setPoolRefreshTime(now + 12 * 60 * 60 * 1000); // Next reset in 12 hours
+    }
+    
+    // Set up interval to check every minute
+    const interval = setInterval(() => {
+      const now = Date.now();
+      if (now >= poolRefreshTime) {
+        setRefreshesUsed(0);
+        setPoolRefreshTime(Date.now() + 12 * 60 * 60 * 1000);
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [poolRefreshTime]);
+
+  // Manual refresh function
+  const handlePoolRefresh = () => {
+    if (refreshesUsed < 2) {
       const poolSize = getPoolSize(populationState) - failedMissionsSinceRefresh;
       const newPool = [];
       for (let i = 0; i < poolSize; i++) {
@@ -121,29 +139,26 @@ function App() {
       setAdventurerPool(newPool);
       setNextAdventurerId(prev => prev + poolSize);
       setFailedMissionsSinceRefresh(0);
-      setPoolRefreshTime(now + 12 * 60 * 60 * 1000); // Next refresh in 12 hours
+      setRefreshesUsed(prev => prev + 1);
     }
-    // Set up interval to check every minute
-    const interval = setInterval(() => {
-      const now = Date.now();
-      if (now >= poolRefreshTime) {
-        const poolSize = getPoolSize(populationState) - failedMissionsSinceRefresh;
-        const newPool = [];
-        for (let i = 0; i < poolSize; i++) {
-          const adv = generateAdventurer(nextAdventurerId + i, gameState.population, upgradeEffects);
-          adv.status = 'available';
-          adv.zoneId = null;
-          adv.mission = null;
-          newPool.push(adv);
-        }
-        setAdventurerPool(newPool);
-        setNextAdventurerId(prev => prev + poolSize);
-        setFailedMissionsSinceRefresh(0);
-        setPoolRefreshTime(Date.now() + 12 * 60 * 60 * 1000);
+  };
+
+  // Initialize pool on first load
+  useEffect(() => {
+    if (adventurerPool.length === 0) {
+      const poolSize = getPoolSize(populationState);
+      const newPool = [];
+      for (let i = 0; i < poolSize; i++) {
+        const adv = generateAdventurer(nextAdventurerId + i, gameState.population, upgradeEffects);
+        adv.status = 'available';
+        adv.zoneId = null;
+        adv.mission = null;
+        newPool.push(adv);
       }
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [poolRefreshTime, populationState, failedMissionsSinceRefresh, gameState.population, upgradeEffects, nextAdventurerId]);
+      setAdventurerPool(newPool);
+      setNextAdventurerId(prev => prev + poolSize);
+    }
+  }, [populationState, gameState.population, upgradeEffects, nextAdventurerId, adventurerPool.length]);
 
   // Handler for drag-and-drop assignment
   const handleAssignAdventurerToZone = (adventurer, zoneId, fromZoneId) => {
@@ -235,7 +250,13 @@ function App() {
         nextOrderId,
         orderQueue,
         orderDeadlines,
-        adventurerCustomers
+        adventurerCustomers,
+        // New adventurer pool state
+        populationState,
+        adventurerPool,
+        poolRefreshTime,
+        failedMissionsSinceRefresh,
+        refreshesUsed
       };
       
       // Import autoSave function
@@ -245,7 +266,7 @@ function App() {
     }, 60000); // Auto-save every minute
 
     return () => clearInterval(autoSaveInterval);
-  }, [gameState, inventory, zones, adventurers, towns, buildingShops, playerStats, reputation, shopStock, purchasedUpgrades, upgradeEffects, nextAdventurerId, nextOrderId, orderQueue, orderDeadlines, adventurerCustomers]);
+  }, [gameState, inventory, zones, adventurers, towns, buildingShops, playerStats, reputation, shopStock, purchasedUpgrades, upgradeEffects, nextAdventurerId, nextOrderId, orderQueue, orderDeadlines, adventurerCustomers, populationState, adventurerPool, poolRefreshTime, failedMissionsSinceRefresh, refreshesUsed]);
 
   // Update shop construction progress
   useEffect(() => {
@@ -471,64 +492,7 @@ function App() {
     return () => clearInterval(interval);
   }, [adventurers.filter(a => a.status === 'onMission').length]);
 
-  // Handle adventurer assignment to zones
-  const handleAdventurerAssignment = (adventurer, zoneId) => {
-    console.log('handleAdventurerAssignment called with:', adventurer, zoneId);
-    if (!adventurer || typeof adventurer !== 'object' || !adventurer.id) {
-      console.error('Invalid adventurer object passed to handleAdventurerAssignment:', adventurer);
-      return;
-    }
-    // Always get the latest adventurer from state
-    const latestAdventurer = adventurers.find(a => a.id === adventurer.id);
-    if (!latestAdventurer) return;
 
-    const zone = zones.find(z => z.id === zoneId);
-    if (!zone) return;
-
-    // Use the latest adventurer object
-    const requiredRep = calculateReputationRequirement(latestAdventurer.reputationRequirement, gameState);
-    if (gameState.reputation < requiredRep) {
-      console.log(`❌ Reputation too low! Need ${requiredRep}, have ${gameState.reputation}`);
-      return;
-    }
-
-    // Reveal zone if not already revealed (or if scouting upgrade is active)
-    if (!zone.isRevealed || upgradeEffects.zoneReveal) {
-      setZones(prevZones => prevZones.map(z => 
-        z.id === zoneId ? revealZone(z) : z
-      ));
-    }
-
-    // Calculate mission success chance
-    const successChance = calculateMissionSuccess(latestAdventurer, zone);
-
-    // Create mission
-    const mission = {
-      id: Date.now(),
-      adventurer: latestAdventurer,
-      zone,
-      zoneId,
-      startTime: Date.now(),
-      returnTime: Date.now() + (30 * 1000), // 30 seconds
-      successChance,
-      progress: 0
-    };
-
-    // Only update the adventurer's status and mission, do not remove from array
-    setAdventurers(prev => {
-      const updated = prev.map(a => {
-        if (a.id === latestAdventurer.id) {
-          console.log('Updating adventurer:', a, 'to onMission with mission:', mission);
-          return { ...a, status: 'onMission', mission, zoneId };
-        }
-        return a;
-      });
-      console.log('[handleAdventurerAssignment] setAdventurers:', updated.length, updated);
-      return updated;
-    });
-
-    console.log(`🗺️ ${latestAdventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
-  };
 
   // NEW: Handle queued order swipe (cancel)
   const handleQueuedOrderSwipe = (order, action) => {
@@ -576,37 +540,102 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleAdventurerSwipe = (adventurer, action) => {
-    if (action === 'hire') {
-      if (inventory.gold >= adventurer.hiringCost) {
-        // Hire the adventurer
-        setInventory(prev => ({ ...prev, gold: prev.gold - adventurer.hiringCost }));
-        
-        const missionDuration = adventurer.missionTime * 60 * 1000; // Convert minutes to milliseconds
-        const hiredAdventurer = {
-          ...adventurer,
-          status: 'onMission',
-          mission: {
-            id: Date.now(),
-            adventurer: hiredAdventurer,
-            zone: null, // Will be set by handleAdventurerAssignment
-            zoneId: null, // Will be set by handleAdventurerAssignment
-            startTime: Date.now(),
-            returnTime: Date.now() + missionDuration,
-            successChance: 0, // Will be set by handleAdventurerAssignment
-            progress: 0
-          }
-        };
-        
-        setAdventurers(prev => [...prev, hiredAdventurer]);
-        console.log(`Hired ${adventurer.name} for ${adventurer.hiringCost} gold`);
-      }
+  // Handle adventurer assignment to zones (this now includes hiring)
+  const handleAdventurerAssignment = (adventurer, zoneId) => {
+    console.log('handleAdventurerAssignment called with:', adventurer, zoneId);
+    if (!adventurer || typeof adventurer !== 'object' || !adventurer.id) {
+      console.error('Invalid adventurer object passed to handleAdventurerAssignment:', adventurer);
+      return;
     }
     
-    // Remove from available deck
-    setTimeout(() => {
-      setAdventurers(prev => prev.filter(a => a.id !== adventurer.id));
-    }, 300);
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return;
+
+    // Check if adventurer is in pool (needs to be hired first)
+    const isInPool = adventurerPool.some(a => a.id === adventurer.id);
+    if (isInPool) {
+      // Calculate hire cost
+      const hireCost = Math.max(3, Math.floor(adventurer.experience / 10)); // 3-10 reputation based on experience
+      if (gameState.reputation < hireCost) {
+        console.log(`❌ Reputation too low! Need ${hireCost}, have ${gameState.reputation}`);
+        return;
+      }
+      
+      // Calculate mission success chance
+      const successChance = calculateMissionSuccess(adventurer, zone);
+
+      // Create mission
+      const mission = {
+        id: Date.now(),
+        adventurer: adventurer,
+        zone,
+        zoneId,
+        startTime: Date.now(),
+        returnTime: Date.now() + (30 * 1000), // 30 seconds
+        successChance,
+        progress: 0
+      };
+
+      // Hire the adventurer and immediately assign to mission in one state update
+      setGameState(prev => ({ ...prev, reputation: prev.reputation - hireCost }));
+      setAdventurerPool(prev => prev.filter(a => a.id !== adventurer.id));
+      setAdventurers(prev => [...prev, { 
+        ...adventurer, 
+        status: 'onMission', 
+        mission, 
+        zoneId 
+      }]);
+      
+      console.log(`Hired ${adventurer.name} for ${hireCost} reputation and sent to ${zone.name} (${successChance}% success chance)`);
+    } else {
+      // Adventurer is already hired, just assign to mission
+      const latestAdventurer = adventurers.find(a => a.id === adventurer.id);
+      if (!latestAdventurer) return;
+
+      // Use the latest adventurer object
+      const requiredRep = calculateReputationRequirement(latestAdventurer.reputationRequirement, gameState);
+      if (gameState.reputation < requiredRep) {
+        console.log(`❌ Reputation too low! Need ${requiredRep}, have ${gameState.reputation}`);
+        return;
+      }
+
+      // Calculate mission success chance
+      const successChance = calculateMissionSuccess(latestAdventurer, zone);
+
+      // Create mission
+      const mission = {
+        id: Date.now(),
+        adventurer: latestAdventurer,
+        zone,
+        zoneId,
+        startTime: Date.now(),
+        returnTime: Date.now() + (30 * 1000), // 30 seconds
+        successChance,
+        progress: 0
+      };
+
+      // Update the adventurer's status and mission
+      setAdventurers(prev => {
+        const updated = prev.map(a => {
+          if (a.id === latestAdventurer.id) {
+            console.log('Updating adventurer:', a, 'to onMission with mission:', mission);
+            return { ...a, status: 'onMission', mission, zoneId };
+          }
+          return a;
+        });
+        console.log('[handleAdventurerAssignment] setAdventurers:', updated.length, updated);
+        return updated;
+      });
+
+      console.log(`🗺️ ${latestAdventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
+    }
+
+    // Reveal zone if not already revealed (or if scouting upgrade is active)
+    if (!zone.isRevealed || upgradeEffects.zoneReveal) {
+      setZones(prevZones => prevZones.map(z => 
+        z.id === zoneId ? revealZone(z) : z
+      ));
+    }
   };
 
   const handleMissionComplete = (adventurer, success, loot) => {
@@ -712,7 +741,13 @@ function App() {
     setOrderQueue(saveData.orderQueue);
     setOrderDeadlines(saveData.orderDeadlines);
     setAdventurerCustomers(saveData.adventurerCustomers);
-    setGameLoaded(true); // <-- Add this line
+    // Load new adventurer pool state
+    setPopulationState(saveData.populationState || 'Stable');
+    setAdventurerPool(saveData.adventurerPool || []);
+    setPoolRefreshTime(saveData.poolRefreshTime || Date.now() + 12 * 60 * 60 * 1000);
+    setFailedMissionsSinceRefresh(saveData.failedMissionsSinceRefresh || 0);
+    setRefreshesUsed(saveData.refreshesUsed || 0);
+    setGameLoaded(true);
     console.log('Game loaded successfully');
   };
 
@@ -1008,9 +1043,15 @@ function App() {
       setOrderQueue(data.orderQueue);
       setOrderDeadlines(data.orderDeadlines);
       setAdventurerCustomers(data.adventurerCustomers);
+      // Load new adventurer pool state
+      setPopulationState(data.populationState || 'Stable');
+      setAdventurerPool(data.adventurerPool || []);
+      setPoolRefreshTime(data.poolRefreshTime || Date.now() + 12 * 60 * 60 * 1000);
+      setFailedMissionsSinceRefresh(data.failedMissionsSinceRefresh || 0);
+      setRefreshesUsed(data.refreshesUsed || 0);
       // Optionally: show a message "Game loaded!"
     }
-    setGameLoaded(true); // <-- Add this line
+    setGameLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -1050,32 +1091,6 @@ function App() {
               <b>AFK Gold:</b> +{afkGoldPopup.gold}g <span style={{ fontStyle: 'italic', color: '#cd853f' }}>({afkGoldPopup.seconds}s offline)</span>
             </span>
           </div>
-        )}
-        {process.env.NODE_ENV !== 'production' && (
-          <button
-            style={{
-              position: 'fixed',
-              top: 70,
-              right: 20,
-              zIndex: 4000,
-              background: '#4ecdc4',
-              color: '#2c1810',
-              border: '2px solid #d4af37',
-              borderRadius: 8,
-              padding: '8px 18px',
-              fontWeight: 'bold',
-              fontSize: 15,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px #0004'
-            }}
-            onClick={() => {
-              setAfkGoldPopup({ gold: 123, seconds: 456 });
-              // No need to setTimeout here if you use the effect above
-              console.log('AFK popup set!');
-            }}
-          >
-            Test AFK Gold Popup
-          </button>
         )}
         {selectedGear && (
           <div
@@ -1162,13 +1177,19 @@ function App() {
           zones={zones}
           purchasedUpgrades={purchasedUpgrades}
           onOpenSaveManager={() => setSaveManagerOpen(true)}
+          // New props for adventurer pool system
+          adventurerPool={adventurerPool}
+          populationState={populationState}
+          refreshesUsed={refreshesUsed}
+          onPoolRefresh={handlePoolRefresh}
         />
         <header className="App-header">
           <h1>The Alchemist's Guild</h1>
           
           {currentView === 'shop' && (
             <ShopScreen
-              adventurers={adventurers}
+              adventurers={adventurers} // Use main adventurers array to see all hired adventurers
+              adventurerPool={adventurerPool} // Pass pool for available adventurers
               zones={zones}
               gameState={gameState}
               onAssignAdventurer={handleAssignAdventurerToZone}

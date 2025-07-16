@@ -1,24 +1,9 @@
 // src/components/AdventurerCard.js
-import React, { useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import React from 'react';
 import './AdventurerCard.css';
 import { useDrag } from 'react-dnd';
 
-const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fromZoneId, isMobile = false, onAssign }) => {
-  const [exitX, setExitX] = useState(0);
-  
-  // Track the drag position
-  const x = useMotionValue(0);
-  
-  // Transform drag position to rotation and opacity
-  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
-  
-  // Colors for accept/reject feedback
-  const acceptColor = useTransform(x, [0, 100], ["#2c1810", "#1a4d1a"]);
-  const rejectColor = useTransform(x, [-100, 0], ["#4d1a1a", "#2c1810"]);
-  const cardColor = useTransform(x, [-100, 0, 100], [rejectColor, "#2c1810", acceptColor]);
-
+const AdventurerCard = ({ adventurer, canAfford, draggable = false, fromZoneId, isMobile = false }) => {
   // Helper for experience color
   const getExperienceColor = (exp) => {
     if (exp >= 70) return '#ffd700';
@@ -42,8 +27,10 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
     }),
   });
 
+  const hireCost = Math.max(3, Math.floor(adventurer.experience / 10)); // Calculate cost
+
   if (isMobile) {
-    // MOBILE: No drag/swipe, just show card and assign button
+    // MOBILE: Show card with reputation cost indicator
     return (
       <div className="adventurer-card" style={{ backgroundColor: '#2c1810', opacity: isDragging ? 0.3 : 1, width: '90vw', maxWidth: 320, margin: '0 auto', padding: 8, fontSize: 14 }}>
         <div className="adventurer-content">
@@ -74,80 +61,36 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
           <div className="adventurer-description" style={{ fontSize: 12, marginBottom: 6 }}>
             {adventurer.description}
           </div>
-          {onAssign && (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button
-                style={{
-                  marginTop: 6,
-                  width: 140,
-                  padding: '8px 0',
-                  background: '#ffd700',
-                  color: '#2c1810',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 'bold',
-                  fontSize: 15,
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px #d4af3740',
-                }}
-                onClick={() => onAssign(adventurer)}
-              >
-                Assign
-              </button>
-            </div>
-          )}
+          {/* Reputation cost indicator */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
+            <span style={{ 
+              color: '#ffd700', 
+              fontSize: 14, 
+              fontWeight: 'bold',
+              background: 'rgba(212, 175, 55, 0.2)',
+              padding: '4px 8px',
+              borderRadius: 4,
+              border: '1px solid #d4af37'
+            }}>
+              Hire Cost: {hireCost} ⭐
+            </span>
+          </div>
         </div>
       </div>
     );
   }
 
-  // DESKTOP: Drag-and-drop/swipe
-  const handleDragEnd = (event, info) => {
-    const threshold = 100;
-    const velocityThreshold = 400;
-    
-    if ((info.offset.x > threshold || info.velocity.x > velocityThreshold) && canAfford) {
-      // Swipe right - Hire
-      setExitX(1000);
-      onSwipe(adventurer, 'hire');
-    } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
-      // Swipe left - Reject
-      setExitX(-1000);
-      onSwipe(adventurer, 'reject');
-    }
-    // If neither condition is met, the card will automatically spring back due to dragConstraints
-  };
-
+  // DESKTOP: Drag-and-drop for zone assignment, button for hiring
   return (
-    <motion.div
+    <div
       ref={draggable ? drag : null}
       className="adventurer-card"
       style={{
-        x,
-        rotate,
-        opacity: isDragging ? 0.3 : opacity,
-        backgroundColor: cardColor,
+        backgroundColor: '#2c1810',
+        opacity: isDragging ? 0.3 : 1,
         cursor: draggable ? 'grab' : 'default',
       }}
-      drag={draggable ? 'x' : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.8}
-      onDragEnd={draggable ? handleDragEnd : undefined}
-      animate={exitX !== 0 ? { x: exitX } : {}}
-      transition={{ type: "spring", stiffness: 400, damping: 40 }}
-      whileHover={draggable ? { scale: 1.02 } : {}}
-      whileTap={draggable ? { scale: 0.98 } : {}}
     >
-      <div className="swipe-indicator left">
-        <span>✗</span>
-        <span>PASS</span>
-      </div>
-      
-      <div className="swipe-indicator right">
-        <span>✓</span>
-        <span>HIRE</span>
-      </div>
-
       <div className="adventurer-content">
         <div className="adventurer-header">
           <h3>{adventurer.name}</h3>
@@ -176,8 +119,22 @@ const AdventurerCard = ({ adventurer, onSwipe, canAfford, draggable = false, fro
         <div className="adventurer-description">
           {adventurer.description}
         </div>
+        {/* Reputation cost indicator */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+          <span style={{ 
+            color: '#ffd700', 
+            fontSize: 14, 
+            fontWeight: 'bold',
+            background: 'rgba(212, 175, 55, 0.2)',
+            padding: '4px 8px',
+            borderRadius: 4,
+            border: '1px solid #d4af37'
+          }}>
+            Hire Cost: {hireCost} ⭐
+          </span>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

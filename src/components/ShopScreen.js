@@ -21,7 +21,8 @@ const ShopScreen = ({
   gameState, 
   onAssignAdventurer,
   onUnassignAdventurer,
-  currentEvent 
+  currentEvent,
+  adventurerPool = [] // Add adventurerPool prop for available adventurers
 }) => {
   const isMobile = useIsMobile();
   const [assigningAdventurer, setAssigningAdventurer] = useState(null);
@@ -41,15 +42,11 @@ const ShopScreen = ({
     }),
   });
 
-  // Handler for mobile assign
-  const handleMobileAssign = (adventurer, zoneId) => {
-    onAssignAdventurer(adventurer, zoneId, null);
-    setAssigningAdventurer(null);
-  };
+
 
   if (isMobile) {
     // MOBILE LAYOUT: Stack adventurers and zones vertically, use tap-to-assign
-    const availableAdventurers = adventurers.filter(a => a.status === 'available');
+    const availableAdventurers = adventurerPool; // Use pool for available adventurers
     return (
       <div className="shop-screen" style={{ display: 'block', padding: 8 }}>
         <div className="shop-header">
@@ -74,7 +71,8 @@ const ShopScreen = ({
                   adventurer={adventurer}
                   canAfford={true}
                   isMobile={true}
-                  onAssign={() => setAssigningAdventurer(adventurer)}
+                  draggable={true}
+                  fromZoneId={null}
                 />
               ))}
             </div>
@@ -86,44 +84,20 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={adventurers.filter(a => (a.status === 'assigned' || a.status === 'onMission') && a.zoneId === zone.id)}
+              assignedAdventurers={adventurers.filter(a => a.zoneId === zone.id && (a.status === 'assigned' || a.status === 'onMission'))}
               onDropAdventurer={onAssignAdventurer}
               isMobile={true}
               onUnassignAdventurer={onUnassignAdventurer}
             />
           ))}
         </div>
-        {/* Modal for zone selection */}
-        {assigningAdventurer && (
-          <div style={{
-            position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, zIndex: 2000,
-            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }} onClick={() => setAssigningAdventurer(null)}>
-            <div style={{ background: '#2c1810', borderRadius: 12, padding: 18, minWidth: 220 }} onClick={e => e.stopPropagation()}>
-              <h4 style={{ color: '#ffd700', marginBottom: 12 }}>Assign to Zone</h4>
-              {zones.map(zone => (
-                <button
-                  key={zone.id}
-                  style={{
-                    display: 'block', width: '100%', margin: '6px 0', padding: 10,
-                    background: '#8b5a2b', color: '#fff', border: 'none', borderRadius: 8,
-                    fontWeight: 'bold', fontSize: 15, cursor: 'pointer'
-                  }}
-                  onClick={() => handleMobileAssign(assigningAdventurer, zone.id)}
-                >
-                  {zone.name}
-                </button>
-              ))}
-              <button style={{ marginTop: 10, width: '100%', padding: 8, background: '#4a2c1a', color: '#ffd700', border: 'none', borderRadius: 8, fontSize: 14 }} onClick={() => setAssigningAdventurer(null)}>Cancel</button>
-            </div>
-          </div>
-        )}
+        {/* Remove the unused modal - we're using direct hire buttons now */}
       </div>
     );
   }
 
   // DESKTOP LAYOUT: Drag-and-drop
-  const availableAdventurers = adventurers.filter(a => a.status === 'available');
+  const availableAdventurers = adventurerPool; // Use pool for available adventurers
   return (
     <div className="shop-screen" style={{ display: 'flex', gap: 32 }}>
       {/* Left: Adventurers (drop target) */}
@@ -149,8 +123,8 @@ const ShopScreen = ({
                   key={adventurer.id}
                   adventurer={adventurer}
                   canAfford={true}
-                  onSwipe={() => {}}
-                  draggable // Will use react-dnd in the card
+                  draggable={true}
+                  fromZoneId={null}
                   isMobile={false}
                 />
               ))}
@@ -169,7 +143,7 @@ const ShopScreen = ({
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={adventurers.filter(a => (a.status === 'assigned' || a.status === 'onMission') && a.zoneId === zone.id)}
+              assignedAdventurers={adventurers.filter(a => a.zoneId === zone.id && (a.status === 'assigned' || a.status === 'onMission'))}
               onDropAdventurer={onAssignAdventurer}
               isMobile={false}
               onUnassignAdventurer={onUnassignAdventurer}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FaChevronDown, FaChevronUp, FaCoins, FaUserFriends, FaStar, FaMapMarkedAlt } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -33,16 +33,40 @@ function getGoldHistoryData(goldHistory, range = 'minute') {
   }));
 }
 
-export default function StatsBar({ inventory, gameState, adventurers, zones, purchasedUpgrades, onOpenSaveManager }) {
+export default function StatsBar({ 
+  inventory, 
+  gameState, 
+  adventurers, 
+  zones, 
+  purchasedUpgrades, 
+  onOpenSaveManager,
+  // New props for adventurer pool system
+  adventurerPool = [],
+  populationState = 'Stable',
+  refreshesUsed = 0,
+  onPoolRefresh = () => {}
+}) {
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState('overview');
   const [graphRange, setGraphRange] = useState('minute');
+  const [graphAnimated, setGraphAnimated] = useState(false); // Track if graph has been animated
   const goldHistory = gameState.goldHistory || [];
-  const chartData = getGoldHistoryData(goldHistory, graphRange);
+  
+  // Memoize chart data to prevent unnecessary re-renders
+  const chartData = useMemo(() => getGoldHistoryData(goldHistory, graphRange), [goldHistory, graphRange]);
+
+  // Reset animation when tab changes to graph
+  useEffect(() => {
+    if (tab === 'graph' && !graphAnimated) {
+      setGraphAnimated(true);
+    } else if (tab !== 'graph') {
+      setGraphAnimated(false);
+    }
+  }, [tab, graphAnimated]);
 
   // Stats for overview
   const totalAdventurers = adventurers.length;
-  const availableAdventurers = adventurers.filter(a => a.status === 'available').length;
+  const availableAdventurers = adventurerPool.length; // Use pool instead of filtering adventurers
   const onMissionAdventurers = adventurers.filter(a => a.status === 'onMission').length;
   const assignedAdventurers = adventurers.filter(a => a.status === 'assigned').length;
   const totalMissions = gameState.adventurerStats.totalSent;
@@ -54,6 +78,13 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
   const totalZoneDeaths = gameState.zoneStats.totalDeaths;
   const upgradesPurchased = Object.values(purchasedUpgrades).reduce((total, category) => total + Object.values(category).filter(upg => upg.purchased).length, 0);
   const totalUpgrades = Object.values(purchasedUpgrades).reduce((total, category) => total + Object.values(category).length, 0);
+
+  // Color coding for population status
+  const getPopulationColor = (state) => {
+    if (state === 'Struggling') return '#ff6b6b'; // Red for struggling
+    if (state === 'Booming') return '#ffd700'; // Gold for booming
+    return '#4ecdc4'; // Default for stable
+  };
 
   return (
     <div style={{
@@ -74,7 +105,10 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <span title="Gold" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaCoins color="#ffd700" /> {inventory.gold}</span>
           <span title="Reputation" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaStar color="#d4af37" /> {gameState.reputation}</span>
-          <span title="Population" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaUserFriends color="#4ecdc4" /> {gameState.population}</span>
+          <span title="Available Adventurers" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <FaUserFriends color="#4ecdc4" /> 
+            <span>{availableAdventurers}</span>
+          </span>
           <span title="Active Missions" style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FaMapMarkedAlt color="#a855f7" /> {onMissionAdventurers}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12 }}>
@@ -121,7 +155,27 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
                 <b>Upgrades:</b> {upgradesPurchased}/{totalUpgrades}
               </div>
               <div>
-                <b>Population:</b> {gameState.population}
+                <b>Population:</b> <span style={{ color: getPopulationColor(populationState) }}>{availableAdventurers}</span> 
+                <span style={{ color: getPopulationColor(populationState), marginLeft: 8 }}>({populationState})</span>
+              </div>
+              <div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onPoolRefresh(); }}
+                  disabled={refreshesUsed >= 2}
+                  style={{
+                    background: refreshesUsed >= 2 ? '#4a2c1a' : '#8b5a2b',
+                    color: refreshesUsed >= 2 ? '#8b5a2b' : '#f4e4bc',
+                    border: '1px solid #d4af37',
+                    borderRadius: 6,
+                    padding: '6px 12px',
+                    cursor: refreshesUsed >= 2 ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                    fontWeight: 'bold'
+                  }}
+                  title={refreshesUsed >= 2 ? 'No refreshes remaining' : 'Refresh adventurer pool'}
+                >
+                  Refresh ({refreshesUsed}/2)
+                </button>
               </div>
             </div>
           )}
@@ -138,8 +192,24 @@ export default function StatsBar({ inventory, gameState, adventurers, zones, pur
                   <XAxis dataKey="time" tick={{ fill: '#ffd700', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#ffd700', fontSize: 12 }} />
                   <Tooltip contentStyle={{ background: '#2c1810', border: '1px solid #ffd700', color: '#ffd700' }} />
-                  <Line type="monotone" dataKey="earned" stroke="#4ecdc4" strokeWidth={2} name="Earned" />
-                  <Line type="monotone" dataKey="spent" stroke="#ff6b6b" strokeWidth={2} name="Spent" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="earned" 
+                    stroke="#4ecdc4" 
+                    strokeWidth={2} 
+                    name="Earned"
+                    animationDuration={graphAnimated ? 1000 : 0}
+                    animationBegin={0}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="spent" 
+                    stroke="#ff6b6b" 
+                    strokeWidth={2} 
+                    name="Spent"
+                    animationDuration={graphAnimated ? 1000 : 0}
+                    animationBegin={200}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
