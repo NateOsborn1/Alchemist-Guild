@@ -44,15 +44,17 @@ export default function StatsBar({
   adventurerPool = [],
   populationState = 'Stable',
   refreshesUsed = 0,
-  onPoolRefresh = () => {}
+  onPoolRefresh = () => {},
+  // Game log system
+  gameLog = []
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState('log'); // Default to log tab
   const [graphRange, setGraphRange] = useState('minute');
   const [graphAnimated, setGraphAnimated] = useState(false); // Track if graph has been animated
   const goldHistory = gameState.goldHistory || [];
   
-  // Memoize chart data to prevent unnecessary re-renders
+  // Memoize chart data to prevent unnecessary re-renders and animations
   const chartData = useMemo(() => getGoldHistoryData(goldHistory, graphRange), [goldHistory, graphRange]);
 
   // Reset animation when tab changes to graph
@@ -134,6 +136,7 @@ export default function StatsBar({
       {expanded && (
         <div style={{ background: '#1a120a', borderTop: '1px solid #8b5a2b', padding: 12 }}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+            <button onClick={() => setTab('log')} style={{ fontWeight: tab === 'log' ? 'bold' : 'normal', background: 'none', border: 'none', color: tab === 'log' ? '#ffd700' : '#f4e4bc', fontSize: 16, cursor: 'pointer' }}>Log</button>
             <button onClick={() => setTab('overview')} style={{ fontWeight: tab === 'overview' ? 'bold' : 'normal', background: 'none', border: 'none', color: tab === 'overview' ? '#ffd700' : '#f4e4bc', fontSize: 16, cursor: 'pointer' }}>Overview</button>
             <button onClick={() => setTab('graph')} style={{ fontWeight: tab === 'graph' ? 'bold' : 'normal', background: 'none', border: 'none', color: tab === 'graph' ? '#ffd700' : '#f4e4bc', fontSize: 16, cursor: 'pointer' }}>Cashflow</button>
           </div>
@@ -177,6 +180,41 @@ export default function StatsBar({
                   Refresh ({refreshesUsed}/2)
                 </button>
               </div>
+            </div>
+          )}
+          {tab === 'log' && (
+            <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #8b5a2b', borderRadius: 6, padding: 8 }}>
+              {gameLog.length === 0 ? (
+                <div style={{ color: '#8b5a2b', fontStyle: 'italic', textAlign: 'center', padding: 20 }}>
+                  No events logged yet
+                </div>
+              ) : (
+                gameLog.map(entry => {
+                  const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const getTypeColor = (type) => {
+                    switch (type) {
+                      case 'success': return '#4ecdc4';
+                      case 'error': return '#ff6b6b';
+                      case 'warning': return '#ffd700';
+                      default: return '#f4e4bc';
+                    }
+                  };
+                  return (
+                    <div key={entry.id} style={{ 
+                      marginBottom: 6, 
+                      padding: '4px 8px', 
+                      borderRadius: 4, 
+                      background: 'rgba(44, 24, 16, 0.6)',
+                      borderLeft: `3px solid ${getTypeColor(entry.type)}`
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: getTypeColor(entry.type), fontSize: 14 }}>{entry.message}</span>
+                        <span style={{ color: '#8b5a2b', fontSize: 12 }}>{time}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
           {tab === 'graph' && (

@@ -85,6 +85,20 @@ function App() {
   const [poolRefreshTime, setPoolRefreshTime] = useState(Date.now() + 12 * 60 * 60 * 1000); // Next refresh in 12 hours (real time)
   const [failedMissionsSinceRefresh, setFailedMissionsSinceRefresh] = useState(0);
   const [refreshesUsed, setRefreshesUsed] = useState(0); // Track refreshes used (max 2 per 12 hours)
+  
+  // Game log system
+  const [gameLog, setGameLog] = useState([]);
+  
+  // Helper function to add log entries
+  const addLogEntry = (message, type = 'info') => {
+    const entry = {
+      id: Date.now(),
+      timestamp: Date.now(),
+      message,
+      type // 'info', 'success', 'warning', 'error'
+    };
+    setGameLog(prev => [entry, ...prev.slice(0, 49)]); // Keep last 50 entries
+  };
 
   // Helper: get pool size based on population state
   const getPoolSize = (state) => {
@@ -140,6 +154,7 @@ function App() {
       setNextAdventurerId(prev => prev + poolSize);
       setFailedMissionsSinceRefresh(0);
       setRefreshesUsed(prev => prev + 1);
+      addLogEntry(`Refreshed adventurer pool (${poolSize} available)`, 'info');
     }
   };
 
@@ -256,7 +271,9 @@ function App() {
         adventurerPool,
         poolRefreshTime,
         failedMissionsSinceRefresh,
-        refreshesUsed
+        refreshesUsed,
+        // Game log system
+        gameLog
       };
       
       // Import autoSave function
@@ -433,8 +450,14 @@ function App() {
                 description: `Recovered from a successful mission by ${adventurer.name}.`
               };
               newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
+              
+              // Add log entry here where gearDrop is in scope
+              addLogEntry(`${adventurer.name} successfully returned with ${gearDrop.name}`, 'success');
+              
               return newInventory;
             });
+          } else {
+            addLogEntry(`${adventurer.name} failed to return`, 'error');
           }
           
           // Handle death rewards from upgrades
@@ -445,6 +468,7 @@ function App() {
               logGoldTransaction(newState, upgradeEffects.deathGoldReward, 'earn', 'death_insurance');
               return newState;
             });
+            addLogEntry(`Received ${upgradeEffects.deathGoldReward}g from death insurance`, 'warning');
             console.log(`Received ${upgradeEffects.deathGoldReward} gold from death insurance`);
           }
           
@@ -586,6 +610,7 @@ function App() {
         zoneId 
       }]);
       
+      addLogEntry(`Hired ${adventurer.name} for ${zone.name} (${hireCost} ⭐)`, 'success');
       console.log(`Hired ${adventurer.name} for ${hireCost} reputation and sent to ${zone.name} (${successChance}% success chance)`);
     } else {
       // Adventurer is already hired, just assign to mission
@@ -627,6 +652,7 @@ function App() {
         return updated;
       });
 
+      addLogEntry(`Assigned ${latestAdventurer.name} to ${zone.name}`, 'info');
       console.log(`🗺️ ${latestAdventurer.name} sent to ${zone.name} (${successChance}% success chance)`);
     }
 
@@ -721,6 +747,12 @@ function App() {
   });
   setPurchasedUpgrades(newPurchasedUpgrades);
   setUpgradeEffects(calculateUpgradeEffects(newPurchasedUpgrades));
+  
+  // Find the purchased upgrade name for the log
+  const purchasedUpgrade = Object.values(newPurchasedUpgrades).flat().find(upg => upg.purchased && !purchasedUpgrades[upg.category]?.[upg.id]?.purchased);
+  if (purchasedUpgrade) {
+    addLogEntry(`Purchased upgrade: ${purchasedUpgrade.name}`, 'success');
+  }
 };
 
   // Handle loading game data
@@ -747,6 +779,7 @@ function App() {
     setPoolRefreshTime(saveData.poolRefreshTime || Date.now() + 12 * 60 * 60 * 1000);
     setFailedMissionsSinceRefresh(saveData.failedMissionsSinceRefresh || 0);
     setRefreshesUsed(saveData.refreshesUsed || 0);
+    setGameLog(saveData.gameLog || []);
     setGameLoaded(true);
     console.log('Game loaded successfully');
   };
@@ -939,6 +972,12 @@ function App() {
       logGoldTransaction(newState, gold, 'earn', 'sell_gear');
       return newState;
     });
+    
+    // Find the gear name for the log
+    const gear = inventory.collectedGear?.find(g => g.id === gearId);
+    if (gear) {
+      addLogEntry(`Sold ${gear.name} for ${gold}g`, 'info');
+    }
   };
 
   // Track last active timestamp for AFK rewards
@@ -971,18 +1010,19 @@ function App() {
         const totalGold = baseGold + bonusGold;
 
         if (totalGold > 0) {
-          setInventory(prev => {
-            const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
-            setGameState(prevState => {
-              const newState = { ...prevState };
-              logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
-              return newState;
+                      setInventory(prev => {
+              const newInventory = { ...prev, gold: (prev.gold || 0) + totalGold };
+              setGameState(prevState => {
+                const newState = { ...prevState };
+                logGoldTransaction(newState, totalGold, 'earn', 'afk_reward');
+                return newState;
+              });
+              // Show non-blocking popup
+              setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
+              setTimeout(() => setAfkGoldPopup(null), 4000);
+              addLogEntry(`Earned ${totalGold}g from AFK rewards (${afkSeconds}s)`, 'success');
+              return newInventory;
             });
-            // Show non-blocking popup
-            setAfkGoldPopup({ gold: totalGold, seconds: afkSeconds });
-            setTimeout(() => setAfkGoldPopup(null), 4000);
-            return newInventory;
-          });
         }
       }
     }
@@ -1182,6 +1222,8 @@ function App() {
           populationState={populationState}
           refreshesUsed={refreshesUsed}
           onPoolRefresh={handlePoolRefresh}
+          // Game log system
+          gameLog={gameLog}
         />
         <header className="App-header">
           <h1>The Alchemist's Guild</h1>
