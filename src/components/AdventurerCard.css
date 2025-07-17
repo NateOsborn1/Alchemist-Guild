@@ -39,6 +39,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-sizing: border-box;
 }
 
 .card-back {
@@ -69,6 +70,8 @@
   flex: 1;
   line-height: 1.2;
   padding-right: 8px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Class badges */
@@ -127,6 +130,8 @@
   background: rgba(44, 24, 16, 0.6);
   border-radius: 8px;
   border: 1px solid #8b5a2b;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .rate-label {
@@ -149,6 +154,8 @@
   background: rgba(212, 175, 55, 0.2);
   border: 1px solid #d4af37;
   border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .cost-label {
@@ -183,6 +190,7 @@
   flex-direction: column;
   height: 100%;
   gap: 12px;
+  width: 100%;
 }
 
 .back-header {
@@ -218,6 +226,8 @@
   background: rgba(74, 44, 26, 0.4);
   border-radius: 8px;
   border: 1px solid #8b5a2b;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .specialty-label {
@@ -259,6 +269,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: auto;
+  box-sizing: border-box;
 }
 
 .assign-button:hover {
@@ -313,18 +324,24 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .adventurer-card {
-    width: 90vw;
-    max-width: 300px;
+    width: 100%;
+    max-width: 100%;
     min-height: 200px;
-    margin: 8px auto;
+    margin: 8px 0;
+    padding: 0 8px;
+    box-sizing: border-box;
   }
   
   .card-face {
     padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .adventurer-name {
     font-size: 16px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   .class-badge, .rank-badge {
@@ -343,6 +360,12 @@
   /* Hide specialty on front of mobile cards */
   .card-front .specialty-section {
     display: none;
+  }
+  
+  /* Ensure all sections fit properly */
+  .success-rate, .cost-section {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 

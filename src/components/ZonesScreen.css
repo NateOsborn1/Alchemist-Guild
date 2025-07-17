@@ -1,0 +1,391 @@
+/* src/components/ZonesScreen.css */
+.zones-screen {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #f4e4bc;
+  }
+  
+  .screen-title {
+    text-align: center;
+    color: #d4af37;
+    font-size: 28px;
+    margin-bottom: 24px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .zones-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  /* Zone Card */
+  .zone-card {
+    background: linear-gradient(135deg, #2c1810, #4a2c1a);
+    border: 2px solid #8b5a2b;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .zone-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    border-color: #d4af37;
+  }
+  
+  /* Zone Header */
+  .zone-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+  
+  .zone-header:hover {
+    background: rgba(212, 175, 55, 0.1);
+  }
+  
+  .zone-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .zone-name {
+    margin: 0;
+    font-size: 20px;
+    color: #ffd700;
+  }
+  
+  .expand-icon {
+    font-size: 14px;
+    color: #cd853f;
+    transition: transform 0.2s ease;
+  }
+  
+  .zone-quick-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .zone-status {
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+  
+  .mission-count {
+    color: #cd853f;
+  }
+  
+  /* Zone Details */
+  .zone-details {
+    padding: 0 20px 20px;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .zone-description {
+    color: #cd853f;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  
+  /* Zone Stats */
+  .zone-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+  }
+  
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    color: #cd853f;
+    font-weight: bold;
+    min-width: 100px;
+  }
+  
+  .danger-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+  
+  .danger-value {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .danger-max {
+    color: #8b5a2b;
+    font-size: 14px;
+  }
+  
+  .danger-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 200px;
+  }
+  
+  .danger-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  .monster-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .monster-type {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #a855f7;
+  }
+  
+  .bonus-value {
+    color: #4ecdc4;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  /* Missions Section */
+  .missions-section {
+    margin-top: 20px;
+  }
+  
+  .section-title {
+    color: #d4af37;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .no-missions {
+    color: #8b5a2b;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+  }
+  
+  .missions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  
+  /* Mission Card */
+  .mission-card {
+    background: rgba(44, 24, 16, 0.7);
+    border: 1px solid #8b5a2b;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+  
+  .mission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .adventurer-name {
+    font-weight: bold;
+    color: #ffd700;
+    font-size: 14px;
+  }
+  
+  .class-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  
+  .class-badge.rogue {
+    background: #8b2635;
+    color: #f4e4bc;
+  }
+  
+  .class-badge.ranger {
+    background: #2d5016;
+    color: #f4e4bc;
+  }
+  
+  .class-badge.miner {
+    background: #5d4e37;
+    color: #f4e4bc;
+  }
+  
+  .class-badge.mage {
+    background: #4a148c;
+    color: #f4e4bc;
+  }
+  
+  .class-badge.warrior {
+    background: #8b4513;
+    color: #f4e4bc;
+  }
+  
+  /* Mission Stats */
+  .mission-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  
+  .stat-item {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  
+  .stat-value {
+    font-weight: bold;
+  }
+  
+  .success-rate {
+    color: #4ecdc4;
+  }
+  
+  .time-left {
+    color: #ffd700;
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    background: #2c1810;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  
+  .progress-fill {
+    background: #ffd700;
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  /* Loot Preview */
+  .loot-preview {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  
+  .loot-label {
+    color: #cd853f;
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .loot-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .loot-item {
+    color: #4ecdc4;
+  }
+  
+  .loot-more {
+    color: #8b5a2b;
+    font-style: italic;
+  }
+  
+  /* Mobile Styles */
+  @media (max-width: 768px) {
+    .zones-screen {
+      padding: 12px;
+    }
+  
+    .screen-title {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+  
+    .zone-card {
+      border-width: 1px;
+    }
+  
+    .zone-header {
+      padding: 12px 16px;
+    }
+  
+    .zone-name {
+      font-size: 18px;
+    }
+  
+    .zone-details {
+      padding: 0 16px 16px;
+    }
+  
+    .zone-stats {
+      padding: 8px;
+    }
+  
+    .stat-row {
+      flex-wrap: wrap;
+    }
+  
+    .stat-label {
+      min-width: 80px;
+      font-size: 13px;
+    }
+  
+    .missions-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .mission-card {
+      padding: 10px;
+    }
+  
+    .adventurer-name {
+      font-size: 13px;
+    }
+  
+    .class-badge {
+      font-size: 10px;
+      padding: 2px 4px;
+    }
+  }

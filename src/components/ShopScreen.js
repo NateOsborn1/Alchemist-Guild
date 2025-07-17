@@ -46,11 +46,13 @@ const ShopScreen = ({
     // MOBILE LAYOUT: Vertical scrollable cards, one at a time
     const availableAdventurers = adventurerPool; // Use pool for available adventurers
     return (
-      <div className="shop-screen" style={{ 
-        display: 'block', 
-        padding: '8px 16px',
-        maxWidth: '100%',
-        margin: '0 auto'
+      <div className="shop-screen mobile" style={{ 
+        width: '100%',
+        maxWidth: '100vw',
+        padding: '8px',
+        margin: '0',
+        overflow: 'hidden', // Prevent horizontal scrolling
+        boxSizing: 'border-box'
       }}>
         <div className="shop-header" style={{ marginBottom: '16px' }}>
           {currentEvent && (
@@ -61,7 +63,11 @@ const ShopScreen = ({
           )}
         </div>
         
-        <div className="adventurers-section">
+        <div className="adventurers-section" style={{
+          width: '100%',
+          maxWidth: '100%',
+          overflow: 'hidden'
+        }}>
           <h3 style={{ 
             textAlign: 'center', 
             marginBottom: '16px',
@@ -79,7 +85,9 @@ const ShopScreen = ({
               padding: '40px 20px',
               background: 'rgba(44, 24, 16, 0.4)',
               border: '1px solid #8b5a2b',
-              borderRadius: '12px'
+              borderRadius: '12px',
+              width: '100%',
+              boxSizing: 'border-box'
             }}>
               <p>No adventurers available. Check back later!</p>
             </div>
@@ -89,52 +97,59 @@ const ShopScreen = ({
               flexDirection: 'column',
               gap: '12px',
               alignItems: 'center',
-              maxHeight: '60vh',
+              width: '100%',
+              maxWidth: '100%',
               overflowY: 'auto',
-              padding: '8px 0'
+              overflowX: 'hidden',
+              padding: '8px 0',
+              boxSizing: 'border-box'
             }}>
               {availableAdventurers.map(adventurer => (
-                <AdventurerCard 
-                  key={adventurer.id}
-                  adventurer={adventurer}
-                  canAfford={gameState.reputation >= adventurer.reputationCost}
-                  isMobile={true}
-                  draggable={false} // No drag on mobile
-                  fromZoneId={null}
-                  onAssignAdventurer={onAssignAdventurer}
-                />
+                <div key={adventurer.id} style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}>
+                  <AdventurerCard 
+                    adventurer={adventurer}
+                    canAfford={gameState.reputation >= adventurer.reputationCost}
+                    isMobile={true}
+                    draggable={false} // No drag on mobile
+                    fromZoneId={null}
+                    onAssignAdventurer={onAssignAdventurer}
+                  />
+                </div>
               ))}
             </div>
           )}
         </div>
         
+        {/* Active Zones - Hidden on mobile, moved to Zones tab */}
+        {/*
         <h3 style={{ 
-          margin: '24px 0 12px 0', 
-          textAlign: 'center',
+          margin: 24px 0 12,         textAlign: 'center,
           color: '#d4af37',
-          fontSize: '18px'
-        }}>
+          fontSize: '18     }}>
           Active Zones
         </h3>
         
         <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '12px', 
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
+          display: flex,     flexDirection: 'column, 
+          gap: 12px        alignItems: 'center',
+          marginBottom: '20     }}>
           {zones.map(zone => (
             <ZoneDropPanel
               key={zone.id}
               zone={zone}
-              assignedAdventurers={adventurers.filter(a => a.zoneId === zone.id && (a.status === 'assigned' || a.status === 'onMission'))}
+              assignedAdventurers={adventurers.filter(a => a.zoneId === zone.id && (a.status === 'assigned' || a.status === 'onMission))}
               onDropAdventurer={onAssignAdventurer}
               isMobile={true}
               onUnassignAdventurer={onUnassignAdventurer}
             />
           ))}
         </div>
+        */}
       </div>
     );
   }

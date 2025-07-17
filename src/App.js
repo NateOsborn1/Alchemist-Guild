@@ -1404,6 +1404,8 @@ function App() {
             <ZonesScreen
               zones={zones}
               adventurers={adventurers}
+              onAssignAdventurer={handleAssignAdventurerToZone}
+              onUnassignAdventurer={handleUnassignAdventurer}
             />
           )}
           
