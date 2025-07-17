@@ -2,7 +2,7 @@
 .adventurer-card {
   width: 100%;
   max-width: 320px;
-  min-height: 200px;
+  min-height: 160px;
   margin: 8px auto;
   cursor: pointer;
   user-select: none;
@@ -18,26 +18,41 @@
   gap: 12px;
 }
 
-/* Header row: Class and Rank */
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.class-rank-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .adventurer-name {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
   color: #f4e4bc;
   font-weight: bold;
-  text-align: center;
-  width: 100%;
-  margin-bottom: 12px;
+  text-align: left;
+  flex: 1;
+  line-height: 1.2;
+  padding: 8px;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 8px;
+  border: 1px solid #8b5a2b;
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  margin-bottom: 20px; /* Consistent 20ing */
 }
 
 .class-badge {
-  padding: 6px 10px;
+  padding: 6px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: bold;
@@ -72,7 +87,7 @@
 
 /* Rank Badge - Clear indicator */
 .rank-badge {
-  padding: 6px 10px;
+  padding: 6px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: bold;
@@ -91,6 +106,8 @@
   background: rgba(44, 24, 16, 0.6);
   border-radius: 8px;
   border: 1px solid #8b5a2b;
+  margin-top: 0;
+  margin-bottom: 20px; /* Consistent20acing */
 }
 
 .rate-label {
@@ -199,23 +216,30 @@
   .adventurer-card {
     width: 90vw;
     max-width: 300px;
-    min-height: 180px;
+    min-height: 160px; /* Reduced from 180px */
     margin: 6px auto;
     padding: 12px;
   }
   
+  .card-header {
+    gap: 8px; /* Reduced gap on mobile */
+  }
+  
   .adventurer-name {
-    font-size: 16px;
+    font-size: 16px; /* Reduced from 18px */
+    min-height: 32px;
+    padding: 6px;
+    margin-bottom: 2px;
   }
   
   .class-badge {
-    font-size: 10px;
-    padding: 3px 6px;
+    font-size: 13px;
+    padding: 4px 8px;
   }
   
   .rank-badge {
-    font-size: 14px;
-    padding: 6px 10px;
+    font-size: 13px;
+    padding: 4px 8px;
   }
   
   .rate-value {
@@ -231,8 +255,25 @@
   }
   
   .assign-button {
-    padding: 10px 14px;
+    padding: 10px;
     font-size: 14px;
+  }
+  
+  .popup-content {
+    max-width: 250px;
+    padding: 12px;
+  }
+  
+  .popup-content h4 {
+    font-size: 16px;
+  }
+  
+  .bonus-description {
+    font-size: 12px;
+  }
+  
+  .bonus-effect {
+    font-size: 12px;
   }
 }
 
@@ -250,4 +291,131 @@
 .card-front,
 .card-back {
   display: none;
+}
+
+/* Top section: Class and Rank on left */
+.card-top-section {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.class-rank-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adventurer-name {
+  margin: 0 2px 0;
+  font-size: 22px;
+  color: #f4e4bc;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 8px;
+  border: 1px solid #8b5a2b;
+}
+
+.class-badge, .rank-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 31px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  letter-spacing: 1px;
+  border: none;
+}
+
+.class-badge {
+  background: #8b5a2b;
+  color: #f4e4bc;
+}
+
+.rank-badge {
+  background: #b08d57;
+  color: #f4e4bc;
+}
+
+.adventurer-name {
+  font-size: 1rem;
+  font-weight: 800;
+  min-height: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(44, 24, 16, 0.6);
+  border-radius: 8px;
+  border: 1px solid #8b5a2b;
+  color: #d4af37;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .class-badge, .rank-badge {
+    min-width: 63px;
+    min-height: 22px;
+    font-size: 0.85rem;
+    padding: 0 7px;
+  }
+  .adventurer-name {
+    font-size: 0.85rem;
+    min-height: 22px;
+  }
+}
+
+/* Class info popup */
+.class-info-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+.popup-content {
+  background: linear-gradient(135deg, #2c1810, #4a21);
+  border: 2px solid #d4af37;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  max-width: 280px;
+  color: #f4e4bc;
+}
+
+.popup-content h4 {
+  color: #d4af37;
+  margin: 0 8px 0;
+  font-size: 18px;
+}
+
+.bonus-description {
+  color: #cd853f;
+  margin: 0 8px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.bonus-effect {
+  color: #4ecdc4;
+  margin: 0;
+  font-weight: bold;
+  font-size: 14px;
 }

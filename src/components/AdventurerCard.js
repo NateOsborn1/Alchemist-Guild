@@ -1,9 +1,11 @@
 // src/components/AdventurerCard.js
-import React from 'react';
+import React, { useState } from 'react';
 import './AdventurerCard.css';
 import { useDrag } from 'react-dnd';
 
 const AdventurerCard = ({ adventurer, canAfford, draggable = false, fromZoneId, isMobile = false, onAssignAdventurer }) => {
+  const [showClassInfo, setShowClassInfo] = useState(false);
+  
   // DnD drag source
   const [{ isDragging }, drag] = useDrag({
     type: 'ADVENTURER',
@@ -42,30 +44,57 @@ const AdventurerCard = ({ adventurer, canAfford, draggable = false, fromZoneId, 
     }
   };
 
+  // Handle card click/tap
+  const handleCardClick = () => {
+    setShowClassInfo(!showClassInfo);
+  };
+
+  // Get class bonus description
+  const getClassBonusDescription = () => {
+    if (!adventurer.zoneBonus) return "No party bonus";
+    
+    const descriptions = {
+      success: "Increases success rate of other adventurers in the same zone,",
+      damage: "Increases damage dealt to zones by other adventurers,",
+      reputation: "Increases reputation rewards for other adventurers,",
+      gold: "Increases gold value of gear found by other adventurers,",
+      loot: "Eases loot quality and value for other adventurers"
+    };
+    
+    return descriptions[adventurer.zoneBonus.type] || "Provides party bonus";
+  };
+
   return (
     <div
       ref={draggable ? drag : null}
       className="adventurer-card"
       style={{
         opacity: isDragging ? 0.3 : 1,
-        cursor: draggable ? 'grab' : 'default',
+        cursor: draggable ? 'grab' : 'pointer',
       }}
+      onClick={handleCardClick}
     >
-      {/* Name - Centered and Big */}
-      <h3 className="adventurer-name">{adventurer.name}</h3>
-
-      {/* Header: Class and Rank */}
+      {/* Header row: Class/Rank on left, Name on right */}
       <div className="card-header">
-        <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
-          {adventurer.class}
-        </span>
-        <div className="rank-badge" style={{ 
-          background: getRankBackground(adventurer.rank),
-          color: '#2c1810'
-        }}>
-          {adventurer.rank}-Rank
+        <div className="class-rank-column">
+          <span className={`class-badge ${adventurer.class.toLowerCase()}`}>{adventurer.class}</span>
+          <div className="rank-badge">{adventurer.rank}-Rank</div>
         </div>
+        <h3 className="adventurer-name">{adventurer.name}</h3>
       </div>
+
+      {/* Class info popup */}
+      {showClassInfo && (
+        <div className="class-info-popup">
+          <div className="popup-content">
+            <h4>{adventurer.class} Class</h4>
+            <p className="bonus-description">{getClassBonusDescription()}</p>
+            <p className="bonus-effect">
+              Effect: +{Math.round((adventurer.zoneBonus?.effect || 0) * 100)}%
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Success Rate - BIGGEST number */}
       <div className="success-rate">
