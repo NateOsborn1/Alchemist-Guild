@@ -2,10 +2,33 @@
 .adventurer-card {
   width: 100%;
   max-width: 320px;
-  min-height: 160px;
+  min-height: 180px;
   margin: 8px auto;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  perspective: 1000px;
+}
+
+/* Card flip container */
+.card-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.adventurer-card.flipped .card-container {
+  transform: rotateY(180deg);
+}
+
+/* Card faces */
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
   background: linear-gradient(135deg, #2c1810, #4a2c1a);
   border: 2px solid #8b5a2b;
   border-radius: 12px;
@@ -18,43 +41,41 @@
   gap: 12px;
 }
 
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Card Front Styles */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
-  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .class-rank-column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .adventurer-name {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   color: #f4e4bc;
   font-weight: bold;
-  text-align: left;
+  text-align: right;
   flex: 1;
   line-height: 1.2;
-  padding: 8px;
-  background: rgba(44, 24, 16, 0.6);
-  border-radius: 8px;
-  border: 1px solid #8b5a2b;
-  display: flex;
-  align-items: center;
-  min-height: 60px;
-  margin-bottom: 20px; /* Consistent 20ing */
+  padding-right: 8px;
 }
 
+/* Class badges */
 .class-badge {
-  padding: 6px;
+  padding: 4px 10px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
@@ -85,29 +106,27 @@
   color: #f4e4bc;
 }
 
-/* Rank Badge - Clear indicator */
+/* Rank Badge */
 .rank-badge {
-  padding: 6px;
+  padding: 4px 10px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   text-align: center;
+  background: #b08d57;
+  color: #f4e4bc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  width: fit-content;
 }
 
-/* Success Rate - BIGGEST number */
+/* Success Rate - Big number */
 .success-rate {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   background: rgba(44, 24, 16, 0.6);
   border-radius: 8px;
   border: 1px solid #8b5a2b;
-  margin-top: 0;
-  margin-bottom: 20px; /* Consistent20acing */
 }
 
 .rate-label {
@@ -117,16 +136,15 @@
 }
 
 .rate-value {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
 }
 
-/* Cost Section - Clear business cost */
+/* Cost Section */
 .cost-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
   padding: 8px 12px;
   background: rgba(212, 175, 55, 0.2);
   border: 1px solid #d4af37;
@@ -149,17 +167,57 @@
   font-size: 16px;
 }
 
-/* Specialty - ONE LINE only */
+/* Tap indicator */
+.tap-indicator {
+  text-align: center;
+  font-size: 11px;
+  color: #cd853f;
+  margin-top: auto;
+  padding-top: 8px;
+  font-style: italic;
+}
+
+/* Card Back Styles */
+.card-back-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 12px;
+}
+
+.back-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.back-title {
+  font-size: 16px;
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.flip-back-button {
+  background: none;
+  border: 1px solid #cd853f;
+  color: #cd853f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Specialty/Perks Section */
 .specialty-section {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   padding: 10px 12px;
   background: rgba(74, 44, 26, 0.4);
   border-radius: 8px;
   border: 1px solid #8b5a2b;
-  margin-bottom: 12px;
 }
 
 .specialty-label {
@@ -170,16 +228,23 @@
 }
 
 .specialty-text {
-  font-size: 15px;
+  font-size: 14px;
   color: #4ecdc4;
-  line-height: 1.3;
-  /* Ensure one line only */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
-/* Action Button - Mobile Only */
+.perk-item {
+  font-size: 13px;
+  color: #f4e4bc;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(139, 90, 43, 0.3);
+}
+
+.perk-item:last-child {
+  border-bottom: none;
+}
+
+/* Assign Button - Mobile Only */
 .assign-button {
   background: #8b5a2b;
   color: #f4e4bc;
@@ -193,6 +258,7 @@
   width: 100%;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: auto;
 }
 
 .assign-button:hover {
@@ -204,10 +270,43 @@
   transform: translateY(1px);
 }
 
-/* Hide assign button on desktop */
+.assign-button:disabled {
+  background: #4a2c1a;
+  color: #8b5a2b;
+  border-color: #8b5a2b;
+  cursor: not-allowed;
+}
+
+/* Desktop - No flip needed, hide mobile elements */
 @media (min-width: 769px) {
+  .adventurer-card {
+    min-height: 160px;
+  }
+  
+  .card-container {
+    transition: none;
+    transform: none !important;
+  }
+  
+  .card-face {
+    position: relative;
+  }
+  
+  .card-back {
+    display: none;
+  }
+  
+  .tap-indicator {
+    display: none;
+  }
+  
   .assign-button {
     display: none;
+  }
+  
+  /* Show specialty on desktop */
+  .card-front .specialty-section {
+    display: flex;
   }
 }
 
@@ -216,64 +315,34 @@
   .adventurer-card {
     width: 90vw;
     max-width: 300px;
-    min-height: 160px; /* Reduced from 180px */
-    margin: 6px auto;
+    min-height: 200px;
+    margin: 8px auto;
+  }
+  
+  .card-face {
     padding: 12px;
   }
   
-  .card-header {
-    gap: 8px; /* Reduced gap on mobile */
-  }
-  
   .adventurer-name {
-    font-size: 16px; /* Reduced from 18px */
-    min-height: 32px;
-    padding: 6px;
-    margin-bottom: 2px;
+    font-size: 16px;
   }
   
-  .class-badge {
-    font-size: 13px;
-    padding: 4px 8px;
-  }
-  
-  .rank-badge {
-    font-size: 13px;
-    padding: 4px 8px;
+  .class-badge, .rank-badge {
+    font-size: 11px;
+    padding: 3px 8px;
   }
   
   .rate-value {
-    font-size: 20px;
+    font-size: 24px;
   }
   
   .cost-value {
     font-size: 16px;
   }
   
-  .specialty-text {
-    font-size: 13px;
-  }
-  
-  .assign-button {
-    padding: 10px;
-    font-size: 14px;
-  }
-  
-  .popup-content {
-    max-width: 250px;
-    padding: 12px;
-  }
-  
-  .popup-content h4 {
-    font-size: 16px;
-  }
-  
-  .bonus-description {
-    font-size: 12px;
-  }
-  
-  .bonus-effect {
-    font-size: 12px;
+  /* Hide specialty on front of mobile cards */
+  .card-front .specialty-section {
+    display: none;
   }
 }
 
@@ -286,112 +355,23 @@
   transform: scale(0.95);
 }
 
-/* Remove flip animation - no more collectible card style */
-.card-inner,
-.card-front,
-.card-back {
-  display: none;
-}
-
-/* Top section: Class and Rank on left */
-.card-top-section {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 12px;
-}
-
-.class-rank-column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.adventurer-name {
-  margin: 0 2px 0;
-  font-size: 22px;
-  color: #f4e4bc;
-  font-weight: bold;
-  text-align: center;
-  line-height: 1.2;
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  background: rgba(44, 24, 16, 0.6);
-  border-radius: 8px;
-  border: 1px solid #8b5a2b;
-}
-
-.class-badge, .rank-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 84px;
-  min-height: 31px;
-  padding: 0 12px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  letter-spacing: 1px;
-  border: none;
-}
-
-.class-badge {
-  background: #8b5a2b;
-  color: #f4e4bc;
-}
-
-.rank-badge {
-  background: #b08d57;
-  color: #f4e4bc;
-}
-
-.adventurer-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  min-height: 31px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(44, 24, 16, 0.6);
-  border-radius: 8px;
-  border: 1px solid #8b5a2b;
-  color: #d4af37;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 768px) {
-  .class-badge, .rank-badge {
-    min-width: 63px;
-    min-height: 22px;
-    font-size: 0.85rem;
-    padding: 0 7px;
-  }
-  .adventurer-name {
-    font-size: 0.85rem;
-    min-height: 22px;
-  }
-}
-
 /* Class info popup */
 .class-info-popup {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 20;
   border-radius: 12px;
 }
 
 .popup-content {
-  background: linear-gradient(135deg, #2c1810, #4a21);
+  background: linear-gradient(135deg, #2c1810, #4a2c1a);
   border: 2px solid #d4af37;
   border-radius: 8px;
   padding: 16px;
@@ -402,13 +382,13 @@
 
 .popup-content h4 {
   color: #d4af37;
-  margin: 0 8px 0;
+  margin: 0 0 8px 0;
   font-size: 18px;
 }
 
 .bonus-description {
   color: #cd853f;
-  margin: 0 8px 0;
+  margin: 0 0 8px 0;
   font-size: 14px;
   line-height: 1.4;
 }
