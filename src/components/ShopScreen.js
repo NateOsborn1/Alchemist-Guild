@@ -118,6 +118,7 @@ const ShopScreen = ({
                     draggable={false} // No drag on mobile
                     fromZoneId={null}
                     onAssignAdventurer={onAssignAdventurer}
+                    onRequestAssignZone={setAssigningAdventurer}
                   />
                 </div>
               ))}
@@ -150,6 +151,41 @@ const ShopScreen = ({
           ))}
         </div>
         */}
+        {assigningAdventurer && (
+          <div className="zone-select-modal" style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.7)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <div style={{
+              background: '#2c1810', border: '2px solid #d4af37', borderRadius: 12, padding: 24, minWidth: 260, maxWidth: 340
+            }}>
+              <h3 style={{ color: '#ffd700', marginBottom: 16 }}>Assign to Zone</h3>
+              {zones.map(zone => (
+                <button
+                  key={zone.id}
+                  style={{
+                    display: 'block', width: '100%', margin: '8px 0', padding: 12,
+                    background: '#4a2c1a', color: '#ffd700', border: '1px solid #d4af37', borderRadius: 8, fontWeight: 'bold'
+                  }}
+                  onClick={() => {
+                    onAssignAdventurer(assigningAdventurer, zone.id);
+                    setAssigningAdventurer(null);
+                  }}
+                >
+                  {zone.name}
+                </button>
+              ))}
+              <button
+                style={{
+                  marginTop: 12, background: '#8b5a2b', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px'
+                }}
+                onClick={() => setAssigningAdventurer(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

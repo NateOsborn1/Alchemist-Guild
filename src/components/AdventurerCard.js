@@ -14,6 +14,7 @@ const AdventurerCard = ({
   onAssignAdventurer,
   canAfford,
   isMobile: isMobileProp = false,
+  onRequestAssignZone,
 }) => {
   //const [isDragging, setIsDragging] = useState(false);
   const [showClassInfo, setShowClassInfo] = useState(false);
@@ -105,7 +106,9 @@ const AdventurerCard = ({
 
   const handleAssign = (e) => {
     e.stopPropagation();
-    if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
+    if (isMobile && onRequestAssignZone) {
+      onRequestAssignZone(adventurer);
+    } else if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
       assignToZone(adventurer);
     } else if (onAssignAdventurer) {
       onAssignAdventurer(adventurer);
