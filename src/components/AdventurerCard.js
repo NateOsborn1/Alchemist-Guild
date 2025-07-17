@@ -15,10 +15,25 @@ const AdventurerCard = ({
   canAfford,
   isMobile: isMobileProp = false,
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
+  //const [isDragging, setIsDragging] = useState(false);
   const [showClassInfo, setShowClassInfo] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileProp || window.innerWidth <= 768);
+  const cardRef = React.useRef(null);
+
+  const [{ opacity }, dragRef] = useDrag({
+    type: 'ADVENTURER',
+    item: { adventurer, fromZoneId },
+    collect: (monitor) => ({
+      opacity: monitor.isDragging() ? 0.3 : 1,
+    }),
+    canDrag: draggable,
+  });
+
+  const combinedRef = (node) => {
+    cardRef.current = node;
+    if (draggable && node) dragRef(node);
+  };
 
   React.useEffect(() => {
     if (!isMobileProp) {
@@ -28,14 +43,28 @@ const AdventurerCard = ({
     }
   }, [isMobileProp]);
 
-  const [{ opacity }, drag] = useDrag({
-    type: 'ADVENTURER',
-    item: { adventurer, fromZoneId },
-    collect: (monitor) => ({
-      opacity: monitor.isDragging() ? 0.3 : 1,
-    }),
-    canDrag: draggable,
-  });
+  React.useEffect(() => {
+    if (!cardRef.current) return;
+    
+    if (isFlipped) {
+        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        // Wait until flip-back animation is done before scrolling
+      const timer = setTimeout(() => {
+        const rect = cardRef.current.getBoundingClientRect();
+        const scrollY = window.scrollY;
+        const cardTop = rect.top + scrollY;
+
+        const offset = cardTop - (window.innerHeight / 2);
+
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+      }, 100);
+
+      return () => clearTimeout(timer); //cleanup
+    }
+  }, [isFlipped]);
+  //removed isFlipped && in line 47
+  
 
   const getRankColor = (rank) => {
     const colors = {
@@ -86,20 +115,35 @@ const AdventurerCard = ({
   const handleFlipBack = (e) => {
     e.stopPropagation();
     setIsFlipped(false);
+    
+    // Scroll back to center the card when flipping back
+    if (cardRef.current) {
+      // Use a longer delay to ensure the flip animation completes
+      setTimeout(() => {
+        cardRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'center'
+        });
+      }, 300); // Increased delay to match the flip animation duration
+    }
   };
 
   const canAffordFinal = canAfford !== undefined ? canAfford : (gameState ? gameState.reputation >= adventurer.reputationCost : false);
 
   return (
     <div
-      ref={draggable ? drag : null}
+      ref={combinedRef}
       className={`adventurer-card ${isFlipped ? 'flipped' : ''}`}
       style={{
-        opacity: isDragging ? 0.3 : 1,
+        opacity, //: isDragging ? 0.3 : 1,
         cursor: draggable ? 'grab' : 'pointer',
+        zIndex: isFlipped ? 10: 1,
+        position: 'relative',
       }}
       onClick={handleCardClick}
     >
+
       <div className="card-container">
         {/* Card Front */}
         <div className="card-face card-front">
