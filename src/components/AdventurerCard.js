@@ -51,20 +51,20 @@ const AdventurerCard = ({ adventurer, canAfford, draggable = false, fromZoneId, 
         cursor: draggable ? 'grab' : 'default',
       }}
     >
-      {/* Header: Name and Class */}
+      {/* Name - Centered and Big */}
+      <h3 className="adventurer-name">{adventurer.name}</h3>
+
+      {/* Header: Class and Rank */}
       <div className="card-header">
-        <h3 className="adventurer-name">{adventurer.name}</h3>
         <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
           {adventurer.class}
         </span>
-      </div>
-
-      {/* Rank Badge */}
-      <div className="rank-badge" style={{ 
-        background: getRankBackground(adventurer.rank),
-        color: '#2c1810'
-      }}>
-        {adventurer.rank}-Rank
+        <div className="rank-badge" style={{ 
+          background: getRankBackground(adventurer.rank),
+          color: '#2c1810'
+        }}>
+          {adventurer.rank}-Rank
+        </div>
       </div>
 
       {/* Success Rate - BIGGEST number */}
@@ -86,7 +86,9 @@ const AdventurerCard = ({ adventurer, canAfford, draggable = false, fromZoneId, 
       {/* Specialty - ONE LINE only */}
       <div className="specialty-section">
         <span className="specialty-label">Specialty:</span>
-        <span className="specialty-text">{adventurer.classPerks[0]}</span>
+        <span className="specialty-text">
+          {adventurer.zoneBonus ? adventurer.zoneBonus.description : adventurer.classPerks[0]}
+        </span>
       </div>
 
       {/* Assign Button */}

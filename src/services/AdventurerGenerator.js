@@ -33,7 +33,12 @@ const adventurerClasses = {
       "Ore deposits yield 50% more gold",
       "Higher chance to find rare gems",
       "Mining tools fetch premium prices when recovered"
-    ]
+    ],
+    zoneBonus: {
+      type: "gold",
+      description: "Mining expertise increases gold rewards for all adventurers in zone",
+      effect: 0.25 // 25% more gold for all adventurers in same zone
+    }
   },
   ranger: {
     name: "Ranger", 
@@ -41,7 +46,12 @@ const adventurerClasses = {
       "Higher chance to find rare herbs and materials",
       "May return with enchanted arrows or tracking gear",
       "Masterwork bows and leather armor"
-    ]
+    ],
+    zoneBonus: {
+      type: "reputation",
+      description: "Ranger's guidance boosts reputation gains for all adventurers in zone",
+      effect: 0.3 // 30% more reputation for all adventurers in same zone
+    }
   },
   mage: {
     name: "Mage",
@@ -49,7 +59,12 @@ const adventurerClasses = {
       "May return with enchanted items or spell scrolls",
       "Magic items may survive mission failures",
       "Expensive spell components and enchanted robes"
-    ]
+    ],
+    zoneBonus: {
+      type: "damage",
+      description: "Mage's spells deal additional damage to zone for all adventurers",
+      effect: 0.4 // 40% more zone damage for all adventurers in same zone
+    }
   },
   rogue: {
     name: "Rogue",
@@ -57,7 +72,12 @@ const adventurerClasses = {
       "May steal additional valuable items",
       "Hidden pockets may contain stolen goods",
       "Fine daggers and lockpicking tools"
-    ]
+    ],
+    zoneBonus: {
+      type: "loot",
+      description: "Rogue's skills increase loot recovery for all adventurers in zone",
+      effect: 0.35 // 35% more loot/gold on success, better gear recovery on failure
+    }
   },
   warrior: {
     name: "Warrior",
@@ -65,7 +85,12 @@ const adventurerClasses = {
       "May return with enemy weapons and armor",
       "Battle-worn equipment may still be valuable",
       "Masterwork weapons and heavy armor"
-    ]
+    ],
+    zoneBonus: {
+      type: "success",
+      description: "Warrior's leadership increases success rate for all adventurers in zone",
+      effect: 0.15 // 15% higher success rate for all adventurers in same zone
+    }
   }
 };
 
@@ -104,6 +129,7 @@ export function generateAdventurer(id, population = 1000, upgradeEffects = {}) {
     reputationCost: rankData.reputationCost,
     description: rankData.description,
     classPerks: selectedPerks,
+    zoneBonus: classData.zoneBonus, // Add zone bonus
     // Legacy properties for compatibility
     experience: rank === 'A' ? 80 : rank === 'B' ? 50 : 20,
     wealth: rank === 'A' ? 80 : rank === 'B' ? 50 : 20,

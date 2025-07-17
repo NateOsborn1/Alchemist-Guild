@@ -206,12 +206,20 @@ const updateZoneDanger = (zones, upgradeEffects = {}) => {
 };
 
 // Calculate mission success chance based on adventurer stats and zone danger
-const calculateMissionSuccess = (adventurer, zone) => {
-  const baseChance = adventurer.survivalRate;
+const calculateMissionSuccess = (adventurer, zone, zoneAdventurers = []) => {
+  const baseChance = adventurer.successRate || adventurer.survivalRate || 50;
   const dangerPenalty = zone.dangerLevel * 0.5; // Each danger point reduces success by 0.5%
   const experienceBonus = adventurer.experience * 0.2; // Each experience point adds 0.2%
   
-  const finalChance = Math.max(5, Math.min(95, baseChance - dangerPenalty + experienceBonus));
+  // Apply zone bonuses from other adventurers
+  let zoneBonus = 0;
+  zoneAdventurers.forEach(zoneAdv => {
+    if (zoneAdv.zoneBonus && zoneAdv.id !== adventurer.id && zoneAdv.zoneBonus.type === 'success') {
+      zoneBonus += baseChance * zoneAdv.zoneBonus.effect;
+    }
+  });
+  
+  const finalChance = Math.max(5, Math.min(95, baseChance - dangerPenalty + experienceBonus + zoneBonus));
   return Math.round(finalChance);
 };
 

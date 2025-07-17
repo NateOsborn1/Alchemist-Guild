@@ -459,10 +459,42 @@ function App() {
           // Calculate damage dealt to zone first
           const zone = zones.find(z => z.id === adventurerWithResult.zoneId);
           let damagePercentage = 0;
+          let calculatedZone = null; // Store the calculated zone outcome
+          
           if (zone) {
-            const newZone = processZoneOutcome(adventurerWithResult, zone, success);
-            const damageDealt = zone.currentHealth - newZone.currentHealth;
-            damagePercentage = zone.maxHealth > 0 ? (damageDealt / zone.maxHealth) * 100 : 0;
+            // Apply zone bonuses from other adventurers in the same zone
+            const zoneAdventurers = adventurers.filter(a => a.zoneId === zone.id && a.status === 'onMission');
+            let zoneBonusMultiplier = 1;
+            let zoneBonusDescription = '';
+            
+            // Calculate zone bonuses
+            zoneAdventurers.forEach(zoneAdv => {
+              if (zoneAdv.zoneBonus && zoneAdv.id !== adventurerWithResult.id) {
+                if (zoneAdv.zoneBonus.type === 'damage') {
+                  zoneBonusMultiplier += zoneAdv.zoneBonus.effect;
+                  zoneBonusDescription += ` +${Math.round(zoneAdv.zoneBonus.effect * 100)}% damage from ${zoneAdv.name}`;
+                }
+              }
+            });
+            
+            // Apply zone bonus to damage calculation
+            const baseZone = processZoneOutcome(adventurerWithResult, zone, success);
+            const baseDamageDealt = zone.currentHealth - baseZone.currentHealth;
+            const bonusDamageDealt = baseDamageDealt * (zoneBonusMultiplier - 1); // Extra damage from bonuses
+            const totalDamageDealt = baseDamageDealt + bonusDamageDealt;
+            
+            // Create modified zone outcome with bonus damage
+            calculatedZone = {
+              ...baseZone,
+              currentHealth: Math.max(0, zone.currentHealth - totalDamageDealt)
+            };
+            
+            damagePercentage = zone.maxHealth > 0 ? (totalDamageDealt / zone.maxHealth) * 100 : 0;
+            
+            // Log zone bonus if applied
+            if (zoneBonusDescription) {
+              addLogEntry(`⚔️ Zone synergy:${zoneBonusDescription}`, 'info');
+            }
           }
           
           // Update zone
@@ -471,19 +503,20 @@ function App() {
             if (zoneIndex !== -1) {
               const updatedZones = [...prevZones];
               const oldZone = updatedZones[zoneIndex];
-              const newZone = processZoneOutcome(adventurerWithResult, oldZone, success);
+              // Use the calculatedZone from above with zone bonuses applied
+              const zoneToUpdate = calculatedZone || processZoneOutcome(adventurerWithResult, oldZone, success);
               
               // Check if zone was just cleared (health went from >0 to 0)
-              if (oldZone.currentHealth > 0 && newZone.currentHealth <= 0 && !oldZone.isInDowntime) {
+              if (oldZone.currentHealth > 0 && zoneToUpdate.currentHealth <= 0 && !oldZone.isInDowntime) {
                 // Zone was just cleared - give reputation bonus
                 setGameState(prev => ({
                   ...prev,
-                  reputation: prev.reputation + newZone.reputationBonus
+                  reputation: prev.reputation + zoneToUpdate.reputationBonus
                 }));
-                addLogEntry(`🏆 ${newZone.name} has been cleared! +${newZone.reputationBonus} ⭐ reputation bonus!`, 'success');
+                addLogEntry(`🏆 ${zoneToUpdate.name} has been cleared! +${zoneToUpdate.reputationBonus} ⭐ reputation bonus!`, 'success');
               }
               
-              updatedZones[zoneIndex] = newZone;
+              updatedZones[zoneIndex] = zoneToUpdate;
               return updatedZones;
             }
             return prevZones;
@@ -508,10 +541,45 @@ function App() {
                   };
                   newInventory.collectedGear = [...newInventory.collectedGear, gearDrop];
                   
+                  // Apply zone bonuses for reputation and gold
+                  const zoneAdventurers = adventurers.filter(a => a.zoneId === adventurerWithResult.zoneId && a.status === 'onMission');
+                  let reputationBonus = 0;
+                  let goldBonus = 0;
+                  let lootBonus = 0;
+                  
+                  zoneAdventurers.forEach(zoneAdv => {
+                    if (zoneAdv.zoneBonus && zoneAdv.id !== adventurerWithResult.id) {
+                      if (zoneAdv.zoneBonus.type === 'reputation') {
+                        reputationBonus += Math.floor((adventurerWithResult.reputationGainOnSuccess || 0) * zoneAdv.zoneBonus.effect);
+                      } else if (zoneAdv.zoneBonus.type === 'gold') {
+                        goldBonus += Math.floor(gearDrop.value * zoneAdv.zoneBonus.effect);
+                      } else if (zoneAdv.zoneBonus.type === 'loot') {
+                        lootBonus += Math.floor(gearDrop.value * zoneAdv.zoneBonus.effect);
+                      }
+                    }
+                  });
+                  
                   // Add log entry here where gearDrop is in scope
                   const baseReward = Math.max(5, Math.floor(adventurerWithResult.experience / 8));
                   const upgradeBonus = upgradeEffects.reputationBonus || 0;
-                  const reputationGain = baseReward + (adventurerWithResult.reputationGainOnSuccess || 0) + upgradeBonus;
+                  const reputationGain = baseReward + (adventurerWithResult.reputationGainOnSuccess || 0) + upgradeBonus + reputationBonus;
+                  
+                  // Apply gold bonus
+                  if (goldBonus > 0) {
+                    gearDrop.value += goldBonus;
+                    addLogEntry(`💰 Mining expertise: +${goldBonus}g to gear value`, 'info');
+                  }
+                  
+                  // Apply loot bonus
+                  if (lootBonus > 0) {
+                    gearDrop.value += lootBonus;
+                    addLogEntry(`🎒 Rogues skills: +${lootBonus}g to gear value`, 'info');
+                  }
+                  
+                  // Log reputation bonus if applied
+                  if (reputationBonus > 0) {
+                    addLogEntry(`⭐ Rangers guidance: +${reputationBonus} reputation bonus`, 'info');
+                  }
                   
                   addLogEntry(`${adventurerWithResult.name} successfully returned with ${gearDrop.name} (+${reputationGain} ⭐, dealt ${damagePercentage.toFixed(2)}% damage to zone)`, 'success');
                   
@@ -655,8 +723,9 @@ function App() {
         return;
       }
       
-      // Calculate mission success chance
-      const successChance = calculateMissionSuccess(adventurer, zone);
+      // Calculate mission success chance with zone bonuses
+      const zoneAdventurers = adventurers.filter(a => a.zoneId === zoneId && a.status === 'onMission');
+      const successChance = calculateMissionSuccess(adventurer, zone, zoneAdventurers);
 
       // Create mission
       const mission = {
@@ -695,8 +764,9 @@ function App() {
         return;
       }
 
-      // Calculate mission success chance
-      const successChance = calculateMissionSuccess(latestAdventurer, zone);
+      // Calculate mission success chance with zone bonuses
+      const zoneAdventurers = adventurers.filter(a => a.zoneId === zoneId && a.status === 'onMission');
+      const successChance = calculateMissionSuccess(latestAdventurer, zone, zoneAdventurers);
 
       // Create mission
       const mission = {

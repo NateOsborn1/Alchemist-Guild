@@ -31,6 +31,33 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
     return `${hours}h ${minutes}m`;
   };
 
+  // Calculate party bonuses
+  const getPartyBonuses = () => {
+    if (assignedAdventurers.length < 2) return null;
+    
+    const bonuses = {};
+    assignedAdventurers.forEach(adv => {
+      if (adv.zoneBonus) {
+        const type = adv.zoneBonus.type;
+        if (!bonuses[type]) {
+          bonuses[type] = {
+            count: 0,
+            totalEffect: 0,
+            adventurers: []
+          };
+        }
+        bonuses[type].count++;
+        bonuses[type].totalEffect += adv.zoneBonus.effect;
+        bonuses[type].adventurers.push(adv.name);
+      }
+    });
+    
+    // Only return bonuses that have multiple adventurers
+    return Object.entries(bonuses).filter(([type, data]) => data.count > 1);
+  };
+
+  const partyBonuses = getPartyBonuses();
+
   return (
     <div
       ref={!isMobile ? drop : undefined}
@@ -106,10 +133,10 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
       {/* Health bar progress bar */}
       {!zone.isInDowntime && (
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #8b5a2b',
+          background: 'transparent', // Changed from '#ffffff'
+          border: '0.5px solid #8b5a2b',
           borderRadius: 8,
-          padding: 4,
+          padding: 2, // Reduce padding for thinner look
           marginBottom: 8,
           boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
         }}>
@@ -140,6 +167,41 @@ const ZoneDropPanel = ({ zone, assignedAdventurers, onDropAdventurer, isMobile =
               borderRadius: 4
             }} />
           </div>
+        </div>
+      )}
+      
+      {/* Party Bonus Display */}
+      {partyBonuses && partyBonuses.length > 0 && (
+        <div style={{
+          marginBottom: 8,
+          padding: 6,
+          background: 'rgba(212, 175, 55, 0.2)',
+          border: '1px solid #d4af37',
+          borderRadius: 6,
+          fontSize: isMobile ? 11 : 12
+        }}>
+          <div style={{
+            color: '#ffd700',
+            fontWeight: 'bold',
+            marginBottom: 4,
+            fontSize: isMobile ? 10 : 11
+          }}>
+            🎯 PARTY BONUSES ACTIVE
+          </div>
+          {partyBonuses.map(([type, data]) => (
+            <div key={type} style={{
+              color: '#4ecdc4',
+              fontSize: isMobile ? 10 : 11,
+              marginBottom: 2
+            }}>
+              {type === 'success' && '⚡ Success Rate'}
+              {type === 'damage' && '⚔️ Zone Damage'}
+              {type === 'reputation' && '⭐ Reputation'}
+              {type === 'gold' && '💰 Gold Rewards'}
+              {type === 'loot' && '🎒 Loot Quality'}
+              : +{Math.round(data.totalEffect * 100 / data.count)}% (from {data.count} adventurers)
+            </div>
+          ))}
         </div>
       )}
       
