@@ -4,7 +4,7 @@
   max-width: 320px;
   min-height: 180px;
   margin: 16px auto; /* Increased from 8 */
-  padding-bottom: 16px; /* Extra space for flips if needed */
+  padding-bottom: 8px; /* Extra space for flips if needed */
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -331,7 +331,7 @@
     max-width: 100%;
     min-height: 200px;
     margin: 8px 0;
-    padding: 0 8px;
+    /*padding: 0 8px;*/
     box-sizing: border-box;
   }
   
