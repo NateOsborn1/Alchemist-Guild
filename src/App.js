@@ -878,6 +878,30 @@ function App() {
     console.log(`Collected ${amount} gold from shop income`);
   };
 
+  const handleUpgradeTownStatus = (townId, upgradeResult) => {
+    // Deduct gold from inventory
+    setInventory(prev => ({ ...prev, gold: prev.gold - upgradeResult.cost }));
+    
+    // Add reputation to game state
+    setGameState(prev => ({ ...prev, reputation: prev.reputation + upgradeResult.reputationGain }));
+    
+    // Update town status
+    setTowns(prev => prev.map(town => {
+      if (town.id === townId) {
+        return {
+          ...town,
+          economicStatus: upgradeResult.newStatus,
+          lastUpdate: `Town status upgraded to ${upgradeResult.newStatus} through generous donations.`
+        };
+      }
+      return town;
+    }));
+    
+    // Log the upgrade
+    addLogEntry(upgradeResult.message, 'success');
+    addLogEntry(`+${upgradeResult.reputationGain} reputation from donation`, 'info');
+  };
+
   // Handle upgrade purchase
   const handlePurchaseUpgrade = (cost, newPurchasedUpgrades) => {
   setInventory(prev => ({ ...prev, gold: prev.gold - cost }));
@@ -1418,6 +1442,7 @@ function App() {
               onUpdateTown={(town) => setTowns(prev => prev.map(t => t.id === town.id ? town : t))}
               onBuildShop={handleBuildShop}
               onCollectIncome={handleCollectIncome}
+              onUpgradeTownStatus={handleUpgradeTownStatus}
             />
           )}
           

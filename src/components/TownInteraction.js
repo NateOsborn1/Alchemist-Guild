@@ -1,10 +1,10 @@
 // src/components/TownInteraction.js
 import React, { useState } from 'react';
-import { calculateTradeSuccess, getDominantSpecialization, getRelationshipColor, getRelationshipEffects } from '../services/TownSystem';
+import { calculateTradeSuccess, getDominantSpecialization, getRelationshipColor, getRelationshipEffects, canUpgradeTownStatus, upgradeTownStatus } from '../services/TownSystem';
 import { canBuildShop, getShopBuildOptions, calculateShopIncome, calculatePendingIncome } from '../services/ShopSystem';
 import './TownInteraction.css';
 
-const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onCollectIncome }) => {
+const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onCollectIncome, onUpgradeTownStatus }) => {
   const [selectedTown, setSelectedTown] = useState(null);
   const [showShopBuilder, setShowShopBuilder] = useState(null);
 
@@ -44,6 +44,13 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
     }
   };
 
+  const handleUpgradeTownStatus = (town) => {
+    const upgradeResult = upgradeTownStatus(town, inventory.gold);
+    if (upgradeResult.success && onUpgradeTownStatus) {
+      onUpgradeTownStatus(town.id, upgradeResult);
+    }
+  };
+
   const getSpecializationBadge = (specialization) => {
     const dominant = getDominantSpecialization(specialization);
     const value = specialization[dominant];
@@ -77,6 +84,7 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
           const tradeSuccess = calculateTradeSuccess(town, playerStats);
           const effects = getRelationshipEffects(relationshipStatus);
           const buildCheck = canBuildShop(town, inventory.gold, playerStats);
+          const upgradeCheck = canUpgradeTownStatus(town, inventory.gold);
           
           // Shop income calculation
           let shopIncome = 0;
@@ -194,6 +202,24 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                         Build Shop
                       </button>
                     )}
+                  </div>
+                )}
+                
+                {/* Town Status Upgrade Button */}
+                {upgradeCheck.canUpgrade && (
+                  <button 
+                    className="upgrade-town-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpgradeTownStatus(town);
+                    }}
+                  >
+                    Donate {upgradeCheck.cost.toLocaleString()}g
+                  </button>
+                )}
+                {!upgradeCheck.canUpgrade && upgradeCheck.reason && (
+                  <div className="upgrade-status">
+                    <span className="upgrade-reason">{upgradeCheck.reason}</span>
                   </div>
                 )}
               </div>

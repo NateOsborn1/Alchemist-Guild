@@ -156,3 +156,82 @@ export const getRelationshipEffects = (relationship) => {
       };
   }
 };
+
+// Town Status Upgrade System
+export const getTownStatusUpgradeInfo = (currentStatus) => {
+  const upgradeInfo = {
+    struggling: {
+      nextStatus: 'stable',
+      cost: 5000,
+      description: 'Help this struggling town become stable'
+    },
+    stable: {
+      nextStatus: 'growing',
+      cost: 15000,
+      description: 'Invest in infrastructure to help the town grow'
+    },
+    growing: {
+      nextStatus: 'prosperous',
+      cost: 50000,
+      description: 'Major investment to make this town prosperous'
+    },
+    prosperous: {
+      nextStatus: null,
+      cost: null,
+      description: 'This town has reached maximum prosperity'
+    }
+  };
+  
+  return upgradeInfo[currentStatus] || upgradeInfo.prosperous;
+};
+
+export const canUpgradeTownStatus = (town, playerGold) => {
+  const upgradeInfo = getTownStatusUpgradeInfo(town.economicStatus);
+  
+  if (!upgradeInfo.nextStatus) {
+    return {
+      canUpgrade: false,
+      reason: 'Town has reached maximum prosperity',
+      cost: 0
+    };
+  }
+  
+  if (playerGold < upgradeInfo.cost) {
+    return {
+      canUpgrade: false,
+      reason: `Need ${upgradeInfo.cost.toLocaleString()} gold to upgrade`,
+      cost: upgradeInfo.cost
+    };
+  }
+  
+  return {
+    canUpgrade: true,
+    reason: `Upgrade to ${upgradeInfo.nextStatus} for ${upgradeInfo.cost.toLocaleString()} gold`,
+    cost: upgradeInfo.cost,
+    nextStatus: upgradeInfo.nextStatus
+  };
+};
+
+export const upgradeTownStatus = (town, playerGold) => {
+  const upgradeInfo = getTownStatusUpgradeInfo(town.economicStatus);
+  
+  if (!upgradeInfo.nextStatus || playerGold < upgradeInfo.cost) {
+    return {
+      success: false,
+      message: 'Cannot upgrade town status',
+      cost: 0,
+      reputationGain: 0
+    };
+  }
+  
+  // Calculate reputation gain: +1 rep per 100g donated
+  const reputationGain = Math.floor(upgradeInfo.cost / 100);
+  
+  return {
+    success: true,
+    message: `Successfully upgraded ${town.name} to ${upgradeInfo.nextStatus}`,
+    cost: upgradeInfo.cost,
+    reputationGain,
+    newStatus: upgradeInfo.nextStatus
+  };
+};
