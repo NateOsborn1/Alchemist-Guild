@@ -1,10 +1,10 @@
 // src/components/TownInteraction.js
 import React, { useState } from 'react';
 import { calculateTradeSuccess, getDominantSpecialization, getRelationshipColor, getRelationshipEffects, canUpgradeTownStatus, upgradeTownStatus } from '../services/TownSystem';
-import { canBuildShop, getShopBuildOptions, calculateShopIncome, calculatePendingIncome, canBuildChurch, getBuildingSlotLimits, countTownBuildings, churchType } from '../services/ShopSystem';
+import { canBuildShop, getShopBuildOptions, calculateShopIncome, calculatePendingIncome, canBuildChurch, getBuildingSlotLimits, countTownBuildings, churchType, getTownStatusMultiplier, calculateChurchReputation } from '../services/ShopSystem';
 import './TownInteraction.css';
 
-const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onBuildChurch, onCollectIncome, onUpgradeTownStatus }) => {
+const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onBuildChurch, onCollectIncome, onCollectChurchReputation, onUpgradeTownStatus }) => {
   const [selectedTown, setSelectedTown] = useState(null);
   const [showShopBuilder, setShowShopBuilder] = useState(null);
 
@@ -94,9 +94,19 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
           // Shop income calculation
           let shopIncome = 0;
           let pendingIncome = 0;
+          let incomeMultiplier = null;
           if (town.playerShop && town.playerShop.status === 'operational') {
             shopIncome = calculateShopIncome(town.playerShop, relationshipStatus, town.specialization);
             pendingIncome = calculatePendingIncome(town.playerShop);
+            incomeMultiplier = getTownStatusMultiplier(town.economicStatus);
+          }
+
+          // Church reputation calculation
+          let churchReputation = 0;
+          let pendingReputation = 0;
+          if (town.playerChurch && town.playerChurch.status === 'operational') {
+            churchReputation = churchType.reputationRate * 60; // per hour
+            pendingReputation = calculateChurchReputation(town.playerChurch);
           }
 
           return (
@@ -167,7 +177,12 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                     ) : (
                       <div className="shop-operational">
                         <div className="income-info">
-                          <span className="income-rate">{shopIncome}g/min</span>
+                          <div className="income-details">
+                            <span className="income-rate">{shopIncome}g/min</span>
+                            <span className="income-multiplier">
+                              {incomeMultiplier.label}
+                            </span>
+                          </div>
                           {pendingIncome > 0 && (
                             <button 
                               className="collect-btn"
@@ -177,6 +192,43 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                               }}
                             >
                               Collect {pendingIncome}g
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {town.playerChurch && (
+                  <div className="church-status">
+                    <div className="church-title">Your Church</div>
+                    {town.playerChurch.status === 'building' ? (
+                      <div className="building-progress">
+                        <span>Building... {Math.round(town.playerChurch.progress || 0)}%</span>
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill" 
+                            style={{ width: `${town.playerChurch.progress || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="church-operational">
+                        <div className="reputation-info">
+                          <div className="reputation-details">
+                            <span className="reputation-rate">{churchReputation.toFixed(1)} rep/hr</span>
+                            <span className="reputation-label">Passive Reputation</span>
+                          </div>
+                          {pendingReputation > 0 && (
+                            <button 
+                              className="collect-rep-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onCollectChurchReputation(town.id, pendingReputation);
+                              }}
+                            >
+                              Collect {pendingReputation} rep
                             </button>
                           )}
                         </div>

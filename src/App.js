@@ -12,7 +12,7 @@ import { generateAdventurer } from './services/AdventurerGenerator';
 import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo, logGoldTransaction, sellGear } from './services/GameState';
 import { generateInitialZones, updateZoneDanger, calculateMissionSuccess, processMissionOutcome as processZoneOutcome, revealZone } from './services/ZoneSystem';
 import { generateInitialTowns } from './services/TownSystem';
-import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes, churchType } from './services/ShopSystem';
+import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes, churchType, completeChurchConstruction, calculateChurchReputation } from './services/ShopSystem';
 import { calculateUpgradeEffects, purchaseUpgrade, getUpgradeCategories } from './services/UpgradeSystem';
 import './App.css';
 import { generateAdventurerCustomer } from './services/AdventurerCustomerGenerator';
@@ -267,6 +267,43 @@ function App() {
     return () => clearInterval(interval);
   }, [buildingShops.length]);
 
+  // Check for completed churches
+  useEffect(() => {
+    if (buildingChurches.length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      
+      setBuildingChurches(prevChurches => {
+        const completed = prevChurches.filter(church => now >= church.completionTime);
+        const stillBuilding = prevChurches.filter(church => now < church.completionTime);
+        
+        // Complete churches and add them to towns
+        completed.forEach(church => {
+          setTowns(prevTowns => prevTowns.map(town => {
+            if (town.id === church.townId) {
+              const completedChurch = completeChurchConstruction(church, town);
+              return {
+                ...town,
+                playerChurch: completedChurch,
+                lastUpdate: `Your Church is now operational and generating reputation!`
+              };
+            }
+            return town;
+          }));
+          
+          // Add reputation bonus for completing church
+          setGameState(prev => ({ ...prev, reputation: prev.reputation + 100 }));
+          addLogEntry(`Church completed! +100 reputation bonus`, 'success');
+        });
+        
+        return stillBuilding;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [buildingChurches.length]);
+
   // Auto-save functionality
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
@@ -277,6 +314,7 @@ function App() {
         adventurers,
         towns,
         buildingShops,
+        buildingChurches,
         playerStats,
         reputation,
         shopStock,
@@ -335,6 +373,36 @@ function App() {
 
     return () => clearInterval(interval);
   }, [buildingShops]);
+
+  // Update church construction progress
+  useEffect(() => {
+    if (buildingChurches.length === 0) return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setBuildingChurches(prev => prev.map(church => ({
+        ...church,
+        progress: Math.min(100, ((now - church.startTime) / (church.completionTime - church.startTime)) * 100)
+      })));
+      
+      // Also update progress in towns for display
+      setTowns(prevTowns => prevTowns.map(town => {
+        const buildingChurch = buildingChurches.find(church => church.townId === town.id);
+        if (buildingChurch && town.playerChurch && town.playerChurch.status === 'building') {
+          return {
+            ...town,
+            playerChurch: {
+              ...town.playerChurch,
+              progress: Math.min(100, ((now - buildingChurch.startTime) / (buildingChurch.completionTime - buildingChurch.startTime)) * 100)
+            }
+          };
+        }
+        return town;
+      }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [buildingChurches]);
 
   // Generate initial adventurers
   useEffect(() => {
@@ -911,6 +979,27 @@ function App() {
     console.log(`Collected ${amount} gold from shop income`);
   };
 
+  const handleCollectChurchReputation = (townId, amount) => {
+    // Add reputation to game state
+    setGameState(prev => ({ ...prev, reputation: prev.reputation + amount }));
+    
+    // Update church's last collection time
+    setTowns(prev => prev.map(town => {
+      if (town.id === townId && town.playerChurch) {
+        return {
+          ...town,
+          playerChurch: {
+            ...town.playerChurch,
+            lastReputationCollection: Date.now()
+          }
+        };
+      }
+      return town;
+    }));
+    
+    console.log(`Collected ${amount} reputation from church`);
+  };
+
   const handleUpgradeTownStatus = (townId, upgradeResult) => {
     // Deduct gold from inventory
     setInventory(prev => ({ ...prev, gold: prev.gold - upgradeResult.cost }));
@@ -961,6 +1050,7 @@ function App() {
     setAdventurers(saveData.adventurers);
     setTowns(saveData.towns);
     setBuildingShops(saveData.buildingShops);
+    setBuildingChurches(saveData.buildingChurches || []);
     setPlayerStats(saveData.playerStats);
     setReputation(saveData.reputation);
     setShopStock(saveData.shopStock);
@@ -1476,6 +1566,7 @@ function App() {
               onBuildShop={handleBuildShop}
               onBuildChurch={handleBuildChurch}
               onCollectIncome={handleCollectIncome}
+              onCollectChurchReputation={handleCollectChurchReputation}
               onUpgradeTownStatus={handleUpgradeTownStatus}
             />
           )}

@@ -324,6 +324,71 @@
   border-left: 3px solid #4ecdc4;
 }
 
+.church-status {
+  background: rgba(74, 44, 26, 0.4);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 3px solid #8b5a2b;
+}
+
+.church-title {
+  font-size: 12px;
+  color: #8b5a2b;
+  text-transform: capitalize;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.church-operational {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reputation-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.reputation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reputation-rate {
+  font-size: 12px;
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+.reputation-label {
+  font-size: 10px;
+  color: #8b5a2b;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.collect-rep-btn {
+  background: #4ecdc4;
+  color: #2c1810;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collect-rep-btn:hover {
+  background: #45b7aa;
+}
+
 .shop-title {
   font-size: 12px;
   color: #4ecdc4;
@@ -352,10 +417,24 @@
   width: 100%;
 }
 
+.income-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .income-rate {
   font-size: 12px;
   color: #ffd700;
   font-weight: bold;
+}
+
+.income-multiplier {
+  font-size: 10px;
+  color: #4ecdc4;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .collect-btn {

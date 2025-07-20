@@ -84,15 +84,26 @@ export const calculateShopIncome = (shop, townRelationship, townSpecialization) 
     }
   }
   
-  // Town economic status modifier
+  // Town economic status multiplier (Step 3: Income Scaling)
   const economicMultiplier = {
-    struggling: 0.7,
-    stable: 1.0,
-    growing: 1.2,
-    prosperous: 1.5
+    struggling: 1.0,  // Base rate
+    stable: 1.33,     // 33% increase
+    growing: 1.67,    // 67% increase  
+    prosperous: 2.0   // 100% increase (double)
   };
   
   return Math.floor(baseIncome * (economicMultiplier[shop.townEconomicStatus] || 1.0));
+};
+
+// Get town status multiplier info for UI display
+export const getTownStatusMultiplier = (townStatus) => {
+  const multipliers = {
+    struggling: { value: 1.0, label: 'Base Rate' },
+    stable: { value: 1.33, label: '+33%' },
+    growing: { value: 1.67, label: '+67%' },
+    prosperous: { value: 2.0, label: '+100%' }
+  };
+  return multipliers[townStatus] || multipliers.struggling;
 };
 
 export const canBuildShop = (town, playerGold, playerStats) => {

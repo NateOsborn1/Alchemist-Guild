@@ -32,6 +32,11 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  /* Prevent any tap highlight effects */
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  /* Smooth transitions to prevent jarring color changes */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .adventurer-scroll::before {
