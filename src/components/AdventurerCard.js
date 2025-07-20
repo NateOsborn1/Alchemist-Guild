@@ -66,8 +66,8 @@ const AdventurerCard = ({
       </div>
       
       <div className="scroll-content">
-        <div className="qualifications-section">
-          <div className="section-title">⚔ Qualifications ⚔</div>
+                  <div className="qualifications-section">
+            <div className="section-title">QUALIFICATIONS</div>
           <div className="qualification-item">
             <span className="qual-label">Success Rate:</span>
             <span className="success-rate">{adventurer.successRate}%</span>
@@ -81,8 +81,8 @@ const AdventurerCard = ({
           </div>
         </div>
         
-        <div className="special-abilities">
-          <div className="section-title">✦ Special Abilities ✦</div>
+                  <div className="special-abilities">
+            <div className="section-title">SPECIAL ABILITIES</div>
           <div className="ability-box">
             <div className="ability-text">
               {adventurer.zoneBonus ? 
