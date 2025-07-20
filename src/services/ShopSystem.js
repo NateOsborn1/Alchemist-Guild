@@ -1,5 +1,34 @@
 // src/services/ShopSystem.js
 
+// Building slot limits based on town status
+export const getBuildingSlotLimits = (townStatus) => {
+  const limits = {
+    struggling: { shops: 1, churches: 0 },
+    stable: { shops: 1, churches: 1 },
+    growing: { shops: 2, churches: 1 },
+    prosperous: { shops: 2, churches: 2 }
+  };
+  return limits[townStatus] || limits.struggling;
+};
+
+// Count existing buildings in a town
+export const countTownBuildings = (town) => {
+  const buildings = {
+    shops: 0,
+    churches: 0
+  };
+  
+  if (town.playerShop) {
+    buildings.shops++;
+  }
+  
+  if (town.playerChurch) {
+    buildings.churches++;
+  }
+  
+  return buildings;
+};
+
 export const shopTypes = {
   basic: {
     name: "Basic Storefront",
@@ -31,6 +60,14 @@ export const shopTypes = {
     },
     description: "A prestigious establishment serving elite customers"
   }
+};
+
+export const churchType = {
+  name: "Church",
+  cost: 800,
+  buildTime: 600, // 10 minutes
+  reputationRate: 0.1, // reputation per minute
+  description: "A place of worship that generates passive reputation"
 };
 
 export const calculateShopIncome = (shop, townRelationship, townSpecialization) => {
@@ -74,11 +111,14 @@ export const canBuildShop = (town, playerGold, playerStats) => {
     };
   }
   
-  // Check if already has a shop
-  if (town.playerShop) {
+  // Check building slot limits
+  const slotLimits = getBuildingSlotLimits(town.economicStatus);
+  const currentBuildings = countTownBuildings(town);
+  
+  if (currentBuildings.shops >= slotLimits.shops) {
     return { 
       canBuild: false, 
-      reason: "Already have a shop in this town" 
+      reason: `Town status (${town.economicStatus}) allows only ${slotLimits.shops} shop(s). Upgrade town to build more.` 
     };
   }
   
@@ -88,6 +128,52 @@ export const canBuildShop = (town, playerGold, playerStats) => {
     return { 
       canBuild: false, 
       reason: `Need at least ${basicCost} gold for basic shop` 
+    };
+  }
+  
+  return { canBuild: true };
+};
+
+export const canBuildChurch = (town, playerGold) => {
+  // Must have neutral or better relationship
+  if (!town.tradeEstablished) {
+    return { 
+      canBuild: false, 
+      reason: "Must establish trade relationship first" 
+    };
+  }
+  
+  if (town.relationshipValue < -20) {
+    return { 
+      canBuild: false, 
+      reason: "Relationship too hostile to build church" 
+    };
+  }
+  
+  // Check building slot limits
+  const slotLimits = getBuildingSlotLimits(town.economicStatus);
+  const currentBuildings = countTownBuildings(town);
+  
+  if (currentBuildings.churches >= slotLimits.churches) {
+    return { 
+      canBuild: false, 
+      reason: `Town status (${town.economicStatus}) allows only ${slotLimits.churches} church(es). Upgrade town to build more.` 
+    };
+  }
+  
+  // Check if already has a church
+  if (town.playerChurch) {
+    return { 
+      canBuild: false, 
+      reason: "Already have a church in this town" 
+    };
+  }
+  
+  // Check minimum requirements
+  if (playerGold < churchType.cost) {
+    return { 
+      canBuild: false, 
+      reason: `Need at least ${churchType.cost} gold for church` 
     };
   }
   
@@ -156,6 +242,39 @@ export const completeShopConstruction = (shop, town) => {
     lastIncomeCollection: Date.now(),
     townEconomicStatus: town.economicStatus
   };
+};
+
+export const startChurchConstruction = (townId) => {
+  return {
+    townId,
+    type: 'church',
+    status: 'building',
+    startTime: Date.now(),
+    completionTime: Date.now() + (churchType.buildTime * 1000),
+    totalInvestment: churchType.cost,
+    progress: 0
+  };
+};
+
+export const completeChurchConstruction = (church, town) => {
+  return {
+    ...church,
+    status: 'operational',
+    lastReputationCollection: Date.now(),
+    townEconomicStatus: town.economicStatus
+  };
+};
+
+export const calculateChurchReputation = (church) => {
+  if (church.status !== 'operational') return 0;
+  
+  const timeSinceLastCollection = Date.now() - church.lastReputationCollection;
+  const minutesElapsed = timeSinceLastCollection / (1000 * 60);
+  
+  // Cap at 24 hours worth of reputation to prevent exploitation
+  const cappedMinutes = Math.min(minutesElapsed, 24 * 60);
+  
+  return Math.floor(cappedMinutes * churchType.reputationRate);
 };
 
 export const calculatePendingIncome = (shop) => {

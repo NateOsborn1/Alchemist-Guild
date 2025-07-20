@@ -1,10 +1,10 @@
 // src/components/TownInteraction.js
 import React, { useState } from 'react';
 import { calculateTradeSuccess, getDominantSpecialization, getRelationshipColor, getRelationshipEffects, canUpgradeTownStatus, upgradeTownStatus } from '../services/TownSystem';
-import { canBuildShop, getShopBuildOptions, calculateShopIncome, calculatePendingIncome } from '../services/ShopSystem';
+import { canBuildShop, getShopBuildOptions, calculateShopIncome, calculatePendingIncome, canBuildChurch, getBuildingSlotLimits, countTownBuildings, churchType } from '../services/ShopSystem';
 import './TownInteraction.css';
 
-const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onCollectIncome, onUpgradeTownStatus }) => {
+const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUpdateTown, onBuildShop, onBuildChurch, onCollectIncome, onUpgradeTownStatus }) => {
   const [selectedTown, setSelectedTown] = useState(null);
   const [showShopBuilder, setShowShopBuilder] = useState(null);
 
@@ -35,6 +35,10 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
     const playerSpec = getDominantSpecialization(playerStats);
     onBuildShop(town.id, shopType, playerSpec);
     setShowShopBuilder(null);
+  };
+
+  const handleBuildChurch = (town) => {
+    onBuildChurch(town.id);
   };
 
   const handleCollectIncome = (town) => {
@@ -84,6 +88,7 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
           const tradeSuccess = calculateTradeSuccess(town, playerStats);
           const effects = getRelationshipEffects(relationshipStatus);
           const buildCheck = canBuildShop(town, inventory.gold, playerStats);
+          const churchCheck = canBuildChurch(town, inventory.gold);
           const upgradeCheck = canUpgradeTownStatus(town, inventory.gold);
           
           // Shop income calculation
@@ -124,6 +129,19 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                   <span className={`economic-status ${town.economicStatus}`}>
                     {town.economicStatus}
                   </span>
+                </div>
+                
+                {/* Building Slots Information */}
+                <div className="building-slots-info">
+                  <div className="slots-title">Building Slots:</div>
+                  <div className="slots-display">
+                    <span className="slot-type">
+                      Shops: {countTownBuildings(town).shops}/{getBuildingSlotLimits(town.economicStatus).shops}
+                    </span>
+                    <span className="slot-type">
+                      Churches: {countTownBuildings(town).churches}/{getBuildingSlotLimits(town.economicStatus).churches}
+                    </span>
+                  </div>
                 </div>
 
                 {town.tradeEstablished && (
@@ -191,7 +209,7 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                         }}
                       />
                     </div>
-                    {buildCheck.canBuild && !town.playerShop && (
+                    {buildCheck.canBuild && (
                       <button 
                         className="build-shop-btn"
                         onClick={(e) => {
@@ -200,6 +218,17 @@ const TownInteraction = ({ towns, playerStats, inventory, onEstablishTrade, onUp
                         }}
                       >
                         Build Shop
+                      </button>
+                    )}
+                    {churchCheck.canBuild && (
+                      <button 
+                        className="build-church-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBuildChurch(town);
+                        }}
+                      >
+                        Build Church ({churchType.cost}g)
                       </button>
                     )}
                   </div>

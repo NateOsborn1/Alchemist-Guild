@@ -12,7 +12,7 @@ import { generateAdventurer } from './services/AdventurerGenerator';
 import { initialResources, initialGameState, checkPopulationEvent, calculateReputationRequirement, processMissionOutcome, getCurrentEventInfo, logGoldTransaction, sellGear } from './services/GameState';
 import { generateInitialZones, updateZoneDanger, calculateMissionSuccess, processMissionOutcome as processZoneOutcome, revealZone } from './services/ZoneSystem';
 import { generateInitialTowns } from './services/TownSystem';
-import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes } from './services/ShopSystem';
+import { startShopConstruction, completeShopConstruction, calculateShopIncome, shopTypes, churchType } from './services/ShopSystem';
 import { calculateUpgradeEffects, purchaseUpgrade, getUpgradeCategories } from './services/UpgradeSystem';
 import './App.css';
 import { generateAdventurerCustomer } from './services/AdventurerCustomerGenerator';
@@ -49,6 +49,7 @@ function App() {
   // Town system
   const [towns, setTowns] = useState([]);
   const [buildingShops, setBuildingShops] = useState([]); // Shops under construction
+  const [buildingChurches, setBuildingChurches] = useState([]); // Churches under construction
   
   // Player stats for town interactions
   const [playerStats, setPlayerStats] = useState({
@@ -853,6 +854,38 @@ function App() {
     }
   };
 
+  const handleBuildChurch = (townId) => {
+    // Deduct gold
+    setInventory(prev => ({ ...prev, gold: prev.gold - churchType.cost }));
+    
+    // Add to building churches
+    const newChurch = {
+      townId,
+      type: 'church',
+      status: 'building',
+      startTime: Date.now(),
+      completionTime: Date.now() + (churchType.buildTime * 1000),
+      totalInvestment: churchType.cost,
+      progress: 0
+    };
+    
+    setBuildingChurches(prev => [...prev, newChurch]);
+    
+    // Update town
+    setTowns(prev => prev.map(town => {
+      if (town.id === townId) {
+        return {
+          ...town,
+          playerChurch: newChurch,
+          lastUpdate: `Started construction of Church in ${town.name}.`
+        };
+      }
+      return town;
+    }));
+    
+    console.log(`Started building church in town ${townId}`);
+  };
+
   const handleCollectIncome = (townId, amount) => {
     setInventory(prev => ({ ...prev, gold: prev.gold + amount }));
     setGameState(prev => {
@@ -1441,6 +1474,7 @@ function App() {
               onEstablishTrade={handleEstablishTrade}
               onUpdateTown={(town) => setTowns(prev => prev.map(t => t.id === town.id ? town : t))}
               onBuildShop={handleBuildShop}
+              onBuildChurch={handleBuildChurch}
               onCollectIncome={handleCollectIncome}
               onUpgradeTownStatus={handleUpgradeTownStatus}
             />

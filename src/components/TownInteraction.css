@@ -155,6 +155,35 @@
   color: #ffd700;
 }
 
+/* Building Slots Information */
+.building-slots-info {
+  background: rgba(74, 44, 26, 0.4);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 3px solid #8b5a2b;
+}
+
+.slots-title {
+  font-size: 11px;
+  color: #8b5a2b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.slots-display {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.slot-type {
+  font-size: 11px;
+  color: #cd853f;
+  font-weight: bold;
+}
+
 .relationship-effects {
   background: rgba(74, 44, 26, 0.4);
   padding: 8px;
@@ -361,6 +390,25 @@
 
 .build-shop-btn:hover {
   background: #45b7aa;
+}
+
+.build-church-btn {
+  background: #8b5a2b;
+  color: #f4e4bc;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.build-church-btn:hover {
+  background: #6d4422;
+  transform: translateY(-1px);
 }
 
 .shop-builder-modal {
