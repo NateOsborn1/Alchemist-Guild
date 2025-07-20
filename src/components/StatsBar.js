@@ -127,7 +127,7 @@ export default function StatsBar({
             }}
             title="Save/Load"
           >
-            💾
+            <img src="/save-icon.svg" alt="Save" style={{ width: 20, height: 20, filter: 'brightness(0) saturate(100%) invert(67%) sepia(15%) saturate(638%) hue-rotate(358deg) brightness(91%) contrast(87%)' }} />
           </button>
           {expanded ? <FaChevronUp color="#ffd700" /> : <FaChevronDown color="#ffd700" />}
         </div>
