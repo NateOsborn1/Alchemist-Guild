@@ -76,7 +76,7 @@ const AdventurerCard = ({
             <span className="qual-label">Deployment Cost:</span>
             <div className="cost-display">
               <span className="cost-number">{adventurer.reputationCost}</span>
-              <span className="star">⭐</span>
+              <span className="star">*</span>
             </div>
           </div>
         </div>

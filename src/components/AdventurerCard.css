@@ -110,7 +110,7 @@
 }
 
 .scroll-header::before {
-  content: '⚜';
+  content: '';
   position: absolute;
   top: 8px;
   left: 50%;
@@ -277,7 +277,7 @@
 }
 
 .ability-box::before {
-  content: '◊';
+  content: '';
   position: absolute;
   top: -8px;
   left: 12px;
