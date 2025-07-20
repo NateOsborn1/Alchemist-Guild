@@ -1688,14 +1688,16 @@ function App() {
             <button
               className={`nav-button${currentView === 'shop' ? ' active' : ''}`}
               onClick={() => setCurrentView('shop')}
+              aria-label="Shop"
             >
-              Shop
+              <img src="/heroes-icon.svg" alt="" className="nav-icon" />
             </button>
             <button
               className={`nav-button${currentView === 'zones' ? ' active' : ''}`}
               onClick={() => setCurrentView('zones')}
+              aria-label="Zones"
             >
-              Zones
+              <img src="/zones2-icon.svg" alt="" className="nav-icon" />
             </button>
             <button
               className={`nav-button inventory-nav${inventoryOpen ? ' active' : ''}`}
@@ -1707,20 +1709,16 @@ function App() {
             <button
               className={`nav-button${currentView === 'town' ? ' active' : ''}`}
               onClick={() => setCurrentView('town')}
+              aria-label="Town"
             >
-              Town
+              <img src="/home-icon.svg" alt="" className="nav-icon" />
             </button>
             <button
               className={`nav-button${currentView === 'upgrades' ? ' active' : ''}`}
               onClick={() => setCurrentView('upgrades')}
+              aria-label="Upgrades"
             >
-              Upgrades
-            </button>
-            <button
-              className={`nav-button${currentView === 'stats' ? ' active' : ''}`}
-              onClick={() => setCurrentView('stats')}
-            >
-              Stats
+              <img src="/upgrade-icon.svg" alt="" className="nav-icon" />
             </button>
           </div>
           
