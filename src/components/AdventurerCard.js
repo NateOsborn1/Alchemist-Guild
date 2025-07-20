@@ -1,5 +1,5 @@
 // src/components/AdventurerCard.js
-import React, { useState } from 'react';
+import React from 'react';
 import { useDrag } from 'react-dnd';
 import './AdventurerCard.css';
 
@@ -7,21 +7,11 @@ const AdventurerCard = ({
   adventurer,
   assignToZone,
   gameState,
-  showStats = false,
-  compact = false,
   draggable = true,
   fromZoneId = null,
   onAssignAdventurer,
   canAfford,
-  isMobile: isMobileProp = false,
-  onRequestAssignZone,
 }) => {
-  //const [isDragging, setIsDragging] = useState(false);
-  const [showClassInfo, setShowClassInfo] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [isMobile, setIsMobile] = useState(isMobileProp || window.innerWidth <= 768);
-  const cardRef = React.useRef(null);
-
   const [{ opacity }, dragRef] = useDrag({
     type: 'ADVENTURER',
     item: { adventurer, fromZoneId },
@@ -31,104 +21,12 @@ const AdventurerCard = ({
     canDrag: draggable,
   });
 
-  const combinedRef = (node) => {
-    cardRef.current = node;
-    if (draggable && node) dragRef(node);
-  };
-
-  React.useEffect(() => {
-    if (!isMobileProp) {
-      const handleResize = () => setIsMobile(window.innerWidth <= 768);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [isMobileProp]);
-
-  React.useEffect(() => {
-    if (!cardRef.current) return;
-    
-    if (isFlipped) {
-        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        // Wait until flip-back animation is done before scrolling
-      const timer = setTimeout(() => {
-        const rect = cardRef.current.getBoundingClientRect();
-        const scrollY = window.scrollY;
-        const cardTop = rect.top + scrollY;
-
-        const offset = cardTop - (window.innerHeight / 2);
-
-        window.scrollTo({ top: offset, behavior: 'smooth' });
-      }, 100);
-
-      return () => clearTimeout(timer); //cleanup
-    }
-  }, [isFlipped]);
-  //removed isFlipped && in line 47
-  
-
-  const getRankColor = (rank) => {
-    const colors = {
-      S: '#ff6b6b',
-      A: '#f59e0b',
-      B: '#10b981',
-      C: '#6b7280',
-      D: '#475569',
-      F: '#374151'
-    };
-    return colors[rank] || '#6b7280';
-  };
-
-  const getClassBonusDescription = () => {
-    const descriptions = {
-      'Rogue': 'Skilled at stealth missions and finding hidden treasures',
-      'Ranger': 'Excel at wilderness exploration and tracking',
-      'Miner': 'Master of underground expeditions and ore extraction',
-      'Mage': 'Harness magical energies for powerful effects',
-      'Warrior': 'Unmatched in combat and physical challenges'
-    };
-    return descriptions[adventurer.class] || 'Specialized adventurer';
-  };
-
-  const handleCardClick = (e) => {
-    // Prevent flip when clicking buttons or in desktop mode
-    if (e.target.classList.contains('assign-button') || 
-        e.target.classList.contains('flip-back-button') ||
-        !isMobile) {
-      return;
-    }
-    
-    // On mobile, toggle flip
-    if (isMobile) {
-      setIsFlipped(!isFlipped);
-    }
-  };
-
   const handleAssign = (e) => {
     e.stopPropagation();
-    if (isMobile && onRequestAssignZone) {
-      onRequestAssignZone(adventurer);
-    } else if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
+    if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
       assignToZone(adventurer);
     } else if (onAssignAdventurer) {
       onAssignAdventurer(adventurer);
-    }
-  };
-
-  const handleFlipBack = (e) => {
-    e.stopPropagation();
-    setIsFlipped(false);
-    
-    // Scroll back to center the card when flipping back
-    if (cardRef.current) {
-      // Use a longer delay to ensure the flip animation completes
-      setTimeout(() => {
-        cardRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'center'
-        });
-      }, 300); // Increased delay to match the flip animation duration
     }
   };
 
@@ -136,121 +34,69 @@ const AdventurerCard = ({
 
   return (
     <div
-      ref={combinedRef}
-      className={`adventurer-card ${isFlipped ? 'flipped' : ''}`}
+      ref={dragRef}
+      className={`adventurer-scroll ${canAffordFinal ? 'available' : ''}`}
       style={{
-        opacity, //: isDragging ? 0.3 : 1,
+        opacity,
         cursor: draggable ? 'grab' : 'pointer',
-        zIndex: isFlipped ? 10: 1,
-        position: 'relative',
       }}
-      onClick={handleCardClick}
     >
-
-      <div className="card-container">
-        {/* Card Front */}
-        <div className="card-face card-front">
-          {/* Header: Class/Rank on left, Name on right */}
-          <div className="card-header">
-            <div className="class-rank-column">
-              <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
-                {adventurer.class}
-              </span>
-              <div className="rank-badge">{adventurer.rank}-Rank</div>
-            </div>
-            <h3 className="adventurer-name">{adventurer.name}</h3>
-          </div>
-
-          {/* Success Rate */}
-          <div className="success-rate">
-            <span className="rate-label">Success Rate:</span>
-            <span className="rate-value" style={{ color: getRankColor(adventurer.rank) }}>
-              {adventurer.successRate}%
-            </span>
-          </div>
-
-          {/* Cost */}
-          <div className="cost-section">
-            <span className="cost-label">Cost:</span>
-            <span className="cost-value">
-              {adventurer.reputationCost} <span className="reputation-icon">⭐</span>
-            </span>
-          </div>
-
-          {/* Desktop only - show specialty */}
-          {!isMobile && (
-            <div className="specialty-section">
-              <span className="specialty-label">Specialty:</span>
-              <span className="specialty-text">
-                {adventurer.zoneBonus ? adventurer.zoneBonus.description : adventurer.classPerks[0]}
-              </span>
-            </div>
-          )}
-
-          {/* Mobile tap indicator */}
-          {isMobile && (
-            <div className="tap-indicator">Tap for details</div>
-          )}
+      <div className="scroll-header">
+        <div className="guild-seal">
+          <div className="guild-text">Adventurers Guild</div>
+          <div className="posting-title">~ Hero Recruitment Posting ~</div>
         </div>
-
-        {/* Card Back - Mobile Only */}
-        {isMobile && (
-          <div className="card-face card-back">
-            <div className="card-back-content">
-              <div className="back-header">
-                <span className="back-title">{adventurer.name}</span>
-                <button className="flip-back-button" onClick={handleFlipBack}>
-                  Back
-                </button>
-              </div>
-
-              {/* Class Perks */}
-              <div className="specialty-section">
-                <span className="specialty-label">Class Perks:</span>
-                <div className="specialty-text">
-                  <div className="perk-item">{getClassBonusDescription()}</div>
-                  {adventurer.classPerks.map((perk, index) => (
-                    <div key={index} className="perk-item">• {perk}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Zone Bonus if applicable */}
-              {adventurer.zoneBonus && (
-                <div className="specialty-section">
-                  <span className="specialty-label">Zone Bonus:</span>
-                  <span className="specialty-text">
-                    {adventurer.zoneBonus.description} 
-                    (+{Math.round((adventurer.zoneBonus.effect || 0) * 100)}%)
-                  </span>
-                </div>
-              )}
-
-              {/* Assign Button */}
-              <button
-                className="assign-button"
-                onClick={handleAssign}
-                disabled={!canAffordFinal}
-              >
-                {canAffordFinal ? 'Assign to Zone' : 'Insufficient Reputation'}
-              </button>
-            </div>
-          </div>
-        )}
+        <h2 className="hero-name">{adventurer.name}</h2>
+        <div className="class-rank-line">
+          <span className={`class-badge ${adventurer.class.toLowerCase()}`}>
+            {adventurer.class}
+          </span>
+          <span className="rank-badge">{adventurer.rank}-Rank</span>
+        </div>
       </div>
-
-      {/* Class info popup - Keep for desktop hover */}
-      {showClassInfo && !isMobile && (
-        <div className="class-info-popup">
-          <div className="popup-content">
-            <h4>{adventurer.class} Class</h4>
-            <p className="bonus-description">{getClassBonusDescription()}</p>
-            <p className="bonus-effect">
-              Effect: +{Math.round((adventurer.zoneBonus?.effect || 0) * 100)}%
-            </p>
+      
+      <div className="scroll-content">
+        <div className="qualifications-section">
+          <div className="section-title">⚔ Qualifications ⚔</div>
+          <div className="qualification-item">
+            <span className="qual-label">Success Rate:</span>
+            <span className="success-rate">{adventurer.successRate}%</span>
+          </div>
+          <div className="qualification-item">
+            <span className="qual-label">Deployment Cost:</span>
+            <div className="cost-display">
+              <span className="cost-number">{adventurer.reputationCost}</span>
+              <span className="star">⭐</span>
+            </div>
           </div>
         </div>
-      )}
+        
+        <div className="special-abilities">
+          <div className="section-title">✦ Special Abilities ✦</div>
+          <div className="ability-box">
+            <div className="ability-text">
+              {adventurer.zoneBonus ? 
+                adventurer.zoneBonus.description : 
+                adventurer.classPerks[0] || `${adventurer.class}'s expertise provides unique advantages`
+              }
+            </div>
+          </div>
+        </div>
+        
+        <div className="recruitment-status">
+          <button 
+            className={`status-button ${canAffordFinal ? 'available' : ''}`}
+            onClick={handleAssign}
+            disabled={!canAffordFinal}
+          >
+            {canAffordFinal ? 'Deploy Hero' : 'Insufficient Reputation'}
+          </button>
+        </div>
+      </div>
+      
+      <div className="wax-seal">
+        {canAffordFinal ? '✓' : '✗'}
+      </div>
     </div>
   );
 };

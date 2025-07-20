@@ -1,427 +1,396 @@
 /* src/components/AdventurerCard.css */
-.adventurer-card {
-  width: 100%;
-  max-width: 320px;
-  min-height: 180px;
-  margin: 16px auto; /* Increased from 8 */
-  padding-bottom: 8px; /* Extra space for flips if needed */
-  cursor: pointer;
+.adventurer-scroll {
+  width: 340px;
+  height: 520px;
+  background: 
+    radial-gradient(ellipse at top, rgba(139,105,20,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse at bottom, rgba(139,105,20,0.1) 0%, transparent 70%),
+    linear-gradient(180deg, #f4e8c1 0%, #f0e2b8 15%, #ede0b5 85%, #e8d8a8 100%);
+  position: relative;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.6),
+    inset 0 0 60px rgba(139,105,20,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  margin: 16px;
+  cursor: grab;
   user-select: none;
-  position: relative;
-  perspective: 1000px;
-  z-index: 1;
-}
-
-/* Card flip container */
-.card-container {
-  width: 100%;
-  min-height: 100%;
-  position: relative;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.adventurer-card.flipped .card-container {
-  transform: rotateY(180deg);
-  z-index: 10; /* Bring active card to the top */
-}
-
-/* Card faces */
-.card-face {
-  position: relative; /*absolute;*/
-  width: 100%;
-  /*height: 100%;*/
-  backface-visibility: hidden;
-  background: linear-gradient(135deg, #2c1810, #4a2c1a);
-  border: 2px solid #8b5a2b;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   font-family: 'Georgia', serif;
-  color: #f4e4bc;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
 }
 
-.card-back {
-  transform: rotateY(180deg);
-}
-
-/* Card Front Styles */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.class-rank-column {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.adventurer-name {
-  margin: 0;
-  font-size: 18px;
-  color: #f4e4bc;
-  font-weight: bold;
-  text-align: right;
-  flex: 1;
-  line-height: 1.2;
-  padding-right: 8px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-/* Class badges */
-.class-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.class-badge.rogue {
-  background: #8b2635;
-  color: #f4e4bc;
-}
-
-.class-badge.ranger {
-  background: #2d5016;
-  color: #f4e4bc;
-}
-
-.class-badge.miner {
-  background: #5d4e37;
-  color: #f4e4bc;
-}
-
-.class-badge.mage {
-  background: #4a148c;
-  color: #f4e4bc;
-}
-
-.class-badge.warrior {
-  background: #8b4513;
-  color: #f4e4bc;
-}
-
-/* Rank Badge */
-.rank-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
-  background: #b08d57;
-  color: #f4e4bc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Success Rate - Big number */
-.success-rate {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: rgba(44, 24, 16, 0.6);
-  border-radius: 8px;
-  border: 1px solid #8b5a2b;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.rate-label {
-  font-size: 14px;
-  color: #cd853f;
-  font-weight: bold;
-}
-
-.rate-value {
-  font-size: 28px;
-  font-weight: bold;
-}
-
-/* Cost Section */
-.cost-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: rgba(212, 175, 55, 0.2);
-  border: 1px solid #d4af37;
-  border-radius: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.cost-label {
-  font-size: 14px;
-  color: #cd853f;
-  font-weight: bold;
-}
-
-.cost-value {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ffd700;
-}
-
-.reputation-icon {
-  font-size: 16px;
-}
-
-/* Tap indicator */
-.tap-indicator {
-  text-align: center;
-  font-size: 11px;
-  color: #cd853f;
-  margin-top: auto;
-  padding-top: 8px;
-  font-style: italic;
-}
-
-/* Card Back Styles */
-.card-back-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  gap: 12px;
-  width: 100%;
-}
-
-.back-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.back-title {
-  font-size: 16px;
-  color: #d4af37;
-  font-weight: bold;
-}
-
-.flip-back-button {
-  background: none;
-  border: 1px solid #cd853f;
-  color: #cd853f;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-/* Specialty/Perks Section */
-.specialty-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
-  background: rgba(74, 44, 26, 0.4);
-  border-radius: 8px;
-  border: 1px solid #8b5a2b;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.specialty-label {
-  font-size: 13px;
-  color: #cd853f;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.specialty-text {
-  font-size: 14px;
-  color: #4ecdc4;
-  line-height: 1.4;
-}
-
-.perk-item {
-  font-size: 13px;
-  color: #f4e4bc;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(139, 90, 43, 0.3);
-}
-
-.perk-item:last-child {
-  border-bottom: none;
-}
-
-/* Assign Button - Mobile Only */
-.assign-button {
-  background: #8b5a2b;
-  color: #f4e4bc;
-  border: 1px solid #d4af37;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: auto;
-  box-sizing: border-box;
-}
-
-.assign-button:hover {
-  background: #d4af37;
-  color: #2c1810;
-}
-
-.assign-button:active {
-  transform: translateY(1px);
-}
-
-.assign-button:disabled {
-  background: #4a2c1a;
-  color: #8b5a2b;
-  border-color: #8b5a2b;
-  cursor: not-allowed;
-}
-
-/* Desktop - No flip needed, hide mobile elements */
-@media (min-width: 769px) {
-  .adventurer-card {
-    min-height: 160px;
-  }
-  
-  .card-container {
-    transition: none;
-    transform: none !important;
-  }
-  
-  .card-face {
-    position: relative;
-  }
-  
-  .card-back {
-    display: none;
-  }
-  
-  .tap-indicator {
-    display: none;
-  }
-  
-  .assign-button {
-    display: none;
-  }
-  
-  /* Show specialty on desktop */
-  .card-front .specialty-section {
-    display: flex;
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  .adventurer-card {
-    width: 100%;
-    max-width: 100%;
-    min-height: 200px;
-    margin: 8px 0;
-    /*padding: 0 8px;*/
-    box-sizing: border-box;
-  }
-  
-  .card-face {
-    padding: 12px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .adventurer-name {
-    font-size: 16px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-  
-  .class-badge, .rank-badge {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-  
-  .rate-value {
-    font-size: 24px;
-  }
-  
-  .cost-value {
-    font-size: 16px;
-  }
-  
-  /* Hide specialty on front of mobile cards */
-  .card-front .specialty-section {
-    display: none;
-  }
-  
-  /* Ensure all sections fit properly */
-  .success-rate, .cost-section {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-/* Drag and drop states */
-.adventurer-card:active {
+.adventurer-scroll:active {
   cursor: grabbing;
 }
 
-.adventurer-card[style*="opacity: 0.3"] {
-  transform: scale(0.95);
-}
-
-/* Class info popup */
-.class-info-popup {
+.adventurer-scroll::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 28px,
+      rgba(139,105,20,0.08) 28px,
+      rgba(139,105,20,0.08) 30px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(139,105,20,0.03) 1px,
+      rgba(139,105,20,0.03) 2px
+    );
+  pointer-events: none;
+}
+
+.adventurer-scroll::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(45deg, #8b6914, #d4af37, #8b6914, #d4af37);
+  border-radius: 12px 12px 4px 4px;
+  z-index: -1;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+}
+
+.adventurer-scroll:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 16px 48px rgba(0,0,0,0.8),
+    inset 0 0 80px rgba(139,105,20,0.15);
+}
+
+.adventurer-scroll:hover::after {
+  animation: none;
+}
+
+.adventurer-scroll.available::after {
+  background: linear-gradient(45deg, #f4e8c1, #f4e8c1, #f4e8c1, #f4e8c1);
+  animation: none;/*shimmer 2s ease-in-out infinite;*/
+}
+
+.adventurer-scroll.available:hover::after {
+  animation: none;
+}
+
+.scroll-header {
+  padding: 20px 24px 16px;
+  border-bottom: 2px solid rgba(139,105,20,0.3);
+  background: linear-gradient(180deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+  position: relative;
+}
+
+.scroll-header::before {
+  content: '⚜';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  color: #8b6914;
+}
+
+.guild-seal {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.guild-text {
+  font-size: 11px;
+  color: #8b6914;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.posting-title {
+  font-size: 16px;
+  color: #6d5010;
+  text-align: center;
+  font-style: italic;
+  margin: 8px 0;
+}
+
+.hero-name {
+  font-size: 26px;
+  font-weight: bold;
+  color: #5a4008;
+  text-align: center;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(139,105,20,0.3);
+  font-family: 'Georgia', serif;
+}
+
+.class-rank-line {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.class-badge, .rank-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(139,105,20,0.4);
+}
+
+.class-badge {
+  background: linear-gradient(135deg, #8b4a9c, #6a2c7a);
+  color: #f4e8c1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.class-badge.rogue {
+  background: linear-gradient(135deg, #8b2635, #6a1b2a);
+}
+
+.class-badge.ranger {
+  background: linear-gradient(135deg, #2d5016, #1f3a0f);
+}
+
+.class-badge.miner {
+  background: linear-gradient(135deg, #5d4e37, #3d2e1f);
+}
+
+.class-badge.mage {
+  background: linear-gradient(135deg, #4a148c, #2d0a5a);
+}
+
+.class-badge.warrior {
+  background: linear-gradient(135deg, #8b4513, #6a2c0a);
+}
+
+.rank-badge {
+  background: linear-gradient(135deg, #d4af37, #b8941f);
+  color: #2d1810;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.scroll-content {
+  padding: 20px 24px;
+  height: calc(100% - 180px);
+  display: flex;
+  flex-direction: column;
+}
+
+.qualifications-section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 14px;
+  color: #5a4008 !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+  padding-bottom: 4px;
+  font-family: 'Georgia', serif;
+}
+
+.qualification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dotted rgba(139,105,20,0.2);
+  font-size: 14px;
+}
+
+.qualification-item:last-child {
+  border-bottom: none;
+}
+
+.qual-label {
+  color: #6d5010;
+  font-weight: 500;
+}
+
+.success-rate {
+  color: #5a4008 !important;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.cost-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cost-number {
+  color: #8b6914;
+  font-weight: bold;
+}
+
+.star {
+  color: #d4af37;
+  font-size: 14px;
+  text-shadow: 0 0 4px rgba(212,175,55,0.6);
+}
+
+.special-abilities {
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.ability-box {
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  padding: 12px;
+  position: relative;
+}
+
+.ability-box::before {
+  content: '◊';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: #f4e8c1;
+  color: #8b6914;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+.ability-text {
+  color: #6d5010;
+  font-size: 13px;
+  line-height: 1.4;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.recruitment-status {
+  margin-top: auto;
+  padding: 14px 0;
+  text-align: center;
+  border-top: 2px solid rgba(139,105,20,0.3);
+  background: linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.05) 100%);
+}
+
+.status-button {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #8b6914;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 14px;
+  font-family: 'Georgia', serif;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+  background: rgba(139,105,20,0.1);
+  color: #8b6914;
+}
+
+.status-button.available {
+  background: linear-gradient(135deg, #d4af37, #b8941f);
+  color: #2d1810;
+  cursor: pointer;
+  box-shadow: 
+    0 4px 16px rgba(212,175,55,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.status-button.available:hover {
+  background: linear-gradient(135deg, #e6c247, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(212,175,55,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.wax-seal {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, #8b1538, #6b1028);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
-  border-radius: 12px;
-}
-
-.popup-content {
-  background: linear-gradient(135deg, #2c1810, #4a2c1a);
-  border: 2px solid #d4af37;
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  max-width: 280px;
-  color: #f4e4bc;
-}
-
-.popup-content h4 {
-  color: #d4af37;
-  margin: 0 0 8px 0;
+  color: #f4e8c1;
   font-size: 18px;
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.4),
+    inset 0 2px 4px rgba(255,255,255,0.2);
 }
 
-.bonus-description {
-  color: #cd853f;
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  line-height: 1.4;
+.adventurer-scroll.available .wax-seal {
+  background: radial-gradient(circle, #2d5016, #1f3a0f);
 }
 
-.bonus-effect {
-  color: #4ecdc4;
-  margin: 0;
-  font-weight: bold;
-  font-size: 14px;
+/* Aged paper texture */
+.adventurer-scroll {
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(139,105,20,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139,105,20,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(139,105,20,0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #f4e8c1 0%, #f0e2b8 15%, #ede0b5 85%, #e8d8a8 100%);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .adventurer-scroll {
+    width: 100%;
+    max-width: 320px;
+    height: 480px;
+    margin: 8px;
+  }
+  
+  .hero-name {
+    font-size: 22px;
+  }
+  
+  .class-badge, .rank-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+  
+  .scroll-content {
+    padding: 16px 20px;
+  }
+  
+  .section-title {
+    font-size: 13px;
+  }
+  
+  .qualification-item {
+    font-size: 13px;
+  }
+  
+  .success-rate {
+    font-size: 15px;
+  }
+  
+  .ability-text {
+    font-size: 12px;
+  }
+  
+  .status-button {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
 }
