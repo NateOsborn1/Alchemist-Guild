@@ -110,7 +110,7 @@
 }
 
 .scroll-header::before {
-  content: '';
+  content: ''; /* Removed symbols from content, placeholder until icons */
   position: absolute;
   top: 8px;
   left: 50%;
