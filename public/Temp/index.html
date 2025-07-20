@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guild Hero Scrolls</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #2d1810, #1a0f08);
+            font-family: 'Georgia', serif;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .scroll {
+            width: 340px;
+            height: 520px;
+            background: 
+                radial-gradient(ellipse at top, rgba(139,105,20,0.1) 0%, transparent 70%),
+                radial-gradient(ellipse at bottom, rgba(139,105,20,0.1) 0%, transparent 70%),
+                linear-gradient(180deg, #f4e8c1 0%, #f0e2b8 15%, #ede0b5 85%, #e8d8a8 100%);
+            position: relative;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.6),
+                inset 0 0 60px rgba(139,105,20,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .scroll::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent 0px,
+                    transparent 28px,
+                    rgba(139,105,20,0.08) 28px,
+                    rgba(139,105,20,0.08) 30px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    transparent 1px,
+                    rgba(139,105,20,0.03) 1px,
+                    rgba(139,105,20,0.03) 2px
+                );
+            pointer-events: none;
+        }
+
+        .scroll::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #8b6914, #d4af37, #8b6914, #d4af37);
+            border-radius: 12px 12px 4px 4px;
+            z-index: -1;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.8; }
+        }
+
+        .scroll:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 16px 48px rgba(0,0,0,0.8),
+                inset 0 0 80px rgba(139,105,20,0.15);
+        }
+
+        .scroll-header {
+            padding: 20px 24px 16px;
+            border-bottom: 2px solid rgba(139,105,20,0.3);
+            background: linear-gradient(180deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+            position: relative;
+        }
+
+        .scroll-header::before {
+            content: '⚜';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #8b6914;
+        }
+
+        .guild-seal {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .guild-text {
+            font-size: 11px;
+            color: #8b6914;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .posting-title {
+            font-size: 16px;
+            color: #6d5010;
+            text-align: center;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
+        .hero-name {
+            font-size: 26px;
+            font-weight: bold;
+            color: #5a4008;
+            text-align: center;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(139,105,20,0.3);
+            font-family: 'Georgia', serif;
+        }
+
+        .class-rank-line {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .class-badge, .rank-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(139,105,20,0.4);
+        }
+
+        .class-badge {
+            background: linear-gradient(135deg, #8b4a9c, #6a2c7a);
+            color: #f4e8c1;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #2d1810;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .scroll-content {
+            padding: 20px 24px;
+            height: calc(100% - 180px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .qualifications-section {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #6d5010;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(139,105,20,0.3);
+            padding-bottom: 4px;
+            font-family: 'Georgia', serif;
+        }
+
+        .qualification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted rgba(139,105,20,0.2);
+            font-size: 14px;
+        }
+
+        .qualification-item:last-child {
+            border-bottom: none;
+        }
+
+        .qual-label {
+            color: #6d5010;
+            font-weight: 500;
+        }
+
+        .success-rate {
+            color: #8b6914;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .cost-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .cost-number {
+            color: #8b6914;
+            font-weight: bold;
+        }
+
+        .star {
+            color: #d4af37;
+            font-size: 14px;
+            text-shadow: 0 0 4px rgba(212,175,55,0.6);
+        }
+
+        .special-abilities {
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .ability-box {
+            background: rgba(139,105,20,0.08);
+            border: 1px solid rgba(139,105,20,0.2);
+            border-radius: 6px;
+            padding: 12px;
+            position: relative;
+        }
+
+        .ability-box::before {
+            content: '◊';
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: #f4e8c1;
+            color: #8b6914;
+            padding: 0 6px;
+            font-size: 12px;
+        }
+
+        .ability-text {
+            color: #6d5010;
+            font-size: 13px;
+            line-height: 1.4;
+            font-style: italic;
+            margin-top: 6px;
+        }
+
+        .recruitment-status {
+            margin-top: auto;
+            padding: 14px 0;
+            text-align: center;
+            border-top: 2px solid rgba(139,105,20,0.3);
+            background: linear-gradient(180deg, transparent 0%, rgba(212,175,55,0.05) 100%);
+        }
+
+        .status-button {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #8b6914;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 14px;
+            font-family: 'Georgia', serif;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+            background: rgba(139,105,20,0.1);
+            color: #8b6914;
+        }
+
+        .status-button.available {
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            color: #2d1810;
+            cursor: pointer;
+            box-shadow: 
+                0 4px 16px rgba(212,175,55,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .status-button.available:hover {
+            background: linear-gradient(135deg, #e6c247, #d4af37);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(212,175,55,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .available .scroll::after {
+            background: linear-gradient(45deg, #d4af37, #f4e8c1, #d4af37, #f4e8c1);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        .title {
+            text-align: center;
+            color: #d4af37;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-family: 'Georgia', serif;
+        }
+
+        .wax-seal {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #8b1538, #6b1028);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f4e8c1;
+            font-size: 18px;
+            box-shadow: 
+                0 4px 8px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.2);
+        }
+
+        .available .wax-seal {
+            background: radial-gradient(circle, #2d5016, #1f3a0f);
+        }
+
+        /* Aged paper texture */
+        .scroll {
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(139,105,20,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139,105,20,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139,105,20,0.05) 0%, transparent 50%),
+                linear-gradient(180deg, #f4e8c1 0%, #f0e2b8 15%, #ede0b5 85%, #e8d8a8 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="title">⚜ Guild Recruitment Scrolls ⚜</div>
+    
+    <!-- Insufficient Reputation Scroll -->
+    <div class="scroll">
+        <div class="scroll-header">
+            <div class="guild-seal">
+                <div class="guild-text">Adventurers Guild</div>
+                <div class="posting-title">~ Hero Recruitment Posting ~</div>
+            </div>
+            <h2 class="hero-name">Pax Shield</h2>
+            <div class="class-rank-line">
+                <span class="class-badge">Mage</span>
+                <span class="rank-badge">B-Rank</span>
+            </div>
+        </div>
+        
+        <div class="scroll-content">
+            <div class="qualifications-section">
+                <div class="section-title">⚔ Qualifications ⚔</div>
+                <div class="qualification-item">
+                    <span class="qual-label">Success Rate:</span>
+                    <span class="success-rate">65%</span>
+                </div>
+                <div class="qualification-item">
+                    <span class="qual-label">Deployment Cost:</span>
+                    <div class="cost-display">
+                        <span class="cost-number">5</span>
+                        <span class="star">⭐</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="special-abilities">
+                <div class="section-title">✦ Special Abilities ✦</div>
+                <div class="ability-box">
+                    <div class="ability-text">
+                        "Mage's spells deal additional damage to zone for all adventurers (+40%)"
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recruitment-status">
+                <button class="status-button">Insufficient Reputation</button>
+            </div>
+        </div>
+        
+        <div class="wax-seal">✗</div>
+    </div>
+    
+    <!-- Available Scroll -->
+    <div class="scroll available">
+        <div class="scroll-header">
+            <div class="guild-seal">
+                <div class="guild-text">Adventurers Guild</div>
+                <div class="posting-title">~ Hero Recruitment Posting ~</div>
+            </div>
+            <h2 class="hero-name">Pax Shield</h2>
+            <div class="class-rank-line">
+                <span class="class-badge">Mage</span>
+                <span class="rank-badge">B-Rank</span>
+            </div>
+        </div>
+        
+        <div class="scroll-content">
+            <div class="qualifications-section">
+                <div class="section-title">⚔ Qualifications ⚔</div>
+                <div class="qualification-item">
+                    <span class="qual-label">Success Rate:</span>
+                    <span class="success-rate">65%</span>
+                </div>
+                <div class="qualification-item">
+                    <span class="qual-label">Deployment Cost:</span>
+                    <div class="cost-display">
+                        <span class="cost-number">5</span>
+                        <span class="star">⭐</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="special-abilities">
+                <div class="section-title">✦ Special Abilities ✦</div>
+                <div class="ability-box">
+                    <div class="ability-text">
+                        "Mage's spells deal additional damage to zone for all adventurers (+40%)"
+                    </div>
+                    </div>
+            </div>
+            
+            <div class="recruitment-status">
+                <button class="status-button available">Recruit Hero</button>
+            </div>
+        </div>
+        
+        <div class="wax-seal">✓</div>
+    </div>
+</body>
+</html>
