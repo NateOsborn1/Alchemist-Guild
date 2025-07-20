@@ -11,6 +11,7 @@ const AdventurerCard = ({
   fromZoneId = null,
   onAssignAdventurer,
   canAfford,
+  onRequestAssignZone,
 }) => {
   const [{ opacity }, dragRef] = useDrag({
     type: 'ADVENTURER',
@@ -23,7 +24,16 @@ const AdventurerCard = ({
 
   const handleAssign = (e) => {
     e.stopPropagation();
-    if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
+    
+    // Check if we can afford the adventurer
+    if (!canAffordFinal) {
+      return;
+    }
+    
+    // For mobile, trigger zone selection modal
+    if (onRequestAssignZone) {
+      onRequestAssignZone(adventurer);
+    } else if (assignToZone && gameState && gameState.reputation >= adventurer.reputationCost) {
       assignToZone(adventurer);
     } else if (onAssignAdventurer) {
       onAssignAdventurer(adventurer);
